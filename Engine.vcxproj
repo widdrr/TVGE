@@ -134,6 +134,7 @@ xcopy /y /d "$(SolutionDir)..\Libraries\bin\glew32d.pdb" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)..\Libraries\bin\freeglutd.dll" "$(TargetDir)"
@@ -165,9 +166,6 @@ xcopy /y /d "$(SolutionDir)..\Libraries\bin\glew32d.pdb" "$(TargetDir)"
       <AdditionalLibraryDirectories>D:\Data\Repos\Graphics\Libraries\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
