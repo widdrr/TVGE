@@ -9,7 +9,7 @@ private:
 
 public:
 	Vertex();
-	Vertex(float p_posX, float p_posY, float p_posZ);
+	Vertex(float p_posX, float p_posY, float p_posZ, float p_colR, float p_colG, float p_colB);
 	const glm::vec3& Position();
 	const glm::vec3& Color();
 };

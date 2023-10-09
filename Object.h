@@ -1,7 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include <glm/vec3.hpp>
-#include <glm/ext/quaternion_float.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <vector>
 #include <memory>
 
@@ -14,15 +14,25 @@ private:
 	static unsigned short _current_id;
 	unsigned short _id;
 
+	//coordinates of center in 3D Space
 	glm::vec3 _position;
+	//scale along each axis
+	glm::vec3 _scaling;
+	//rotation quaternion
 	glm::quat _rotation;
 	
 public:
 	const Mesh& mesh;
 	unsigned int vao, vbo, ebo;
 	Object(const Mesh& p_mesh);
+	void Scale(float p_scaleX, float p_scaleY, float p_scaleZ);
+	void SetScaling(float p_scaleX, float p_scaleY, float p_scaleZ);
+	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
+	void SetRotation(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
+	void Translate(float p_dispX, float p_dispY, float p_dispZ);
+	void SetPosition(float p_posX, float p_posY, float p_posZ);
 	//TODO: cache the transformation and only recalculate changed parts
-	//according to flags that are set;
-	glm::mat4 GetModelTransformation();
+	//according to set flags;
+	glm::mat4 GetModelTransformation() const;
 };
 
