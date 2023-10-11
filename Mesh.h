@@ -13,7 +13,7 @@ public:
 	//TODO: have a mechanism so the getters return readonly vectors
 	//currently, the actual vertices can be modified
 	const std::vector<Vertex>& GetVertices() const;
-	const std::vector<unsigned int>& GetDrawOrder() const;
+	const std::vector<unsigned int>& GetElements() const;
 	unsigned int GetElementCount() const;
 };
 

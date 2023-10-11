@@ -1,7 +1,7 @@
 #include "Renderer.h"
 #include <thread>
 #include <chrono>
-void rotateObj(Object& obj, float theta, bool& flag)
+void rotateObj(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 		
@@ -53,21 +53,26 @@ int main() {
 		0, 2, 7 };
 
 	Mesh cubeMesh(vertices, order);
-	Object cube(cubeMesh);
-	Object cube2(cubeMesh);
-	cube.Translate(0.5f, 0.f, -2.5f);
-	cube2.Scale(0.5f, 0.5f, 0.5f);
-	cube2.Translate(-0.5f, 0.5f, -2.f);
+	Entity cube;
+	GraphicsComponent comp(cube);
+	comp.mesh = std::make_shared<Mesh>(cubeMesh);
+	cube.AddComponent(comp);
+	cube.Translate(0.f, 0.f, -3.f);
+
+	auto test = cube.GetComponentOfType<GraphicsComponent>();
+
 	auto renderer = Renderer::GetInstance();
+	comp.shaderProgram = renderer->ShaderFactory("shader.frag", "vertex.frag");
 	renderer->SetPerspective(90, 0.1f, 10.f);
 	renderer->AddObject(cube);
-	renderer->AddObject(cube2);
-	bool flag = true;
+
+	cube.Rotate(0.f, 1.f, 0.f, 15);
+
+	bool flag = false;
 	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
-	std::thread objThread2(rotateObj, std::ref(cube2), 1.5f, std::ref(flag));
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	renderer->Run();
 	flag = false;
 	objThread.join();
-	objThread2.join();
 
 }

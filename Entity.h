@@ -1,38 +1,46 @@
 #pragma once
-#include "Mesh.h"
+#include "Component.h"
+#include "GraphicsComponent.h"
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 //TODO: for now this is actually the GraphicsObject, in the future
 //I should have GraphicsObject, PhysicsObject and Object
+// Object -> position, rotation, scale
+// PhysicsComponent -> TBD
+// GraphicsComponent -> Mesh, vao, vbo, ebo, shader
+
 //in order to decouple the Physics from the Rendering as much as I can
-class Object
+class Entity
 {
 private:
 	static unsigned short _current_id;
 	unsigned short _id;
 
-	//coordinates of center in 3D Space
-	glm::vec3 _position;
-	//scale along each axis
-	glm::vec3 _scaling;
-	//rotation quaternion
-	glm::quat _rotation;
-	
+	//TODO: that one memory/ownership issue, you know what I mean
+	std::vector<std::shared_ptr<Component>> _components;
+
 public:
-	const Mesh& mesh;
-	unsigned int vao, vbo, ebo;
-	Object(const Mesh& p_mesh);
+	//coordinates of center in 3D Space
+	glm::vec3 position;
+	//scaling along each axis
+	glm::vec3 scaling;
+	//rotation quaternion
+	glm::quat rotation;
+
+	Entity();
+	
+	template <IsComponentType TComponent>
+	void AddComponent(TComponent& p_component);
+	
+	template <IsComponentType TComponent> 
+	const std::shared_ptr<TComponent> GetComponentOfType() const;
+
 	void Scale(float p_scaleX, float p_scaleY, float p_scaleZ);
-	void SetScaling(float p_scaleX, float p_scaleY, float p_scaleZ);
 	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
-	void SetRotation(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
 	void Translate(float p_dispX, float p_dispY, float p_dispZ);
-	void SetPosition(float p_posX, float p_posY, float p_posZ);
-	//TODO: cache the transformation and only recalculate changed parts
-	//according to set flags;
-	glm::mat4 GetModelTransformation() const;
 };
 

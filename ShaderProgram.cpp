@@ -1,8 +1,10 @@
 #include "ShaderProgram.h"
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <iostream>
 
 ShaderProgram::ShaderProgram(std::string p_vertexShaderPath, std::string p_fragmentShaderPath){
+	
 	_id = glCreateProgram();
 
 	if (_id == 0) {
@@ -41,9 +43,25 @@ ShaderProgram::ShaderProgram(std::string p_vertexShaderPath, std::string p_fragm
 
 }
 
-const GLuint ShaderProgram::Id() const {
+void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value) {
 	
-	return _id;
+	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
+	if (location == -1) {
+		std::cerr << "Variable " << p_variableName <<" not defined in Vertex Shader\n";
+	}
+
+	glProgramUniformMatrix4fv(_id, location, 1, GL_FALSE, glm::value_ptr(p_value));
+}
+
+void ShaderProgram::SetVariable(std::string p_variableName, float p_value) {
+
+	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
+	if (location == -1) {
+		std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
+		return;
+	}
+
+	glProgramUniform1f(_id, location, p_value);
 }
 
 void ShaderProgram::AddShader(std::string p_shaderText, GLenum p_shaderType){

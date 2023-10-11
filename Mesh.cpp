@@ -10,7 +10,7 @@ const std::vector<Vertex>& Mesh::GetVertices() const {
 	return _vertices;
 }
 
-const std::vector<unsigned int>& Mesh::GetDrawOrder() const {
+const std::vector<unsigned int>& Mesh::GetElements() const {
 	
 	return _indices;
 }

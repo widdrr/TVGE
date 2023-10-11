@@ -16,65 +16,95 @@ std::shared_ptr<Renderer> Renderer::GetInstance(){
 	return _instance;
 }
 
-void Renderer::AddObject(Object& p_object) {
+std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(std::string p_vertexShaderPath, std::string p_fragmentShaderPath) {
 
-	//TODO: error handling
-	glGenVertexArrays(1, &p_object.vao);
+	ShaderProgram program(p_vertexShaderPath, p_fragmentShaderPath);
+	_shaders.push_back(std::make_shared<ShaderProgram>(program));
+	return _shaders.back();
+}
+
+void Renderer::AddObject(Entity& p_object) {
+
+	//obtaining the GraphicsComponent of the Entity
+	auto graphicsComponent = p_object.GetComponentOfType<GraphicsComponent>();
+	if (graphicsComponent == nullptr) {
+		std::cerr << "Object does not have a Graphics Component";
+		return;
+	}
+
+	if (graphicsComponent->mesh == nullptr) {
+		std::cerr << "Object does not have a Mesh";
+		return;
+	}
+
+	//generating VAO to store buffer data
+	glGenVertexArrays(1, &graphicsComponent->_vao);
 	
-	glGenBuffers(1, &p_object.vbo);
-	glGenBuffers(1, &p_object.ebo);
+	//generating the VBO and EBO
+	glGenBuffers(1, &graphicsComponent->_vbo);
+	glGenBuffers(1, &graphicsComponent->_ebo);
 
-	glBindVertexArray(p_object.vao);
+	//activating VAO
+	glBindVertexArray(graphicsComponent->_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, p_object.vbo);
-	auto& vertices = p_object.mesh.GetVertices();
+	//copying data to VBO
+	glBindBuffer(GL_ARRAY_BUFFER, graphicsComponent->_vbo);
+	auto& vertices = graphicsComponent->mesh->GetVertices();
 	//TODO, replace c-style cast
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), (void*)vertices.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p_object.ebo);
-	auto& elements = p_object.mesh.GetDrawOrder();
+	//copying data to EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphicsComponent->_ebo);
+	auto& elements = graphicsComponent->mesh->GetElements();
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), (void*)elements.data(), GL_STATIC_DRAW);
 
-	//Position
+	//setting Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
 	glEnableVertexAttribArray(0);
-	//Color
+	//setting Color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	//deactivating VAO
 	glBindVertexArray(0);
 
-	_objects.push_back(&p_object);
-}
-
-void Renderer::SetShaderProgram(const ShaderProgram& p_program) {
-
-	_activeShaderProgram = std::make_shared<const ShaderProgram>(p_program);
-	glUseProgram(_activeShaderProgram->Id());
+	_entities.push_back(graphicsComponent);
 }
 
 void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) {
 	
 	float aspectRatio = static_cast<float>(_windowWidth) / static_cast<float>(_windowHeight);
-
 	_projectionMatrix = glm::perspective(p_fov / 2.f, aspectRatio, p_nearPlane, p_farPlane);
 
-	glUniformMatrix4fv(_glProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(_projectionMatrix));
+	for (auto& shader : _shaders) {
+		shader->SetVariable("glProjectionMatrix", _projectionMatrix);
+	}
 }
 
 void Renderer::RenderFunction(){
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (const auto& object : _objects) {
-
-		glBindVertexArray(object->vao);
+	for (const auto& object : _entities) {
+		glBindVertexArray(object->_vao);
 		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
 		//to permit customizing this
-		glUniformMatrix4fv(_glModelMatrixLocation, 1, GL_FALSE, glm::value_ptr(object->GetModelTransformation()));
+
+		//If there is a shader associated we use it
+		if (object->shaderProgram != nullptr) {
+			object->shaderProgram->SetVariable("glModelMatrix", object->GetModelTransformation());
+			glUseProgram(object->shaderProgram->_id);
+		}
+		//else fallback to the default shader
+		else {
+			_shaders[0]->SetVariable("glModelMatrix", object->GetModelTransformation());
+			glUseProgram(_shaders[0]->_id);
+		}
+		
 		glPointSize(10.f);
-		glDrawElements(GL_TRIANGLES, object->mesh.GetElementCount(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, object->mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+		glUseProgram(0);
 	}
 
 	glutPostRedisplay();
@@ -83,9 +113,8 @@ void Renderer::RenderFunction(){
 
 void Renderer::CleanupFunction(){
 	
-	for (const auto& object : _objects) {
-
-		glBindVertexArray(object->vao);
+	for (const auto& entity : _entities) {
+		glBindVertexArray(entity->_vao);
 		//TODO: make an enum for vertex attributes
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
@@ -93,14 +122,17 @@ void Renderer::CleanupFunction(){
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		glDeleteBuffers(1, &object->vbo);
-		glDeleteBuffers(1, &object->ebo);
+		glDeleteBuffers(1, &entity->_vbo);
+		glDeleteBuffers(1, &entity->_ebo);
 
 		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &object->vao);
+		glDeleteVertexArrays(1, &entity->_vao);
 	}
+
 	glUseProgram(0);
-	glDeleteProgram(_activeShaderProgram->Id());
+	for (const auto& shader : _shaders) {
+		glDeleteProgram(shader->_id);
+	}
 }
 
 void Renderer::RenderCallback() {
@@ -125,7 +157,7 @@ Renderer::Renderer() :
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(_windowWidth, _windowHeight);
-	glutCreateWindow("Engine Project V0.1a");
+	glutCreateWindow("TavaGL V0.2a");
 
 	GLenum res = glewInit();
 	if (res != GLEW_OK) {
@@ -138,20 +170,9 @@ Renderer::Renderer() :
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 
-	//TODO: figure out this mess and initialize openGL shaders nicely
-	ShaderProgram shaderProgram("shader.vert", "shader.frag");
-	SetShaderProgram(shaderProgram);
-
-	_glModelMatrixLocation = glGetUniformLocation(_activeShaderProgram->Id(), "glModelMatrix");
-	if (_glModelMatrixLocation == -1) {
-		fprintf(stderr, "ModelMatrix not defined in Vertex Shader\n");
-	}
-
-	_glProjectionMatrixLocation = glGetUniformLocation(_activeShaderProgram->Id(), "glProjectionMatrix");
-	if (_glProjectionMatrixLocation == -1) {
-		fprintf(stderr, "ProjectionMatrix not defined in Vertex Shader\n");
-	}
-	glUniformMatrix4fv(_glProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(_projectionMatrix));
+	//TODO: further improve shader management
+	ShaderFactory("shader.vert", "shader.frag");
+	_shaders.front()->SetVariable("glProjectionMatrix", _projectionMatrix);
 
 	glutDisplayFunc(RenderCallback);
 	glutCloseFunc(CleanupCallback);
