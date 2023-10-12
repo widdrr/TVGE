@@ -5,7 +5,7 @@ void rotateObj(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 		
-		obj.Rotate(1.f, 1.f, 0.f, theta);
+		obj.Rotate(0.5f, 0.2f, 0.7f, theta);
 		std::this_thread::sleep_for(std::chrono::milliseconds(4));
 	}
 }
@@ -54,20 +54,22 @@ int main() {
 
 	Mesh cubeMesh(vertices, order);
 	Entity cube;
+	Entity cube2;
 	GraphicsComponent comp(cube);
+	GraphicsComponent comp2(cube2);
 	comp.mesh = std::make_shared<Mesh>(cubeMesh);
+	comp2.mesh = std::make_shared<Mesh>(cubeMesh);
 	cube.AddComponent(comp);
-	cube.Translate(0.f, 0.f, -3.f);
+	cube2.AddComponent(comp2);
 
-	auto test = cube.GetComponentOfType<GraphicsComponent>();
+	cube.Translate(-0.5f, -0.5f, -3.f);
+	cube2.Translate(0.f, 0.f, -5.f);
 
 	auto renderer = Renderer::GetInstance();
 	comp.shaderProgram = renderer->ShaderFactory("shader.frag", "vertex.frag");
 	renderer->SetPerspective(90, 0.1f, 10.f);
 	renderer->AddObject(cube);
-
-	cube.Rotate(0.f, 1.f, 0.f, 15);
-
+	renderer->AddObject(cube2);
 	bool flag = true;
 	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
 	renderer->Run();

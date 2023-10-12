@@ -82,7 +82,7 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 
 void Renderer::RenderFunction(){
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (const auto& object : _entities) {
 		glBindVertexArray(object->_vao);
@@ -165,9 +165,12 @@ Renderer::Renderer() :
 	}
 
 	glClearColor(0.f, 0.f, 0.f, 0.f);
+	
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
+
+	glEnable(GL_DEPTH_TEST);
 
 	ShaderFactory("shader.vert", "shader.frag");
 	_shaders.front()->SetVariable("glProjectionMatrix", _projectionMatrix);
