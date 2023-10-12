@@ -50,13 +50,12 @@ void Renderer::AddObject(Entity& p_object) {
 	//copying data to VBO
 	glBindBuffer(GL_ARRAY_BUFFER, graphicsComponent->_vbo);
 	auto& vertices = graphicsComponent->mesh->GetVertices();
-	//TODO, replace c-style cast
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), (void*)vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), reinterpret_cast<void*>(const_cast<Vertex*>(vertices.data())), GL_STATIC_DRAW);
 
 	//copying data to EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphicsComponent->_ebo);
 	auto& elements = graphicsComponent->mesh->GetElements();
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), (void*)elements.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), reinterpret_cast<void*>(const_cast<unsigned int*>(elements.data())), GL_STATIC_DRAW);
 
 	//setting Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
@@ -170,7 +169,6 @@ Renderer::Renderer() :
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 
-	//TODO: further improve shader management
 	ShaderFactory("shader.vert", "shader.frag");
 	_shaders.front()->SetVariable("glProjectionMatrix", _projectionMatrix);
 

@@ -5,6 +5,7 @@
 class ShaderProgram
 {
 private:
+	static constexpr unsigned int _dumpSize = 1024;
 	//Shaders should be instantiated by the Renderer
 	friend class Renderer;
 

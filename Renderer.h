@@ -13,12 +13,11 @@ private:
 	static constexpr unsigned int _windowHeight = 600;
 	static constexpr unsigned int _windowWidth = 800;
 	//TODO: figure out a nice way to modify objects 
+	//later read: WHAT?
 	static std::shared_ptr<Renderer> _instance;
 	
-	//TODO: enable the use of different shader programs for different objects
 	std::vector<std::shared_ptr<ShaderProgram>> _shaders;
-	
-	//TODO: figure a way to used shared pointers
+
 	std::vector<std::shared_ptr<GraphicsComponent>> _entities;
 	glm::mat4 _projectionMatrix;
 	

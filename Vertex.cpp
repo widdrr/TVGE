@@ -10,12 +10,12 @@ Vertex::Vertex(float p_posX = 0.f, float p_posY = 0.f, float p_posZ = 0.f, float
 	_color(p_colR, p_colG, p_colB)
 {}
 
-const glm::vec3& Vertex::Position() {
+const glm::vec3& Vertex::Position() const {
 	
 	return _position;
 }
 
-const glm::vec3& Vertex::Color() {
+const glm::vec3& Vertex::Color() const {
 	
 	return _color;
 }

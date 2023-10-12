@@ -21,8 +21,8 @@ ShaderProgram::ShaderProgram(std::string p_vertexShaderPath, std::string p_fragm
 	glGetProgramiv(_id, GL_LINK_STATUS, &linkSuccess);
 
 	if (!linkSuccess) {
-		GLchar dump[1024];
-		glGetProgramInfoLog(_id, 1024, NULL, dump);
+		GLchar dump[_dumpSize];
+		glGetProgramInfoLog(_id, _dumpSize, NULL, dump);
 		std::cerr << "Error while linking shader program: " << dump << "\n";
 		exit(1);
 	}
@@ -33,8 +33,8 @@ ShaderProgram::ShaderProgram(std::string p_vertexShaderPath, std::string p_fragm
 	glGetProgramiv(_id, GL_VALIDATE_STATUS, &validateSuccess);
 
 	if (!validateSuccess) {
-		GLchar dump[1024];
-		glGetProgramInfoLog(_id, 1024, NULL, dump);
+		GLchar dump[_dumpSize];
+		glGetProgramInfoLog(_id, _dumpSize, NULL, dump);
 		std::cerr << "Error while validating shader program: " << dump << "\n";
 		exit(1);
 	}
@@ -84,9 +84,8 @@ void ShaderProgram::AddShader(std::string p_shaderText, GLenum p_shaderType){
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compileSuccess);
 
 	if (!compileSuccess) {
-		//TODO: extract this to some dumpSize constexpr
-		GLchar dump[1024];
-		glGetShaderInfoLog(shader, 1024, NULL, dump);
+		GLchar dump[_dumpSize];
+		glGetShaderInfoLog(shader, _dumpSize, NULL, dump);
 		std::cerr << "Error while compiling shader: " << dump << "\n";
 		exit(1);
 	}

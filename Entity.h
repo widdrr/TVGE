@@ -7,20 +7,13 @@
 #include <memory>
 #include <type_traits>
 
-//TODO: for now this is actually the GraphicsObject, in the future
-//I should have GraphicsObject, PhysicsObject and Object
-// Object -> position, rotation, scale
-// PhysicsComponent -> TBD
-// GraphicsComponent -> Mesh, vao, vbo, ebo, shader
-
-//in order to decouple the Physics from the Rendering as much as I can
 class Entity
 {
 private:
 	static unsigned short _current_id;
 	unsigned short _id;
 
-	//TODO: that one memory/ownership issue, you know what I mean
+	//TODO: low priority, set ownership for this object
 	std::vector<std::shared_ptr<Component>> _components;
 
 public:

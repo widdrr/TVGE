@@ -68,9 +68,8 @@ int main() {
 
 	cube.Rotate(0.f, 1.f, 0.f, 15);
 
-	bool flag = false;
+	bool flag = true;
 	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	renderer->Run();
 	flag = false;
 	objThread.join();
