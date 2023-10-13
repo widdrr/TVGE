@@ -42,6 +42,9 @@
     <ClCompile Include="GraphicsComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -65,6 +68,9 @@
     <ClInclude Include="GraphicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vert">
@@ -73,5 +79,22 @@
     <None Include="shader.frag">
       <Filter>Shader Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Dumi.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="dice.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="face.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="awesomeface.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

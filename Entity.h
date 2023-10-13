@@ -14,6 +14,7 @@ private:
 	unsigned short _id;
 
 	//TODO: low priority, set ownership for this object
+	//TODO: critical, troubleshoot the object slicing
 	std::vector<std::shared_ptr<Component>> _components;
 
 public:

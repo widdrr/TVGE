@@ -7,6 +7,10 @@
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
+const std::string Renderer::UniformVariables::projectionMatrix = "glProjectionMatrix";
+const std::string Renderer::UniformVariables::modelMatrix = "glModelMatrix";
+const std::string Renderer::UniformVariables::hasTexture = "glHasTexture";
+
 std::shared_ptr<Renderer> Renderer::GetInstance(){
 	
 	if (_instance == nullptr){
@@ -16,11 +20,22 @@ std::shared_ptr<Renderer> Renderer::GetInstance(){
 	return _instance;
 }
 
-std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(std::string p_vertexShaderPath, std::string p_fragmentShaderPath) {
+std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) {
 
 	ShaderProgram program(p_vertexShaderPath, p_fragmentShaderPath);
 	_shaders.push_back(std::make_shared<ShaderProgram>(program));
 	return _shaders.back();
+}
+
+std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePath) {
+	
+	Texture texture(p_texturePath);
+	if (texture._textureData == nullptr) {
+		return nullptr;
+	}
+
+	_textures.push_back(std::make_shared<Texture>(texture));
+	return _textures.back();
 }
 
 void Renderer::AddObject(Entity& p_object) {
@@ -57,12 +72,16 @@ void Renderer::AddObject(Entity& p_object) {
 	auto& elements = graphicsComponent->mesh->GetElements();
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), reinterpret_cast<void*>(const_cast<unsigned int*>(elements.data())), GL_STATIC_DRAW);
 
+	//TODO: refactor this to not send worthless data if object has no texture
 	//setting Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
-	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(ShaderAttributes::Position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
+	glEnableVertexAttribArray(ShaderAttributes::Position);
 	//setting Color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(ShaderAttributes::Color, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(ShaderAttributes::Color);
+	//setting Texture attribute
+	glVertexAttribPointer(ShaderAttributes::TextureCoordinates, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(7 * sizeof(float)));
+	glEnableVertexAttribArray(ShaderAttributes::TextureCoordinates);
 
 	//deactivating VAO
 	glBindVertexArray(0);
@@ -76,7 +95,7 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 	_projectionMatrix = glm::perspective(p_fov / 2.f, aspectRatio, p_nearPlane, p_farPlane);
 
 	for (auto& shader : _shaders) {
-		shader->SetVariable("glProjectionMatrix", _projectionMatrix);
+		shader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 	}
 }
 
@@ -86,22 +105,24 @@ void Renderer::RenderFunction(){
 
 	for (const auto& object : _entities) {
 		glBindVertexArray(object->_vao);
-		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
-		//to permit customizing this
 
 		//If there is a shader associated we use it
-		if (object->shaderProgram != nullptr) {
-			object->shaderProgram->SetVariable("glModelMatrix", object->GetModelTransformation());
-			glUseProgram(object->shaderProgram->_id);
-		}
 		//else fallback to the default shader
-		else {
-			_shaders[0]->SetVariable("glModelMatrix", object->GetModelTransformation());
-			glUseProgram(_shaders[0]->_id);
+		auto shader = object->shaderProgram != nullptr ? object->shaderProgram : _shaders[0];
+
+		shader->SetVariable(UniformVariables::modelMatrix, object->GetModelTransformation());
+		glUseProgram(shader->_id);
+
+		shader->SetVariable(UniformVariables::hasTexture, false);
+		if (object->texture != nullptr) {
+			shader->SetVariable(UniformVariables::hasTexture, true);
+			glBindTexture(GL_TEXTURE_2D, object->texture->_id);
 		}
 		
-		glPointSize(10.f);
-		glDrawElements(GL_TRIANGLES, object->mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
+		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
+		//to permit customizing this
+		//Update: partially done via storing DrawMode
+		glDrawElements(object->mesh->GetDrawMode(), object->mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}
@@ -115,8 +136,8 @@ void Renderer::CleanupFunction(){
 	for (const auto& entity : _entities) {
 		glBindVertexArray(entity->_vao);
 		//TODO: make an enum for vertex attributes
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(ShaderAttributes::Position);
+		glDisableVertexAttribArray(ShaderAttributes::Color);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -126,6 +147,12 @@ void Renderer::CleanupFunction(){
 
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &entity->_vao);
+	}
+
+	//TODO, bulk delete?
+	for (const auto& texture : _textures) {
+		
+		glDeleteTextures(1, &texture->_id);
 	}
 
 	glUseProgram(0);
@@ -146,35 +173,41 @@ void Renderer::CleanupCallback() {
 
 Renderer::Renderer() :
 	_projectionMatrix(glm::identity<glm::mat4>())
-{
-	
+{	
 	//TODO: look into command line arguments
 	int argc = 0;
 	char* argv[1] = {};
 	glutInit(&argc, argv);
 
+	//setup and create window
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(_windowWidth, _windowHeight);
-	glutCreateWindow("TavaGL V0.2a");
+	glutCreateWindow("TavaGL V0.3a");
 
+	//init opengl context
 	GLenum res = glewInit();
 	if (res != GLEW_OK) {
 		std::cerr << "Error: " << glewGetErrorString(res) << "\n";
 		exit(1);
 	}
 
+	//set screen clear color
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
+	//configuring face culling
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 
+	//configuring depth test
 	glEnable(GL_DEPTH_TEST);
 
+	//loading the default shader
 	ShaderFactory("shader.vert", "shader.frag");
-	_shaders.front()->SetVariable("glProjectionMatrix", _projectionMatrix);
+	_shaders.front()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 
+	//registering render and cleanup callbacks
 	glutDisplayFunc(RenderCallback);
 	glutCloseFunc(CleanupCallback);
 

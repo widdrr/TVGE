@@ -14,29 +14,38 @@ int main() {
 
 	//TODO: make a builder for this mess
 	std::vector<Vertex> vertices = {
+
 		{0.5f, 0.5f, 0.5f,
-		 1.f, 1.f, 1.f},
+		 1.f, 1.f, 1.f, 1.f,
+		 0.75f, 0.2f},
 		
 		{-0.5f, 0.5f, -0.5f,
-		 0.f, 1.f, 0.f},
+		 0.f, 1.f, 0.f, 1.f,
+		 0.f, 0.f},
 		
 		{-0.5f, 0.5f, 0.5f,
-		 0.f, 1.f, 1.f},
+		 0.f, 1.f, 1.f, 1.f,
+	     0.f, 1.f},
 		
 		{0.5f, -0.5f, -0.5f,
-		 1.f, 0.f, 0.f},
+		 1.f, 0.f, 0.f, 1.f,
+		 0.f, 0.f},
 		
 		{-0.5f, -0.5f, -0.5f,
-		 0.f, 0.f, 0.f},
+		 0.f, 0.f, 0.f, 1.f,
+	     1.f, 0.f},
 		
 		{0.5f, 0.5f, -0.5f,
-		 1.f, 1.f, 0.f},
+		 1.f, 1.f, 0.f, 1.f,
+	     1.f, 0.f},
 		
 		{0.5f, -0.5f, 0.5f,
-		 1.f, 0.f, 1.f},
+		 1.f, 0.f, 1.f, 1.f,
+	     0.f, 1.f},
 		
 		{-0.5f, -0.5f, 0.5f,
-		 0.f, 0.f, 1.f} };
+		 0.f, 0.f, 1.f, 1.f,
+	     1.f, 1.f} };
 	
 	std::vector<unsigned int> order = {
 		0, 1, 2,
@@ -52,24 +61,108 @@ int main() {
 		2, 1, 4,
 		0, 2, 7 };
 
-	Mesh cubeMesh(vertices, order);
-	Entity cube;
-	Entity cube2;
-	GraphicsComponent comp(cube);
-	GraphicsComponent comp2(cube2);
-	comp.mesh = std::make_shared<Mesh>(cubeMesh);
-	comp2.mesh = std::make_shared<Mesh>(cubeMesh);
-	cube.AddComponent(comp);
-	cube2.AddComponent(comp2);
+	std::vector<Vertex> diceVertices = {
+	//0
+	{-0.5f, -0.5f, 0.5f,
+	 1.f, 0.f, 0.f, 1.f,
+	 0.5f, 0.25f},
 
-	cube.Translate(-0.5f, -0.5f, -3.f);
-	cube2.Translate(0.f, 0.f, -5.f);
+		//1
+	{ 0.5f, -0.5f, 0.5f,
+	 0.f, 1.f, 0.f, 1.f,
+	 0.75f, 0.25f },
+
+		//2
+	{ 0.5f, 0.5f, 0.5f,
+	 0.f, 0.f, 1.f, 1.f,
+	 0.75f, .5f },
+
+		//3
+	{ -0.5f, 0.5f, 0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.5f, 0.5f },
+
+		//4
+	{ 0.5f, -0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 1.f, 0.25f },
+
+		//5
+	{ 0.5f, 0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 1.f, 0.5f },
+
+		//6
+	{ -0.5f, -0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.5f, 0.f },
+
+		//7
+	{ 0.5f, -0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.75f, 0.f },
+
+		//8
+	{ 0.5f, 0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.75f, 0.75f },
+
+		//9
+	{ -0.5f, 0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.5f, 0.75f },
+
+		//10
+	{ -0.5f, -0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.25f, 0.25f },
+
+		//11
+	{ -0.5f, 0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.25f, 0.5f },
+
+		//12
+	{ 0.5f, -0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.f, 0.25f },
+
+		//13
+	{ 0.5f, 0.5f, -0.5f,
+	 1.f, 1.f, 1.f, 1.f,
+	 0.25f, 0.25f }
+};
+
+
+
+	std::vector<unsigned int> diceOrder = {
+		0, 1, 2,
+		2, 3, 0,
+		1, 4, 5,
+		5, 2, 1,
+		3, 2, 8,
+		6, 7, 1,
+		1, 0, 6,
+		3, 2, 8,
+		8, 9, 3,
+		10, 0, 3,
+		3, 11, 10,
+		12, 10, 11,
+		11, 13, 12
+		};
+
+	Mesh diceMesh(diceVertices, diceOrder);
+	Entity cube;
+	GraphicsComponent comp(cube);
+	comp.mesh = std::make_shared<Mesh>(diceMesh);
+	
+	cube.Translate(0.f, 0.f, -3.f);
 
 	auto renderer = Renderer::GetInstance();
-	comp.shaderProgram = renderer->ShaderFactory("shader.frag", "vertex.frag");
+	comp.texture = renderer->TextureFactory("dice.png");
+	cube.AddComponent(comp);
 	renderer->SetPerspective(90, 0.1f, 10.f);
 	renderer->AddObject(cube);
-	renderer->AddObject(cube2);
 	bool flag = true;
 	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
 	renderer->Run();

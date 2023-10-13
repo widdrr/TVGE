@@ -11,8 +11,7 @@ private:
 
 	GLuint _id;
 
-	ShaderProgram() = default;
-	ShaderProgram(std::string p_vertexShaderPath, std::string p_fragmentShaderPath);
+	ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
 
 	void AddShader(std::string p_shaderText, GLenum p_shaderType);
 	static std::string ReadShaderFromFile(std::string p_fileName);

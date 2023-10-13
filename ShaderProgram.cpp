@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-ShaderProgram::ShaderProgram(std::string p_vertexShaderPath, std::string p_fragmentShaderPath){
+ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath){
 	
 	_id = glCreateProgram();
 
