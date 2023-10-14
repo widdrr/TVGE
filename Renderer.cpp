@@ -224,9 +224,7 @@ void Renderer::Run() {
 		RenderFunction();
 		glfwSwapBuffers(_window.get());
 	}
-}
 
-Renderer::~Renderer() {
 	CleanupFunction();
 	glfwTerminate();
 }

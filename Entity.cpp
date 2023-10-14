@@ -1,8 +1,6 @@
 #include "Entity.h"
 #include "GraphicsComponent.h"
 
-#include <iostream>
-
 unsigned short Entity::_current_id = 0;
 
 Entity::Entity():
@@ -17,7 +15,7 @@ Entity::Entity():
 template <IsComponentType TComponent>
 void Entity::AddComponent(TComponent& p_component) {
 	
-	_components.push_back(std::shared_ptr<TComponent>(&p_component));
+	_components.push_back(std::make_shared<TComponent>(p_component));
 	p_component._index = _components.size() - 1;
 }
 

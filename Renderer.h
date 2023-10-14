@@ -65,6 +65,5 @@ public:
 	void AddObject(Entity& p_object);
 	
 	void Run();
-	~Renderer();
 };
 
