@@ -9,10 +9,11 @@ out vec2 TextureCoordinates;
 
 uniform mat4 glModelMatrix;
 uniform mat4 glProjectionMatrix;
+uniform mat4 glViewMatrix;
 
 void main()
 {
-	gl_Position = glProjectionMatrix * glModelMatrix * vec4(inPosition, 1.f);
+	gl_Position = glProjectionMatrix * glViewMatrix * glModelMatrix * vec4(inPosition, 1.f);
 	Color = inColor;
 	TextureCoordinates = inTextureCoordinates;
 }

@@ -8,9 +8,9 @@
 
 class GraphicsComponent : public Component {
 
+	friend class Renderer;
 private:
 	//Renderer class should have unrestricted access to GraphicsComponents
-	friend class Renderer;
 	GLuint _vao, _vbo, _ebo;
 
 public:

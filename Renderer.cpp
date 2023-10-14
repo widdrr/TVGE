@@ -7,13 +7,15 @@
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
+
+const std::string Renderer::UniformVariables::viewMatrix = "glViewMatrix";
 const std::string Renderer::UniformVariables::projectionMatrix = "glProjectionMatrix";
 const std::string Renderer::UniformVariables::modelMatrix = "glModelMatrix";
 const std::string Renderer::UniformVariables::hasTexture = "glHasTexture";
 
-std::shared_ptr<Renderer> Renderer::GetInstance(){
-	
-	if (_instance == nullptr){
+std::shared_ptr<Renderer> Renderer::GetInstance() {
+
+	if (_instance == nullptr) {
 		_instance = std::shared_ptr<Renderer>(new Renderer());
 	}
 
@@ -22,19 +24,18 @@ std::shared_ptr<Renderer> Renderer::GetInstance(){
 
 std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) {
 
-	ShaderProgram program(p_vertexShaderPath, p_fragmentShaderPath);
-	_shaders.push_back(std::make_shared<ShaderProgram>(program));
+	_shaders.push_back(std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath)));
 	return _shaders.back();
 }
 
 std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePath) {
-	
-	Texture texture(p_texturePath);
-	if (texture._textureData == nullptr) {
+
+	_textures.push_back(std::shared_ptr<Texture>(new Texture(p_texturePath)));
+
+	if (_textures.back()->_textureData == nullptr) {
 		return nullptr;
 	}
 
-	_textures.push_back(std::make_shared<Texture>(texture));
 	return _textures.back();
 }
 
@@ -54,7 +55,7 @@ void Renderer::AddObject(Entity& p_object) {
 
 	//generating VAO to store buffer data
 	glGenVertexArrays(1, &graphicsComponent->_vao);
-	
+
 	//generating the VBO and EBO
 	glGenBuffers(1, &graphicsComponent->_vbo);
 	glGenBuffers(1, &graphicsComponent->_ebo);
@@ -90,7 +91,7 @@ void Renderer::AddObject(Entity& p_object) {
 }
 
 void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) {
-	
+
 	float aspectRatio = static_cast<float>(_windowWidth) / static_cast<float>(_windowHeight);
 	_projectionMatrix = glm::perspective(p_fov / 2.f, aspectRatio, p_nearPlane, p_farPlane);
 
@@ -99,7 +100,7 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 	}
 }
 
-void Renderer::RenderFunction(){
+void Renderer::RenderFunction() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -108,9 +109,10 @@ void Renderer::RenderFunction(){
 
 		//If there is a shader associated we use it
 		//else fallback to the default shader
-		auto shader = object->shaderProgram != nullptr ? object->shaderProgram : _shaders[0];
+		auto& shader = object->shaderProgram != nullptr ? object->shaderProgram : _shaders[0];
 
 		shader->SetVariable(UniformVariables::modelMatrix, object->GetModelTransformation());
+		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 		glUseProgram(shader->_id);
 
 		shader->SetVariable(UniformVariables::hasTexture, false);
@@ -118,7 +120,7 @@ void Renderer::RenderFunction(){
 			shader->SetVariable(UniformVariables::hasTexture, true);
 			glBindTexture(GL_TEXTURE_2D, object->texture->_id);
 		}
-		
+
 		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
 		//to permit customizing this
 		//Update: partially done via storing DrawMode
@@ -131,8 +133,8 @@ void Renderer::RenderFunction(){
 	glutSwapBuffers();
 }
 
-void Renderer::CleanupFunction(){
-	
+void Renderer::CleanupFunction() {
+
 	for (const auto& entity : _entities) {
 		glBindVertexArray(entity->_vao);
 		//TODO: make an enum for vertex attributes
@@ -151,7 +153,7 @@ void Renderer::CleanupFunction(){
 
 	//TODO, bulk delete?
 	for (const auto& texture : _textures) {
-		
+
 		glDeleteTextures(1, &texture->_id);
 	}
 
@@ -162,7 +164,7 @@ void Renderer::CleanupFunction(){
 }
 
 void Renderer::RenderCallback() {
-	
+
 	_instance->RenderFunction();
 }
 
@@ -171,9 +173,15 @@ void Renderer::CleanupCallback() {
 	_instance->CleanupFunction();
 }
 
+void Renderer::KeyboardCallback(unsigned char key, int x, int y) {
+	
+	_instance->_camera.HandleKeyboard(key, x, y);
+}
+
 Renderer::Renderer() :
-	_projectionMatrix(glm::identity<glm::mat4>())
-{	
+	_projectionMatrix(glm::identity<glm::mat4>()),
+	_camera()
+{
 	//TODO: look into command line arguments
 	int argc = 0;
 	char* argv[1] = {};
@@ -194,7 +202,7 @@ Renderer::Renderer() :
 
 	//set screen clear color
 	glClearColor(0.f, 0.f, 0.f, 0.f);
-	
+
 	//configuring face culling
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
@@ -206,10 +214,12 @@ Renderer::Renderer() :
 	//loading the default shader
 	ShaderFactory("shader.vert", "shader.frag");
 	_shaders.front()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
+	_shaders.front()->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 
 	//registering render and cleanup callbacks
 	glutDisplayFunc(RenderCallback);
 	glutCloseFunc(CleanupCallback);
+	glutKeyboardFunc(KeyboardCallback);
 
 }
 

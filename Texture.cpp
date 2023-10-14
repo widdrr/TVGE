@@ -38,6 +38,5 @@ Texture::Texture(const std::string& p_texturePath):
 
 Texture::~Texture() {
 
-
 	stbi_image_free(_textureData);
 }

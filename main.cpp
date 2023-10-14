@@ -161,8 +161,9 @@ int main() {
 	auto renderer = Renderer::GetInstance();
 	comp.texture = renderer->TextureFactory("dice.png");
 	cube.AddComponent(comp);
-	renderer->SetPerspective(90, 0.1f, 10.f);
+	renderer->SetPerspective(90, 0.1f, 100.f);
 	renderer->AddObject(cube);
+	auto test = cube.GetComponentOfType<GraphicsComponent>();
 	bool flag = true;
 	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
 	renderer->Run();

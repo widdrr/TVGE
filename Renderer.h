@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include "GraphicsComponent.h"
 #include "Entity.h"
+#include "Camera.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -21,6 +22,7 @@ private:
 	static constexpr unsigned int _windowWidth = 800;
 	
 	const struct UniformVariables {
+		static const std::string viewMatrix;
 		static const std::string projectionMatrix;
 		static const std::string modelMatrix;
 		static const std::string hasTexture;
@@ -34,9 +36,12 @@ private:
 
 	std::vector<std::shared_ptr<GraphicsComponent>> _entities;
 	glm::mat4 _projectionMatrix;
+	//TODO: multicamera?
+	Camera _camera;
 	
 	static void RenderCallback();
 	static void CleanupCallback();
+	static void KeyboardCallback(unsigned char key, int x, int y);
 
 	Renderer();
 	void RenderFunction();
