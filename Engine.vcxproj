@@ -168,17 +168,15 @@ xcopy /y /d "$(SolutionDir)..\Libraries\bin\glew32d.pdb" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32d.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(SolutionDir)..\Libraries\bin\freeglutd.dll" "$(TargetDir)"
-xcopy /y /d "$(SolutionDir)..\Libraries\bin\freeglutd.pdb" "$(TargetDir)"
+      <Command>xcopy /y /d "$(SolutionDir)..\Libraries\bin\glfw3.dll" "$(TargetDir)"
 xcopy /y /d "$(SolutionDir)..\Libraries\bin\glew32d.dll" "$(TargetDir)"
-xcopy /y /d "$(SolutionDir)..\Libraries\bin\glew32d.pdb" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copies Debug DLLs to Output</Message>
+      <Message>Copy Debug DLLs to Output</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

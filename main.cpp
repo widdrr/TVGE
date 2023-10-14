@@ -6,7 +6,7 @@ void rotateObj(Entity& obj, float theta, bool& flag)
 	while (flag) {
 		
 		obj.Rotate(0.5f, 0.2f, 0.7f, theta);
-		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+		std::this_thread::sleep_for(std::chrono::microseconds(5));
 	}
 }
 

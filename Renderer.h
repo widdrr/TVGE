@@ -5,6 +5,11 @@
 #include "GraphicsComponent.h"
 #include "Entity.h"
 #include "Camera.h"
+
+#define GLFW_DLL
+#include <gl/glew.h>
+#include <gl/glfw3.h>
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -20,6 +25,11 @@ class Renderer
 private:
 	static constexpr unsigned int _windowHeight = 600;
 	static constexpr unsigned int _windowWidth = 800;
+
+	struct GLFWwindowDeleter {
+
+		void operator()(GLFWwindow* p_ptr);
+	};
 	
 	const struct UniformVariables {
 		static const std::string viewMatrix;
@@ -30,6 +40,8 @@ private:
 	//TODO: figure out a nice way to modify objects 
 	//later read: WHAT?
 	static std::shared_ptr<Renderer> _instance;
+
+	std::unique_ptr<GLFWwindow, GLFWwindowDeleter> _window;
 	
 	std::vector<std::shared_ptr<ShaderProgram>> _shaders;
 	std::vector<std::shared_ptr<Texture>> _textures;
@@ -39,10 +51,6 @@ private:
 	//TODO: multicamera?
 	Camera _camera;
 	
-	static void RenderCallback();
-	static void CleanupCallback();
-	static void KeyboardCallback(unsigned char key, int x, int y);
-
 	Renderer();
 	void RenderFunction();
 	void CleanupFunction();
@@ -57,5 +65,6 @@ public:
 	void AddObject(Entity& p_object);
 	
 	void Run();
+	~Renderer();
 };
 

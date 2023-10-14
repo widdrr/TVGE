@@ -1,17 +1,20 @@
 #include "Renderer.h"
-#include <gl/glew.h>
-#include <gl/freeglut.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
-
 const std::string Renderer::UniformVariables::viewMatrix = "glViewMatrix";
 const std::string Renderer::UniformVariables::projectionMatrix = "glProjectionMatrix";
 const std::string Renderer::UniformVariables::modelMatrix = "glModelMatrix";
 const std::string Renderer::UniformVariables::hasTexture = "glHasTexture";
+
+void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) {
+	
+	glfwDestroyWindow(p_ptr);
+}
+
 
 std::shared_ptr<Renderer> Renderer::GetInstance() {
 
@@ -128,9 +131,6 @@ void Renderer::RenderFunction() {
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}
-
-	glutPostRedisplay();
-	glutSwapBuffers();
 }
 
 void Renderer::CleanupFunction() {
@@ -162,45 +162,43 @@ void Renderer::CleanupFunction() {
 		glDeleteProgram(shader->_id);
 	}
 }
-
-void Renderer::RenderCallback() {
-
-	_instance->RenderFunction();
-}
-
-void Renderer::CleanupCallback() {
-
-	_instance->CleanupFunction();
-}
-
-void Renderer::KeyboardCallback(unsigned char key, int x, int y) {
-	
-	_instance->_camera.HandleKeyboard(key, x, y);
-}
-
 Renderer::Renderer() :
 	_projectionMatrix(glm::identity<glm::mat4>()),
 	_camera()
 {
-	//TODO: look into command line arguments
-	int argc = 0;
-	char* argv[1] = {};
-	glutInit(&argc, argv);
+
+	//init and setup glfw
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//setup and create window
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(_windowWidth, _windowHeight);
-	glutCreateWindow("TavaGL V0.3a");
+	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.3a", nullptr, nullptr)
+	);
 
-	//init opengl context
+	if (_window == nullptr)
+	{
+		std::cerr << "Failed to create GLFW window \n";
+		glfwTerminate();
+		exit(-1);
+	}
+	glfwMakeContextCurrent(_window.get());
+
+	//init glew
 	GLenum res = glewInit();
 	if (res != GLEW_OK) {
 		std::cerr << "Error: " << glewGetErrorString(res) << "\n";
 		exit(1);
 	}
 
-	//set screen clear color
+	//we register a callback when the window is resized to always keep the viewport accurate
+	glfwSetFramebufferSizeCallback(_window.get(),
+		[](GLFWwindow* p_window, int p_width, int p_height) {
+			glViewport(0, 0, p_width, p_height);
+		}
+	);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 
 	//configuring face culling
@@ -208,7 +206,6 @@ Renderer::Renderer() :
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 
-	//configuring depth test
 	glEnable(GL_DEPTH_TEST);
 
 	//loading the default shader
@@ -216,17 +213,20 @@ Renderer::Renderer() :
 	_shaders.front()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 	_shaders.front()->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 
-	//registering render and cleanup callbacks
-	glutDisplayFunc(RenderCallback);
-	glutCloseFunc(CleanupCallback);
-	glutKeyboardFunc(KeyboardCallback);
-
 }
 
-//TODO: multithread the main loop
-//IMPOSSIBLE, GLUT is not thread safe
-//Either thread the physics engine or move to GLFW or something
+//TODO:
+//multithread
 void Renderer::Run() {
 
-	glutMainLoop();
+	while (!glfwWindowShouldClose(_window.get())) {
+		glfwPollEvents();
+		RenderFunction();
+		glfwSwapBuffers(_window.get());
+	}
+}
+
+Renderer::~Renderer() {
+	CleanupFunction();
+	glfwTerminate();
 }
