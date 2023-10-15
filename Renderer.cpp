@@ -28,6 +28,8 @@ std::shared_ptr<Renderer> Renderer::GetInstance() {
 std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) {
 
 	_shaders.push_back(std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath)));
+	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
+	_shaders.back()->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 	return _shaders.back();
 }
 
@@ -112,10 +114,10 @@ void Renderer::RenderFunction() {
 
 		//If there is a shader associated we use it
 		//else fallback to the default shader
+		//object->_entity.Rotate(0.f, 1.f, 0.f, 1);
 		auto& shader = object->shaderProgram != nullptr ? object->shaderProgram : _shaders[0];
 
 		shader->SetVariable(UniformVariables::modelMatrix, object->GetModelTransformation());
-		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 		glUseProgram(shader->_id);
 
 		shader->SetVariable(UniformVariables::hasTexture, false);
@@ -131,6 +133,8 @@ void Renderer::RenderFunction() {
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}
+
+	glfwSwapBuffers(_window.get());
 }
 
 void Renderer::CleanupFunction() {
@@ -197,9 +201,11 @@ Renderer::Renderer() :
 	glfwSetFramebufferSizeCallback(_window.get(),
 		[](GLFWwindow* p_window, int p_width, int p_height) {
 			glViewport(0, 0, p_width, p_height);
+			_instance->RenderFunction();
 		}
 	);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glfwSwapInterval(0);
 
 	//configuring face culling
 	glEnable(GL_CULL_FACE);
@@ -219,10 +225,22 @@ Renderer::Renderer() :
 //multithread
 void Renderer::Run() {
 
+	double lastTime = glfwGetTime();
+	int frameCount = 0;
+
 	while (!glfwWindowShouldClose(_window.get())) {
 		glfwPollEvents();
 		RenderFunction();
-		glfwSwapBuffers(_window.get());
+		double currentTime = glfwGetTime();
+		double delta = currentTime - lastTime;
+		frameCount++;
+
+		if (delta >= 1.0) {
+			double fps = frameCount / delta;
+			std::cout << "Frame Rate: " << fps << " FPS" << std::endl;
+			frameCount = 0;
+			lastTime = currentTime;
+		}
 	}
 
 	CleanupFunction();

@@ -5,8 +5,8 @@ void rotateObj(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 		
-		obj.Rotate(0.5f, 0.2f, 0.7f, theta);
-		std::this_thread::sleep_for(std::chrono::microseconds(5));
+		obj.Rotate(0.f, 0.1f, 0.f, theta);
+		std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
 }
 
@@ -130,7 +130,7 @@ int main() {
 		//13
 	{ 0.5f, 0.5f, -0.5f,
 	 1.f, 1.f, 1.f, 1.f,
-	 0.25f, 0.25f }
+	 0.f, 0.5f }
 };
 
 
