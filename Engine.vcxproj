@@ -168,7 +168,7 @@ xcopy /y /d "$(SolutionDir)..\Libraries\bin\glew32d.pdb" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32d.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32d.lib;glfw3dll.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)..\Libraries\bin\glfw3.dll" "$(TargetDir)"

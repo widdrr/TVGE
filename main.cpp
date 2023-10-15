@@ -6,7 +6,7 @@ void rotateObj(Entity& obj, float theta, bool& flag)
 	while (flag) {
 		
 		obj.Rotate(1.f, 1.f, 1.f, theta);
-		std::this_thread::sleep_for(std::chrono::microseconds(4));
+		std::this_thread::sleep_for(std::chrono::milliseconds(4));
 	}
 }
 
@@ -167,11 +167,9 @@ int main() {
 	renderer->AddObject(cube);
 	renderer->AddObject(cube2);
 	bool flag = true;
-	std::thread objThread(rotateObj, std::ref(cube), 2.f, std::ref(flag));
-	std::thread objThread2(rotateObj, std::ref(cube2), 3.f, std::ref(flag));
+	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
 	renderer->Run();
 	flag = false;
 	objThread.join();
-	objThread2.join();
 
 }

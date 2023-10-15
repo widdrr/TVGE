@@ -2,6 +2,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
+#include <Windows.h>
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
@@ -185,6 +186,8 @@ Renderer::Renderer() :
 	_camera()
 {
 
+	//TODO: critical, try and get away with not using this
+	timeBeginPeriod(1);
 	//init and setup glfw
 	GLenum res =  glfwInit();
 	if (res == GLFW_FALSE) {
@@ -224,7 +227,8 @@ Renderer::Renderer() :
 		}
 	);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
-	glfwSwapInterval(0);
+	//VSync 1 = set to Refresh Rate 0 = Unbound
+	glfwSwapInterval(1);
 
 	//configuring face culling
 	glEnable(GL_CULL_FACE);
@@ -252,7 +256,11 @@ void Renderer::Run() {
 		RenderFunction();
 		ComputeFPS();
 	}
+}
 
+Renderer::~Renderer() {
+
+	timeEndPeriod(1);
 	CleanupFunction();
 	glfwTerminate();
 }
