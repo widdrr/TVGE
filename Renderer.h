@@ -50,10 +50,14 @@ private:
 	glm::mat4 _projectionMatrix;
 	//TODO: multicamera?
 	Camera _camera;
+
+	double _fpsStart, _fpsEnd;
+	unsigned int _frames;
 	
 	Renderer();
 	void RenderFunction();
 	void CleanupFunction();
+	void ComputeFPS();
 
 public:
 	static std::shared_ptr<Renderer> GetInstance();

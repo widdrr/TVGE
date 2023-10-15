@@ -2,6 +2,7 @@
 #include <string>
 #include <gl/glew.h>
 
+//TODO: support for multiple cubemaps, 3d textures, etc
 class Texture {
 
 private:

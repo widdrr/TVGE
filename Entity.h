@@ -27,8 +27,8 @@ public:
 
 	Entity();
 	
-	template <IsComponentType TComponent>
-	void AddComponent(TComponent& p_component);
+	template <IsComponentType TComponent, class... Targs>
+	const std::shared_ptr<TComponent> CreateComponent(Targs... args);
 	
 	template <IsComponentType TComponent> 
 	const std::shared_ptr<TComponent> GetComponentOfType() const;

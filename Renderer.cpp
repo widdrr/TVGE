@@ -166,20 +166,39 @@ void Renderer::CleanupFunction() {
 		glDeleteProgram(shader->_id);
 	}
 }
+void Renderer::ComputeFPS() {
+
+	_fpsEnd = glfwGetTime();
+	double delta = _fpsEnd - _fpsStart;
+	_frames++;
+
+	if (delta >= 1.0) {
+		double fps = static_cast<double>(_frames) / delta;
+		std::cout << "Frame Rate: " << fps << " FPS" << std::endl;
+		_frames = 0;
+		_fpsStart = _fpsEnd;
+	}
+}
+
 Renderer::Renderer() :
 	_projectionMatrix(glm::identity<glm::mat4>()),
 	_camera()
 {
 
 	//init and setup glfw
-	glfwInit();
+	GLenum res =  glfwInit();
+	if (res == GLFW_FALSE) {
+		std::cerr << "GLFW initialization failed\n";
+		exit(1);
+	}
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//setup and create window
 	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.3a", nullptr, nullptr)
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.4a", nullptr, nullptr)
 	);
 
 	if (_window == nullptr)
@@ -191,7 +210,7 @@ Renderer::Renderer() :
 	glfwMakeContextCurrent(_window.get());
 
 	//init glew
-	GLenum res = glewInit();
+	res = glewInit();
 	if (res != GLEW_OK) {
 		std::cerr << "Error: " << glewGetErrorString(res) << "\n";
 		exit(1);
@@ -223,24 +242,15 @@ Renderer::Renderer() :
 
 //TODO:
 //multithread
+//fix stuttering-> cap fps
 void Renderer::Run() {
 
-	double lastTime = glfwGetTime();
-	int frameCount = 0;
-
+	_fpsStart = glfwGetTime();
+	_frames = 0;
 	while (!glfwWindowShouldClose(_window.get())) {
 		glfwPollEvents();
 		RenderFunction();
-		double currentTime = glfwGetTime();
-		double delta = currentTime - lastTime;
-		frameCount++;
-
-		if (delta >= 1.0) {
-			double fps = frameCount / delta;
-			std::cout << "Frame Rate: " << fps << " FPS" << std::endl;
-			frameCount = 0;
-			lastTime = currentTime;
-		}
+		ComputeFPS();
 	}
 
 	CleanupFunction();

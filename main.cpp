@@ -5,8 +5,8 @@ void rotateObj(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 		
-		obj.Rotate(0.f, 0.1f, 0.f, theta);
-		std::this_thread::sleep_for(std::chrono::microseconds(10));
+		obj.Rotate(1.f, 1.f, 1.f, theta);
+		std::this_thread::sleep_for(std::chrono::microseconds(4));
 	}
 }
 
@@ -62,7 +62,7 @@ int main() {
 		0, 2, 7 };
 
 	std::vector<Vertex> diceVertices = {
-	//0
+		//0
 	{-0.5f, -0.5f, 0.5f,
 	 1.f, 1.f, 1.f, 1.f,
 	 0.5f, 0.25f},
@@ -133,8 +133,6 @@ int main() {
 	 0.f, 0.5f }
 };
 
-
-
 	std::vector<unsigned int> diceOrder = {
 		0, 1, 2,
 		2, 3, 0,
@@ -149,24 +147,31 @@ int main() {
 		3, 11, 10,
 		12, 10, 11,
 		11, 13, 12
-		};
+	};
 
+	Mesh cubeMesh(vertices, order);
 	Mesh diceMesh(diceVertices, diceOrder);
 	Entity cube;
-	GraphicsComponent comp(cube);
-	comp.mesh = std::make_shared<Mesh>(diceMesh);
+	Entity cube2;
+	auto comp = cube.CreateComponent<GraphicsComponent>();
+	comp->mesh = std::make_shared<Mesh>(diceMesh);
+	auto comp2 = cube2.CreateComponent<GraphicsComponent>();
+	comp2->mesh = std::make_shared<Mesh>(cubeMesh);
 	
-	cube.Translate(0.f, 0.f, -3.f);
+	cube.Translate(-0.5f, 0.f, -3.f);
+	cube2.Translate(0.5f, 0.2f, -5.f);
 
 	auto renderer = Renderer::GetInstance();
-	comp.texture = renderer->TextureFactory("dice.png");
-	cube.AddComponent(comp);
+	comp->texture = renderer->TextureFactory("dice.png");
 	renderer->SetPerspective(90, 0.1f, 100.f);
 	renderer->AddObject(cube);
+	renderer->AddObject(cube2);
 	bool flag = true;
-	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
+	std::thread objThread(rotateObj, std::ref(cube), 2.f, std::ref(flag));
+	std::thread objThread2(rotateObj, std::ref(cube2), 3.f, std::ref(flag));
 	renderer->Run();
 	flag = false;
 	objThread.join();
+	objThread2.join();
 
 }

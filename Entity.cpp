@@ -12,15 +12,18 @@ Entity::Entity():
 	++_current_id;
 }
 
-template <IsComponentType TComponent>
-void Entity::AddComponent(TComponent& p_component) {
+template <IsComponentType TComponent, class... TArgs>
+const std::shared_ptr<TComponent> Entity::CreateComponent(TArgs... args){
 	
-	_components.push_back(std::make_shared<TComponent>(p_component));
-	p_component._index = _components.size() - 1;
+	auto component = std::make_shared<TComponent>(*this, std::forward<TArgs>(args)...);
+	component->_index = _components.size();
+	_components.push_back(component);
+
+	return component;
 }
 
 //TODO, find some other way to fix this horrible mess
-template void Entity::AddComponent(GraphicsComponent& p_component);
+template const std::shared_ptr<GraphicsComponent> Entity::CreateComponent();
 
 template <IsComponentType TComponent>
 const std::shared_ptr<TComponent> Entity::GetComponentOfType() const {
