@@ -2,7 +2,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
-#include <Windows.h>
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
@@ -30,7 +29,6 @@ std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vert
 
 	_shaders.push_back(std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath)));
 	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
-	_shaders.back()->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 	return _shaders.back();
 }
 
@@ -55,7 +53,7 @@ void Renderer::AddObject(Entity& p_object) {
 	}
 
 	if (graphicsComponent->mesh == nullptr) {
-		std::cerr << "Object does not have a Mesh";
+		std::cerr << "Graphics Component does not have a Mesh";
 		return;
 	}
 
@@ -115,10 +113,10 @@ void Renderer::RenderFunction() {
 
 		//If there is a shader associated we use it
 		//else fallback to the default shader
-		//object->_entity.Rotate(0.f, 1.f, 0.f, 1);
 		auto& shader = object->shaderProgram != nullptr ? object->shaderProgram : _shaders[0];
 
 		shader->SetVariable(UniformVariables::modelMatrix, object->GetModelTransformation());
+		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 		glUseProgram(shader->_id);
 
 		shader->SetVariable(UniformVariables::hasTexture, false);
@@ -167,23 +165,72 @@ void Renderer::CleanupFunction() {
 		glDeleteProgram(shader->_id);
 	}
 }
-void Renderer::ComputeFPS() {
+void Renderer::ComputeTime() {
 
-	_fpsEnd = glfwGetTime();
-	double delta = _fpsEnd - _fpsStart;
-	_frames++;
-
-	if (delta >= 1.0) {
-		double fps = static_cast<double>(_frames) / delta;
-		std::cout << "Frame Rate: " << fps << " FPS" << std::endl;
+	double currentTime = glfwGetTime();
+	double delta = currentTime - _lastTime;
+	_deltaTime = static_cast<float>(delta);
+	_fpsDelta += delta;
+	_lastTime = currentTime;
+	++_frames;
+	if (_fpsDelta >= 1.0) {
+		double fps = static_cast<double>(_frames) / _fpsDelta;
+		std::cout << "Frame Rate: " << fps << " FPS\n";
 		_frames = 0;
-		_fpsStart = _fpsEnd;
+		_fpsDelta = 0;
+	}
+}
+
+void Renderer::ProcessInput() {
+
+	glfwPollEvents();
+
+	if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS){
+		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		_focused = false;
+	}
+
+	if (!_focused && glfwGetMouseButton(_window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		_focused = true;
+		_initial = true;
+	}
+
+	bool moveForward = (glfwGetKey(_window.get(), GLFW_KEY_W) == GLFW_PRESS);
+	bool moveBackward = (glfwGetKey(_window.get(), GLFW_KEY_S) == GLFW_PRESS);
+	bool moveLeft = (glfwGetKey(_window.get(), GLFW_KEY_A) == GLFW_PRESS);
+	bool moveRight = (glfwGetKey(_window.get(), GLFW_KEY_D) == GLFW_PRESS);
+	bool moveUp = (glfwGetKey(_window.get(), GLFW_KEY_SPACE) == GLFW_PRESS);
+	bool moveDown = (glfwGetKey(_window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+
+	_camera.MoveCamera({ moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown }, _deltaTime);
+}
+
+void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
+	
+	if (_focused) {
+		if (_initial) {
+			_prevX = _crtX;
+			_prevY = _crtY;
+			_initial = false;
+		}
+		
+		else {
+			float offsetX = _crtX - _prevX;
+			float offsetY =  _prevY - _crtY;
+			_prevX = _crtX;
+			_prevY = _crtY;
+		
+			_camera.PointCamera(offsetX, offsetY);
+		}
 	}
 }
 
 Renderer::Renderer() :
 	_projectionMatrix(glm::identity<glm::mat4>()),
-	_camera()
+	_camera(),
+	_focused(false),
+	_initial(true)
 {
 
 	//TODO: critical, try and get away with not using this
@@ -226,9 +273,17 @@ Renderer::Renderer() :
 			_instance->RenderFunction();
 		}
 	);
-	glClearColor(0.f, 0.f, 0.f, 0.f);
+
+	glfwSetCursorPosCallback(_window.get(), 
+		[](GLFWwindow* _window, double _crtX, double _crtY) {
+			_instance->MouseCallback(_window, _crtX, _crtY); 
+		}
+	);
 	//VSync 1 = set to Refresh Rate 0 = Unbound
 	glfwSwapInterval(1);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	
+
 
 	//configuring face culling
 	glEnable(GL_CULL_FACE);
@@ -240,7 +295,6 @@ Renderer::Renderer() :
 	//loading the default shader
 	ShaderFactory("shader.vert", "shader.frag");
 	_shaders.front()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
-	_shaders.front()->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 
 }
 
@@ -249,12 +303,12 @@ Renderer::Renderer() :
 //fix stuttering-> cap fps
 void Renderer::Run() {
 
-	_fpsStart = glfwGetTime();
+	_lastTime = glfwGetTime();
 	_frames = 0;
 	while (!glfwWindowShouldClose(_window.get())) {
-		glfwPollEvents();
+		ProcessInput();
 		RenderFunction();
-		ComputeFPS();
+		ComputeTime();
 	}
 }
 

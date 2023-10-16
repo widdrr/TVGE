@@ -1,5 +1,5 @@
 #pragma once
-
+//TODO rework header includes
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "GraphicsComponent.h"
@@ -8,6 +8,7 @@
 
 #define GLFW_DLL
 #include <gl/glew.h>
+#include <Windows.h>
 #include <gl/glfw3.h>
 
 #include <string>
@@ -47,17 +48,26 @@ private:
 	std::vector<std::shared_ptr<Texture>> _textures;
 
 	std::vector<std::shared_ptr<GraphicsComponent>> _entities;
+	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;
 	//TODO: multicamera?
 	Camera _camera;
 
-	double _fpsStart, _fpsEnd;
+	double _lastTime;
+	float _deltaTime;
+	double _fpsDelta;
 	unsigned int _frames;
+	double _prevX, _prevY;
+	bool _focused;
+	bool _initial;
 	
 	Renderer();
+
 	void RenderFunction();
 	void CleanupFunction();
-	void ComputeFPS();
+	void ProcessInput();
+	void ComputeTime();
+	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
 
 public:
 	static std::shared_ptr<Renderer> GetInstance();

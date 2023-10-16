@@ -162,10 +162,12 @@ int main() {
 	cube2.Translate(0.5f, 0.2f, -5.f);
 
 	auto renderer = Renderer::GetInstance();
+	
 	comp->texture = renderer->TextureFactory("dice.png");
 	renderer->SetPerspective(90, 0.1f, 100.f);
 	renderer->AddObject(cube);
 	renderer->AddObject(cube2);
+	
 	bool flag = true;
 	std::thread objThread(rotateObj, std::ref(cube), 1.f, std::ref(flag));
 	renderer->Run();
