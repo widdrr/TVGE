@@ -11,7 +11,10 @@ protected:
 	Entity& _entity;
 	//TODO: implement the use for this -> component removal
 	std::vector<Component>::size_type _index;
-	Component(Entity& p_entity);	
+	Component(Entity& p_entity);
+public:
+	//declaring a virtual default destructor makes the hierarchy polymorphic
+	virtual ~Component() = default;
 };
 
 template <class TComponent>

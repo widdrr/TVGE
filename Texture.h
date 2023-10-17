@@ -12,7 +12,6 @@ private:
 	const int _width, _height, _channels;
 	unsigned char* _textureData;
 
-	//TODO, fix object slicingadkjadkadhwad
 	Texture(const std::string& p_texturePath);
 
 public:

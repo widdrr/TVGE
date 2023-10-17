@@ -13,6 +13,7 @@ private:
 	glm::vec3 _up;
 
 public:
+	//TODO: use a bitfield for this, microoptimization ftw
 	struct Movement {
 		bool moveForward;
 		bool moveBackward;
@@ -22,13 +23,14 @@ public:
 		bool moveDown;
 	};
 
-	Camera(float p_posX = 0.f, float p_posY = 0.f, float p_posZ = 0.f,
-		float p_frontX = 0.f, float p_frontY = 0.f, float p_frontZ = -1.f,
-		float p_upX = 0.f, float p_upY = 1.f, float p_upZ = 0.f);
-	glm::mat4 GetViewTransformation() const;
+	Camera(float p_posX = 0.f, float p_posY = 0.f, float p_posZ = 0.f, 
+		float p_yaw = 90.f, float p_pitch = 0.f);
+	
+	const glm::vec3 GetPosition() const;
+	const glm::mat4 GetViewTransformation() const;
 
-	//TODO: put more thought if there's a better way to do this
 	void MoveCamera(Movement p_movement, float p_delta);
 	void PointCamera(float p_offsetX, float p_offsetY);
+	
 };
 

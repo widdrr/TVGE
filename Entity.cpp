@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "GraphicsComponent.h"
+#include "LightSourceComponent.h"
 
 unsigned short Entity::_current_id = 0;
 
@@ -24,12 +25,13 @@ const std::shared_ptr<TComponent> Entity::CreateComponent(TArgs... args){
 
 //TODO, find some other way to fix this horrible mess
 template const std::shared_ptr<GraphicsComponent> Entity::CreateComponent();
+template const std::shared_ptr<LightSourceComponent> Entity::CreateComponent(float, float, float, float, float);
 
 template <IsComponentType TComponent>
 const std::shared_ptr<TComponent> Entity::GetComponentOfType() const {
 	
 	for (auto& component : _components) {
-		auto castComponent = std::static_pointer_cast<TComponent>(component);
+		auto castComponent = std::dynamic_pointer_cast<TComponent>(component);
 		if (castComponent) {
 			return castComponent;
 		}
@@ -39,10 +41,10 @@ const std::shared_ptr<TComponent> Entity::GetComponentOfType() const {
 
 //TODO, find some other way to fix this horrible mess
 template const std::shared_ptr<GraphicsComponent> Entity::GetComponentOfType() const;
+template const std::shared_ptr<LightSourceComponent> Entity::GetComponentOfType() const;
 
 void Entity::Scale(float p_scaleX, float p_scaleY, float p_scaleZ) {
 
-	//TODO: does this ever have vanishing problems?
 	scaling *= glm::vec3(p_scaleX, p_scaleY, p_scaleZ);
 }
 

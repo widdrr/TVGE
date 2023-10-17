@@ -18,7 +18,8 @@ private:
 
 public:
 
-	void SetVariable(std::string p_variableName, glm::mat4 p_value);
-	void SetVariable(std::string p_variableName, float p_value);
+	void SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug = false);
+	void SetVariable(std::string p_variableName, float p_value, bool p_debug = false);
+	void SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug = false);
 };
 

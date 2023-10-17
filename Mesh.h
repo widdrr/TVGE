@@ -6,7 +6,7 @@
 class Mesh
 {
 private:
-	const std::vector<Vertex> _vertices;
+	std::vector<Vertex> _vertices;
 	const std::vector<unsigned int> _indices;
 	const GLenum _drawMode;
 

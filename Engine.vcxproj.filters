@@ -48,6 +48,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LightSourceComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -77,6 +80,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LightSourceComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vert">
@@ -85,11 +91,11 @@
     <None Include="shader.frag">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="shaderLightSource.frag">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Dumi.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="wall.jpg">
       <Filter>Resource Files</Filter>
     </Image>

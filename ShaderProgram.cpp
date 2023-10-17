@@ -12,8 +12,8 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 		exit(1);
 	}
 
-	AddShader(ReadShaderFromFile("shader.vert"), GL_VERTEX_SHADER);
-	AddShader(ReadShaderFromFile("shader.frag"), GL_FRAGMENT_SHADER);
+	AddShader(ReadShaderFromFile(p_vertexShaderPath), GL_VERTEX_SHADER);
+	AddShader(ReadShaderFromFile(p_fragmentShaderPath), GL_FRAGMENT_SHADER);
 
 	glLinkProgram(_id);
 
@@ -43,22 +43,41 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value) {
+void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug) {
 	
 	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
 	if (location == -1) {
-		std::cerr << "Variable " << p_variableName <<" not defined in Vertex Shader\n";
+		if (p_debug) {
+			std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
+			return;
+		}
 	}
 
 	glProgramUniformMatrix4fv(_id, location, 1, GL_FALSE, glm::value_ptr(p_value));
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, float p_value) {
+void ShaderProgram::SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug) {
 
 	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
 	if (location == -1) {
-		std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
-		return;
+		if (p_debug) {
+			std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
+			return;
+		}
+	}
+
+	glProgramUniform3fv(_id, location, 1, glm::value_ptr(p_value));
+}
+
+
+void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool p_debug) {
+
+	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
+	if (location == -1) {
+		if (p_debug) {
+			std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
+			return;
+		}
 	}
 
 	glProgramUniform1f(_id, location, p_value);

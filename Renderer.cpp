@@ -9,6 +9,11 @@ const std::string Renderer::UniformVariables::viewMatrix = "glViewMatrix";
 const std::string Renderer::UniformVariables::projectionMatrix = "glProjectionMatrix";
 const std::string Renderer::UniformVariables::modelMatrix = "glModelMatrix";
 const std::string Renderer::UniformVariables::hasTexture = "glHasTexture";
+const std::string Renderer::UniformVariables::lightColor = "glLightColor";
+const std::string Renderer::UniformVariables::lightPosition = "glLightPosition";
+const std::string Renderer::UniformVariables::lightAmbianceStrength = "glLightAmbianceStrength";
+const std::string Renderer::UniformVariables::lightSpecularStrength = "glLightSpecularStrength";
+const std::string Renderer::UniformVariables::cameraPosition = "glCameraPosition";
 
 void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) {
 	
@@ -28,7 +33,25 @@ std::shared_ptr<Renderer> Renderer::GetInstance() {
 std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) {
 
 	_shaders.push_back(std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath)));
-	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
+	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix); 
+
+	glm::vec3 lightColor(1.f, 1.f, 1.f);
+	glm::vec3 lightPosition(0.f, 0.f, 0.f);
+	float ambianceStrength = 0.1f;
+	float specularStrength = 0.1f;
+
+	if (_lightSource != nullptr) {
+		lightColor = _lightSource->getLightColor();
+		lightPosition = _lightSource->getLightPosition();
+		ambianceStrength = _lightSource->getAmbienceStrength();
+		specularStrength = _lightSource->getSpecularStrength();
+	}
+
+	_shaders.back()->SetVariable(UniformVariables::lightColor, lightColor);
+	_shaders.back()->SetVariable(UniformVariables::lightPosition, lightPosition);
+	_shaders.back()->SetVariable(UniformVariables::lightAmbianceStrength, ambianceStrength);
+	_shaders.back()->SetVariable(UniformVariables::lightSpecularStrength, specularStrength);
+
 	return _shaders.back();
 }
 
@@ -43,7 +66,7 @@ std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePa
 	return _textures.back();
 }
 
-void Renderer::AddObject(Entity& p_object) {
+void Renderer::AddObject(const Entity& p_object) {
 
 	//obtaining the GraphicsComponent of the Entity
 	auto graphicsComponent = p_object.GetComponentOfType<GraphicsComponent>();
@@ -87,6 +110,9 @@ void Renderer::AddObject(Entity& p_object) {
 	//setting Texture attribute
 	glVertexAttribPointer(ShaderAttributes::TextureCoordinates, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(7 * sizeof(float)));
 	glEnableVertexAttribArray(ShaderAttributes::TextureCoordinates);
+	//setting Normal attribute
+	glVertexAttribPointer(ShaderAttributes::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
+	glEnableVertexAttribArray(ShaderAttributes::Normal);
 
 	//deactivating VAO
 	glBindVertexArray(0);
@@ -104,6 +130,23 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 	}
 }
 
+void Renderer::SetLightSource(const Entity& p_object) {
+
+	_lightSource = p_object.GetComponentOfType<LightSourceComponent>();
+	if (_lightSource == nullptr) {
+		std::cerr << "Object does not contain a LightSourceComponent\n";
+	}
+
+	for (auto& shader : _shaders) {
+		shader->SetVariable(UniformVariables::lightColor, _lightSource->getLightColor());
+		shader->SetVariable(UniformVariables::lightPosition, _lightSource->getLightPosition());
+		shader->SetVariable(UniformVariables::lightAmbianceStrength, _lightSource->getAmbienceStrength());
+		shader->SetVariable(UniformVariables::lightSpecularStrength, _lightSource->getSpecularStrength());
+	}
+}
+
+
+
 void Renderer::RenderFunction() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,6 +160,7 @@ void Renderer::RenderFunction() {
 
 		shader->SetVariable(UniformVariables::modelMatrix, object->GetModelTransformation());
 		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
+		shader->SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
 		glUseProgram(shader->_id);
 
 		shader->SetVariable(UniformVariables::hasTexture, false);
@@ -140,9 +184,11 @@ void Renderer::CleanupFunction() {
 
 	for (const auto& entity : _entities) {
 		glBindVertexArray(entity->_vao);
-		//TODO: make an enum for vertex attributes
+
 		glDisableVertexAttribArray(ShaderAttributes::Position);
 		glDisableVertexAttribArray(ShaderAttributes::Color);
+		glDisableVertexAttribArray(ShaderAttributes::TextureCoordinates);
+		glDisableVertexAttribArray(ShaderAttributes::Normal);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -216,8 +262,8 @@ void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 		}
 		
 		else {
-			float offsetX = _crtX - _prevX;
-			float offsetY =  _prevY - _crtY;
+			float offsetX = static_cast<float>(_crtX - _prevX);
+			float offsetY =  static_cast<float>(_prevY - _crtY);
 			_prevX = _crtX;
 			_prevY = _crtY;
 		
@@ -229,6 +275,7 @@ void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 Renderer::Renderer() :
 	_projectionMatrix(glm::identity<glm::mat4>()),
 	_camera(),
+	_lightSource(),
 	_focused(false),
 	_initial(true)
 {
@@ -248,7 +295,7 @@ Renderer::Renderer() :
 
 	//setup and create window
 	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.5a", nullptr, nullptr)
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.6a", nullptr, nullptr)
 	);
 
 	if (_window == nullptr)
@@ -283,8 +330,6 @@ Renderer::Renderer() :
 	glfwSwapInterval(1);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
-
-
 	//configuring face culling
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
@@ -294,13 +339,10 @@ Renderer::Renderer() :
 
 	//loading the default shader
 	ShaderFactory("shader.vert", "shader.frag");
-	_shaders.front()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
-
 }
 
 //TODO:
 //multithread
-//fix stuttering-> cap fps
 void Renderer::Run() {
 
 	_lastTime = glfwGetTime();

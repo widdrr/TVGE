@@ -3,6 +3,7 @@
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "GraphicsComponent.h"
+#include "LightSourceComponent.h"
 #include "Entity.h"
 #include "Camera.h"
 
@@ -18,7 +19,8 @@
 enum ShaderAttributes{
 	Position,
 	Color,
-	TextureCoordinates
+	TextureCoordinates,
+	Normal
 };
 
 class Renderer
@@ -37,21 +39,25 @@ private:
 		static const std::string projectionMatrix;
 		static const std::string modelMatrix;
 		static const std::string hasTexture;
+		static const std::string lightColor;
+		static const std::string lightPosition;
+		static const std::string lightAmbianceStrength;
+		static const std::string lightSpecularStrength;
+		static const std::string cameraPosition;
 	};
-	//TODO: figure out a nice way to modify objects 
-	//later read: WHAT?
-	static std::shared_ptr<Renderer> _instance;
 
+	static std::shared_ptr<Renderer> _instance;
 	std::unique_ptr<GLFWwindow, GLFWwindowDeleter> _window;
 	
 	std::vector<std::shared_ptr<ShaderProgram>> _shaders;
 	std::vector<std::shared_ptr<Texture>> _textures;
-
 	std::vector<std::shared_ptr<GraphicsComponent>> _entities;
 	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;
 	//TODO: multicamera?
 	Camera _camera;
+	//TODO multi lightsource?
+	std::shared_ptr<LightSourceComponent> _lightSource;
 
 	double _lastTime;
 	float _deltaTime;
@@ -76,7 +82,8 @@ public:
 	std::shared_ptr<ShaderProgram> ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
 	std::shared_ptr<Texture> TextureFactory(const std::string& p_texturePath);
 	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
-	void AddObject(Entity& p_object);
+	void SetLightSource(const Entity& p_object);
+	void AddObject(const Entity& p_object);
 	
 	void Run();
 	~Renderer();

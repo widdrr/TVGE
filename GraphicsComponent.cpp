@@ -11,7 +11,7 @@ GraphicsComponent::GraphicsComponent(Entity& p_entity) :
 glm::mat4 GraphicsComponent::GetModelTransformation() const {
 
 	glm::mat4 modelTransformation = glm::translate(glm::identity<glm::mat4>(), _entity.position);
-	//TODO: improve quaternion usage? is there anything to improve?
+
 	modelTransformation = modelTransformation * glm::mat4_cast(_entity.rotation);
 	modelTransformation = glm::scale(modelTransformation, _entity.scaling);
 

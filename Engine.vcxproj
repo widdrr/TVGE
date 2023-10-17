@@ -22,6 +22,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GraphicsComponent.cpp" />
+    <ClCompile Include="LightSourceComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="GraphicsComponent.h" />
+    <ClInclude Include="LightSourceComponent.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Renderer.h" />
@@ -44,11 +46,11 @@
   <ItemGroup>
     <None Include="shader.frag" />
     <None Include="shader.vert" />
+    <None Include="shaderLightSource.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="awesomeface.png" />
     <Image Include="dice.png" />
-    <Image Include="Dumi.png" />
     <Image Include="face.png" />
     <Image Include="wall.jpg" />
   </ItemGroup>
