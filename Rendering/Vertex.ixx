@@ -1,8 +1,10 @@
-#pragma once
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-class Vertex
+export module Vertex;
+
+import <glm/vec3.hpp>;
+import <glm/vec2.hpp>;
+import <glm/vec4.hpp>;
+
+export class Vertex
 {
 public:
 	glm::vec3 _position;

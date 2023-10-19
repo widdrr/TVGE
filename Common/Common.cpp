@@ -1,22 +1,24 @@
-#include "Entity.h"
-#include "GraphicsComponent.h"
-#include "LightSourceComponent.h"
+module Common;
+
+Component::Component(Entity& p_entity) :
+	_entity(p_entity),
+	_index() {
+}
 
 unsigned short Entity::_current_id = 0;
 
-Entity::Entity():
+Entity::Entity() :
 	_id(_current_id),
 	scaling(1.f),
 	position(),
 	rotation(glm::identity<glm::quat>()),
-	pivot()
-{
+	pivot() {
 	++_current_id;
 }
 
 template <IsComponentType TComponent, class... TArgs>
-const std::shared_ptr<TComponent> Entity::CreateComponent(TArgs... args){
-	
+const std::shared_ptr<TComponent> Entity::CreateComponent(TArgs... args) {
+
 	auto component = std::make_shared<TComponent>(*this, std::forward<TArgs>(args)...);
 	component->_index = _components.size();
 	_components.push_back(component);
@@ -24,13 +26,9 @@ const std::shared_ptr<TComponent> Entity::CreateComponent(TArgs... args){
 	return component;
 }
 
-//TODO, find some other way to fix this horrible mess
-template const std::shared_ptr<GraphicsComponent> Entity::CreateComponent();
-template const std::shared_ptr<LightSourceComponent> Entity::CreateComponent(float, float, float, float, float);
-
 template <IsComponentType TComponent>
 const std::shared_ptr<TComponent> Entity::GetComponentOfType() const {
-	
+
 	for (auto& component : _components) {
 		auto castComponent = std::dynamic_pointer_cast<TComponent>(component);
 		if (castComponent) {
@@ -39,10 +37,6 @@ const std::shared_ptr<TComponent> Entity::GetComponentOfType() const {
 	}
 	return nullptr;
 }
-
-//TODO, find some other way to fix this horrible mess
-template const std::shared_ptr<GraphicsComponent> Entity::GetComponentOfType() const;
-template const std::shared_ptr<LightSourceComponent> Entity::GetComponentOfType() const;
 
 void Entity::Scale(float p_scaleX, float p_scaleY, float p_scaleZ) {
 
@@ -56,11 +50,10 @@ void Entity::Translate(float p_dispX, float p_dispY, float p_dispZ) {
 
 //TODO, find a way to compose pivot rotations
 void Entity::Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg,
-					float p_pivotX, float p_pivotY, float p_pivotZ) {
+	float p_pivotX, float p_pivotY, float p_pivotZ) {
 
 	pivot = glm::vec3(p_pivotX, p_pivotY, p_pivotZ);
 	glm::vec3 rotationAxis = glm::normalize(glm::vec3(p_axisX, p_axisY, p_axisZ));
 	float angleRadians = glm::radians(p_thetaDeg);
 	rotation = rotation * glm::angleAxis(angleRadians, rotationAxis);
 }
-

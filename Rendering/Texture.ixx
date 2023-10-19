@@ -1,14 +1,14 @@
-#pragma once
-#include <string>
-#include <gl/glew.h>
+export module Graphics.Resources:Texture;
+
+import <string>;
 
 //TODO: support for multiple cubemaps, 3d textures, etc
-class Texture {
+export class Texture {
 
 private:
 	friend class Renderer;
 	
-	GLuint _id;
+	unsigned int _id;
 	const int _width, _height, _channels;
 	unsigned char* _textureData;
 

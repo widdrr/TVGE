@@ -1,9 +1,12 @@
-#pragma once
-#include "Vertex.h"
-#include <gl/glew.h>
-#include <vector>
+export module Graphics.Resources:Mesh;
 
-class Mesh
+import Vertex;
+
+import <gl/glew.h>;
+
+import <vector>;
+
+export class Mesh
 {
 private:
 	std::vector<Vertex> _vertices;

@@ -1,5 +1,7 @@
-#include "Mesh.h"
-#include <glm/geometric.hpp>
+module Graphics.Resources:Mesh;
+
+import <glm/geometric.hpp>;
+
 Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) :
 	_vertices(p_vertices),
 	_indices(p_indices),

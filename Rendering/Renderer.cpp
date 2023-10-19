@@ -1,8 +1,12 @@
-#include "Renderer.h"
+
+
+module Renderer;
 
 import <glm/gtc/type_ptr.hpp>;
 import <iostream>;
 import <fstream>;
+import <gl/glew.h>;
+import <gl/glfw3.h>;
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
@@ -70,7 +74,7 @@ std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePa
 void Renderer::AddObject(const Entity& p_object) {
 
 	//obtaining the GraphicsComponent of the Entity
-	auto graphicsComponent = p_object.GetComponentOfType<GraphicsComponent>();
+	auto graphicsComponent = p_object.GetComponentOfType<RenderComponent>();
 	if (graphicsComponent == nullptr) {
 		std::cerr << "Object does not have a Graphics Component";
 		return;

@@ -1,14 +1,13 @@
-#include "GraphicsComponent.h"
-#include "Entity.h"
+module Graphics.Components:RenderComponent;
 
-GraphicsComponent::GraphicsComponent(Entity& p_entity) :
+RenderComponent::RenderComponent(Entity& p_entity) :
 	Component(p_entity),
 	_vao(),
 	_vbo(),
 	_ebo()
 {}
 
-glm::mat4 GraphicsComponent::GetModelTransformation() const {
+glm::mat4 RenderComponent::GetModelTransformation() const {
 
 	//Translating object to desired position
 	glm::mat4 modelTransformation = glm::translate(glm::identity<glm::mat4>(), _entity.position);
