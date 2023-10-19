@@ -1,7 +1,8 @@
 #include "Renderer.h"
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-#include <fstream>
+
+import <glm/gtc/type_ptr.hpp>;
+import <iostream>;
+import <fstream>;
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
@@ -231,7 +232,7 @@ void Renderer::ProcessInput() {
 
 	glfwPollEvents();
 
-	if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS){
+	if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		_focused = false;
 	}

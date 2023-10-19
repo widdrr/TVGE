@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include <Common/Component.h>
 
 #include <gl/glew.h>
 #include <glm/vec3.hpp>

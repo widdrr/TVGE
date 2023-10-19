@@ -8,7 +8,8 @@ Entity::Entity():
 	_id(_current_id),
 	scaling(1.f),
 	position(),
-	rotation(glm::identity<glm::quat>())
+	rotation(glm::identity<glm::quat>()),
+	pivot()
 {
 	++_current_id;
 }
@@ -53,8 +54,11 @@ void Entity::Translate(float p_dispX, float p_dispY, float p_dispZ) {
 	position += glm::vec3(p_dispX, p_dispY, p_dispZ);
 }
 
-void Entity::Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg) {
+//TODO, find a way to compose pivot rotations
+void Entity::Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg,
+					float p_pivotX, float p_pivotY, float p_pivotZ) {
 
+	pivot = glm::vec3(p_pivotX, p_pivotY, p_pivotZ);
 	glm::vec3 rotationAxis = glm::normalize(glm::vec3(p_axisX, p_axisY, p_axisZ));
 	float angleRadians = glm::radians(p_thetaDeg);
 	rotation = rotation * glm::angleAxis(angleRadians, rotationAxis);
