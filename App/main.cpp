@@ -1,11 +1,15 @@
 #include "Renderer.h"
-#include <thread>
-#include <chrono>
+
+//TODO: transition to modules :)
+import <thread>;
+import <chrono>;
+
 void rotateObj(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 		
-		obj.Rotate(1.f, 1.f, 1.f, theta);
+		obj.Rotate(0.f, 1.f, 0.f, theta,
+			0.f, 0.f, -5.f);
 		std::this_thread::sleep_for(std::chrono::milliseconds(4));
 	}
 }
@@ -13,6 +17,7 @@ void rotateObj(Entity& obj, float theta, bool& flag)
 int main() {
 
 	//TODO: make a builder for this mess
+	//Just make the model loader instead
 	std::vector<Vertex> vertices = {
 
 		//Front Face
@@ -144,115 +149,27 @@ int main() {
 		22, 23, 20,
 	};
 
-//	std::vector<Vertex> diceVertices = {
-//		//0
-//	{-0.5f, -0.5f, 0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.5f, 0.25f},
-//
-//		//1
-//	{ 0.5f, -0.5f, 0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.75f, 0.25f },
-//
-//		//2
-//	{ 0.5f, 0.5f, 0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.75f, .5f },
-//
-//		//3
-//	{ -0.5f, 0.5f, 0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.5f, 0.5f },
-//
-//		//4
-//	{ 0.5f, -0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 1.f, 0.25f },
-//
-//		//5
-//	{ 0.5f, 0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 1.f, 0.5f },
-//
-//		//6
-//	{ -0.5f, -0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.5f, 0.f },
-//
-//		//7
-//	{ 0.5f, -0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.75f, 0.f },
-//
-//		//8
-//	{ 0.5f, 0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.75f, 0.75f },
-//
-//		//9
-//	{ -0.5f, 0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.5f, 0.75f },
-//
-//		//10
-//	{ -0.5f, -0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.25f, 0.25f },
-//
-//		//11
-//	{ -0.5f, 0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.25f, 0.5f },
-//
-//		//12
-//	{ 0.5f, -0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.f, 0.25f },
-//
-//		//13
-//	{ 0.5f, 0.5f, -0.5f,
-//	 1.f, 1.f, 1.f, 1.f,
-//	 0.f, 0.5f }
-//};
-//
-//	std::vector<unsigned int> diceOrder = {
-//		0, 1, 2,
-//		2, 3, 0,
-//		1, 4, 5,
-//		5, 2, 1,
-//		3, 2, 8,
-//		6, 7, 1,
-//		1, 0, 6,
-//		3, 2, 8,
-//		8, 9, 3,
-//		10, 0, 3,
-//		3, 11, 10,
-//		12, 10, 11,
-//		11, 13, 12
-//	};
-
 	Mesh cubeMesh(vertices, order);
-	//Mesh diceMesh(diceVertices, diceOrder);
 	Entity cube;
 	Entity light;
 	Entity cube3;
-	//auto comp = cube.CreateComponent<GraphicsComponent>();
-	//comp->mesh = std::make_shared<Mesh>(diceMesh);
+	auto comp = cube.CreateComponent<GraphicsComponent>();
+	comp->mesh = std::make_shared<Mesh>(cubeMesh);
+	
 	
 	auto comp2 = light.CreateComponent<GraphicsComponent>();
 	comp2->mesh = std::make_shared<Mesh>(cubeMesh);
-	light.CreateComponent<LightSourceComponent>(1.f,1.f,1.f, 0.3f, 0.9f);
+	light.CreateComponent<LightSourceComponent>(1.f,1.f,1.f, 0.3f, 0.3f);
 	
 	auto comp3 = cube3.CreateComponent<GraphicsComponent>();
 	comp3->mesh = std::make_shared<Mesh>(cubeMesh);
 	
-	//cube.Translate(-0.5f, 0.f, -3.f);
-	light.Translate(0.5f, 0.2f, -5.f);
+	cube.Translate(0.f, -5.f, 0.f);
+	cube.Scale(100.f, .1f, 100.f);
 	light.Scale(0.1f, 0.1f, 0.1f);
 	
-	cube3.Translate(-0.5, 0.5, 3);
-	//cube3.Rotate(1.f, 1.f, 1.f, 45.f);
+	light.Translate(0.f, 0.f, -5.f);
+	cube3.Translate(0.f, 0.f, 0);
 
 	auto renderer = Renderer::GetInstance();
 	
@@ -260,7 +177,7 @@ int main() {
 	comp2->shaderProgram = renderer->ShaderFactory("shader.vert", "shaderLightSource.frag");
 	renderer->SetPerspective(90, 0.1f, 100.f);
 	renderer->SetLightSource(light);
-	//renderer->AddObject(cube);
+	renderer->AddObject(cube);
 	renderer->AddObject(light);
 	renderer->AddObject(cube3);
 	

@@ -1,6 +1,5 @@
 #pragma once
 #include "Component.h"
-#include "GraphicsComponent.h"
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
@@ -22,6 +21,8 @@ public:
 	glm::vec3 scaling;
 	//rotation quaternion
 	glm::quat rotation;
+	//pivot around which rotation is done
+	glm::vec3 pivot;
 
 	Entity();
 	
@@ -32,7 +33,8 @@ public:
 	const std::shared_ptr<TComponent> GetComponentOfType() const;
 
 	void Scale(float p_scaleX, float p_scaleY, float p_scaleZ);
-	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
+	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg,
+				float p_pivotX = 0.f, float p_pivotY = 0.f, float p_pivotZ = 0.f);
 	void Translate(float p_dispX, float p_dispY, float p_dispZ);
 };
 
