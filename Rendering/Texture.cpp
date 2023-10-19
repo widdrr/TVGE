@@ -1,8 +1,10 @@
-#include "Texture.h"
-
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <iostream>
+
+module Graphics.Resources:Texture;
+
+import <stb_image.h>;
+import <GL/glew.h>;
+import <iostream>;
 
 Texture::Texture(const std::string& p_texturePath):
 	_id(),

@@ -1,20 +1,23 @@
-#pragma once
-//TODO rework header includes
-#include "ShaderProgram.h"
-#include "Texture.h"
-#include "GraphicsComponent.h"
-#include "LightSourceComponent.h"
-#include "Entity.h"
-#include "Camera.h"
+module;
 
 #define GLFW_DLL
-#include <gl/glew.h>
-#include <Windows.h>
-#include <gl/glfw3.h>
 
-#include <string>
-#include <memory>
-#include <vector>
+export module Renderer;
+
+//TODO rework header includes
+import Common;
+import Camera;
+import Graphics.Components;
+import Graphics.Resources;
+
+import <gl/glew.h>;
+import <Windows.h>;
+import <gl/glfw3.h>;
+import <glm/mat4x4.hpp>;
+
+import <string>;
+import <memory>;
+import <vector>;
 
 enum ShaderAttributes{
 	Position,
@@ -51,7 +54,7 @@ private:
 	
 	std::vector<std::shared_ptr<ShaderProgram>> _shaders;
 	std::vector<std::shared_ptr<Texture>> _textures;
-	std::vector<std::shared_ptr<GraphicsComponent>> _entities;
+	std::vector<std::shared_ptr<RenderComponent>> _entities;
 	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;
 	//TODO: multicamera?

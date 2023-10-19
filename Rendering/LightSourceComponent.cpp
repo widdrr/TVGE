@@ -1,5 +1,4 @@
-#include "LightSourceComponent.h"
-#include "Entity.h"
+module Graphics.Components:LightSourceComponent;
 
 LightSourceComponent::LightSourceComponent(Entity& p_entity, 
 										   float p_lightR, float p_lightG, float p_lightB,

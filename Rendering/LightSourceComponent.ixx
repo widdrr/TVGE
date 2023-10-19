@@ -1,11 +1,10 @@
-#pragma once
-#include <Common/Component.h>
+export module Graphics.Components:LightSourceComponent;
 
-#include <gl/glew.h>
-#include <glm/vec3.hpp>
+import Common;
+import <glm/vec3.hpp>;
 
 //TODO: big, integrated light sources into the ECS cleanly
-class LightSourceComponent : public Component {
+export class LightSourceComponent : public Component {
 
 private:
 	glm::vec3 _lightColor;

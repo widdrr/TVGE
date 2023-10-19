@@ -1,8 +1,11 @@
-#pragma once
-#include <GL/glew.h>
-#include <glm/mat4x4.hpp>
-#include <string>
-class ShaderProgram
+export module Graphics.Resources:ShaderProgram;
+
+import <GL/glew.h>;
+import <glm/mat4x4.hpp>;
+
+import <string>;
+
+export class ShaderProgram
 {
 private:
 	static constexpr unsigned int _dumpSize = 1024;

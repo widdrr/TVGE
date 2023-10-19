@@ -1,9 +1,9 @@
-#include "Camera.h"
+module Camera;
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <cctype>
-#include <algorithm>
-#include <iostream>
+import <glm/gtc/matrix_transform.hpp>;
+import <cctype>;
+import <algorithm>;
+import <iostream>;
 
 Camera::Camera(float p_posX, float p_posY, float p_posZ, float p_yaw, float p_pitch) :
 	_position(p_posX, p_posY, p_posZ),

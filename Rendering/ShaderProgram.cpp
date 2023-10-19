@@ -1,7 +1,10 @@
-#include "ShaderProgram.h"
-#include <glm/gtc/type_ptr.hpp>
-#include <fstream>
-#include <iostream>
+#include <GL/glew.h>
+
+module Graphics.Resources:ShaderProgram;
+
+import <glm/gtc/type_ptr.hpp>;
+import <fstream>;
+import <iostream>;
 
 ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath){
 	

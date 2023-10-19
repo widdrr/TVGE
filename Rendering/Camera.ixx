@@ -1,8 +1,9 @@
-#pragma once
+export module Camera;
 
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-class Camera {
+import <glm/vec3.hpp>;
+import <glm/mat4x4.hpp>;
+
+export class Camera {
 
 private:
 	float _cameraSpeed = 5.f;

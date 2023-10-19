@@ -1,18 +1,18 @@
-#pragma once
+export module Graphics.Components:RenderComponent;
 
-#include <Common/Component.h>
-#include "Mesh.h"
-#include "ShaderProgram.h"
-#include "Texture.h"
-#include <gl/glew.h>
-#include <memory>
+import Common;
+import Graphics.Resources;
 
-class GraphicsComponent : public Component {
+import <glm/mat4x4.hpp>;
+
+import <memory>;
+
+export class RenderComponent : public Component {
 
 	friend class Renderer;
 private:
 	//Renderer class should have unrestricted access to GraphicsComponents
-	GLuint _vao, _vbo, _ebo;
+	unsigned int _vao, _vbo, _ebo;
 
 public:
 	std::shared_ptr<Mesh> mesh;
@@ -21,6 +21,6 @@ public:
 	//TODO: store in a Material class?
 	std::shared_ptr<ShaderProgram> shaderProgram;
 
-	GraphicsComponent(Entity& p_entity);
+	RenderComponent(Entity& p_entity);
 	glm::mat4 GetModelTransformation() const;
 };
