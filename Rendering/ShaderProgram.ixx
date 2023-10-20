@@ -1,6 +1,5 @@
-export module Graphics.Resources:ShaderProgram;
+export module ShaderProgram;
 
-import <GL/glew.h>;
 import <glm/mat4x4.hpp>;
 
 import <string>;
@@ -12,11 +11,11 @@ private:
 	//Shaders should be instantiated by the Renderer
 	friend class Renderer;
 
-	GLuint _id;
+	unsigned int _id;
 
 	ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
 
-	void AddShader(std::string p_shaderText, GLenum p_shaderType);
+	void AddShader(std::string p_shaderText, unsigned int p_shaderType);
 	static std::string ReadShaderFromFile(std::string p_fileName);
 
 public:
