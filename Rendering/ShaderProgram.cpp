@@ -1,8 +1,8 @@
-#include <GL/glew.h>
-
-module Graphics.Resources:ShaderProgram;
+module ShaderProgram;
 
 import <glm/gtc/type_ptr.hpp>;
+import <gl/glew.h>;
+
 import <fstream>;
 import <iostream>;
 
@@ -86,7 +86,7 @@ void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool 
 	glProgramUniform1f(_id, location, p_value);
 }
 
-void ShaderProgram::AddShader(std::string p_shaderText, GLenum p_shaderType){
+void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderType){
 	
 	GLuint shader = glCreateShader(p_shaderType);
 
@@ -116,6 +116,7 @@ void ShaderProgram::AddShader(std::string p_shaderText, GLenum p_shaderType){
 
 	glDeleteShader(shader);
 }
+
 
 std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName){
 	

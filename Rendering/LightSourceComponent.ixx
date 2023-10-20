@@ -1,9 +1,10 @@
 export module Graphics.Components:LightSourceComponent;
 
 import Common;
+
 import <glm/vec3.hpp>;
 
-//TODO: big, integrated light sources into the ECS cleanly
+//TODO: big, integrate light sources into the ECS cleanly
 export class LightSourceComponent : public Component {
 
 private:
