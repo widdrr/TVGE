@@ -5,7 +5,6 @@ import <glm/gtc/quaternion.hpp>;
 
 import <vector>;
 import <memory>;
-import <type_traits>;
 
 export class Component {
 	friend class Entity;
@@ -37,20 +36,34 @@ public:
 	glm::vec3 scaling;
 	//rotation quaternion
 	glm::quat rotation;
-	//pivot around which rotation is done
-	glm::vec3 pivot;
 
 	Entity();
 
+	//template definitions have to be defined here to save a lot of headaches
 	template <IsComponentType TComponent, class... TArgs>
-	const std::shared_ptr<TComponent> CreateComponent(TArgs... args);
+	const std::shared_ptr<TComponent> CreateComponent(TArgs... args) {
+
+		auto component = std::make_shared<TComponent>(*this, std::forward<TArgs>(args)...);
+		component->_index = _components.size();
+		_components.push_back(component);
+
+		return component;
+	}
 
 	template <IsComponentType TComponent>
-	const std::shared_ptr<TComponent> GetComponentOfType() const;
+	const std::shared_ptr<TComponent> GetComponentOfType() const {
+
+		for (auto& component : _components) {
+			auto castComponent = std::dynamic_pointer_cast<TComponent>(component);
+			if (castComponent) {
+				return castComponent;
+			}
+		}
+		return nullptr;
+	}
 
 	void Scale(float p_scaleX, float p_scaleY, float p_scaleZ);
-	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg,
-		float p_pivotX = 0.f, float p_pivotY = 0.f, float p_pivotZ = 0.f);
+	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
 	void Translate(float p_dispX, float p_dispY, float p_dispZ);
 };
 

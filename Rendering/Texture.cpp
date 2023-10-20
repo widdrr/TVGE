@@ -1,12 +1,13 @@
 module;
 
+//TODO: see if this can be converted
 #define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 module Graphics.Resources:Texture;
 
 import <gl/glew.h>;
 import <iostream>;
-import <stb_image.h>;
 
 Texture::Texture(const std::string& p_texturePath):
 	_id(),

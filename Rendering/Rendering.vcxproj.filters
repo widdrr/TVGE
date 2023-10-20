@@ -9,33 +9,48 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>vert;frag</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shader.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaderLightSource.frag">
-      <Filter>Shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Vertex.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Vertex.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="Camera.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsComponents.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsResources.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSourceComponent.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSourceComponent.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderComponent.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderComponent.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
@@ -44,7 +59,10 @@
     <ClCompile Include="Texture.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsResources.ixx">
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
   </ItemGroup>

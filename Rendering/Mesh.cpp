@@ -1,6 +1,8 @@
 module Graphics.Resources:Mesh;
 
 import <glm/geometric.hpp>;
+import <glm/vec3.hpp>;
+
 import <vector>;
 
 Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) :
@@ -35,9 +37,9 @@ const std::vector<unsigned int>& Mesh::GetElements() const {
 	return _indices;
 }
 
-const size_t Mesh::GetElementCount() const {
+const GLsizei Mesh::GetElementCount() const {
 	
-	return _indices.size();
+	return static_cast<GLsizei>(_indices.size());
 }
 
 const GLenum Mesh::GetDrawMode() const {

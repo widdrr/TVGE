@@ -1,8 +1,9 @@
 module;
 
-#define GLFW_DLL
+#include <gl/glew.h>
+#include <gl/glfw3.h>
 
-export module Renderer;
+export module Rendering;
 
 //TODO rework header includes
 import Common;
@@ -10,9 +11,7 @@ import Camera;
 import Graphics.Components;
 import Graphics.Resources;
 
-import <gl/glew.h>;
-import <Windows.h>;
-import <gl/glfw3.h>;
+
 import <glm/mat4x4.hpp>;
 
 import <string>;
@@ -26,7 +25,7 @@ enum ShaderAttributes{
 	Normal
 };
 
-class Renderer
+export class Renderer
 {
 private:
 	static constexpr unsigned int _windowHeight = 600;

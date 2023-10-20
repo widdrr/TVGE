@@ -1,7 +1,6 @@
-export module ShaderProgram;
+export module Graphics.Resources:ShaderProgram;
 
 import <glm/mat4x4.hpp>;
-
 import <string>;
 
 export class ShaderProgram

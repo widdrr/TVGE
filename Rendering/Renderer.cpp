@@ -1,12 +1,19 @@
+module;
 
+//don't think this can be converted to a module
 
-module Renderer;
+//TODO: investigate C5105
+#include <Windows.h>
+#include <gl/glfw3.h>
+
+module Rendering;
 
 import <glm/gtc/type_ptr.hpp>;
+import <gl/glew.h>;
+
 import <iostream>;
 import <fstream>;
-import <gl/glew.h>;
-import <gl/glfw3.h>;
+
 
 std::shared_ptr<Renderer> Renderer::_instance = nullptr;
 
