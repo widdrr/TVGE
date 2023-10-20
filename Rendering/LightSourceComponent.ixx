@@ -4,6 +4,8 @@ import Common;
 
 import <glm/vec3.hpp>;
 
+import <memory>;
+
 //TODO: big, integrate light sources into the ECS cleanly
 export class LightSourceComponent : public Component {
 
@@ -21,4 +23,3 @@ public:
 	const float getAmbienceStrength() const;
 	const float getSpecularStrength() const;
 };
-

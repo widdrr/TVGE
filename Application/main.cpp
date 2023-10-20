@@ -1,15 +1,17 @@
-#include "Renderer.h"
-
+import Common;
+import Vertex;
+import Graphics.Components;
+import Graphics.Resources;
+import Rendering;
 //TODO: transition to modules :)
 import <thread>;
 import <chrono>;
+import <memory>;
 
-void rotateObj(Entity& obj, float theta, bool& flag)
-{
+void rotateObj(Entity& obj, float theta, bool& flag) {
 	while (flag) {
-		
-		obj.Rotate(0.f, 1.f, 0.f, theta,
-			0.f, 0.f, -5.f);
+
+		obj.Rotate(0.f, 1.f, 0.f, theta);
 		std::this_thread::sleep_for(std::chrono::milliseconds(4));
 	}
 }
@@ -44,7 +46,7 @@ int main() {
 		0.5f, 0.5f, 0.5f, 1.f,
 		0.75f, 0.25f},
 		//B R
-		{0.5f, -0.5, -0.5, 
+		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
 		1.f, 0.25f},
 		//T R
@@ -153,26 +155,26 @@ int main() {
 	Entity cube;
 	Entity light;
 	Entity cube3;
-	auto comp = cube.CreateComponent<GraphicsComponent>();
+	auto comp = cube.CreateComponent<RenderComponent>();
 	comp->mesh = std::make_shared<Mesh>(cubeMesh);
-	
-	
-	auto comp2 = light.CreateComponent<GraphicsComponent>();
+
+
+	auto comp2 = light.CreateComponent<RenderComponent>();
 	comp2->mesh = std::make_shared<Mesh>(cubeMesh);
-	light.CreateComponent<LightSourceComponent>(1.f,1.f,1.f, 0.3f, 0.3f);
-	
-	auto comp3 = cube3.CreateComponent<GraphicsComponent>();
+	light.CreateComponent<LightSourceComponent>(1.f, 1.f, 1.f, 0.3f, 0.3f);
+
+	auto comp3 = cube3.CreateComponent<RenderComponent>();
 	comp3->mesh = std::make_shared<Mesh>(cubeMesh);
-	
+
 	cube.Translate(0.f, -5.f, 0.f);
 	cube.Scale(100.f, .1f, 100.f);
 	light.Scale(0.1f, 0.1f, 0.1f);
-	
+
 	light.Translate(0.f, 0.f, -5.f);
 	cube3.Translate(0.f, 0.f, 0);
 
 	auto renderer = Renderer::GetInstance();
-	
+
 	comp3->texture = renderer->TextureFactory("dice.png");
 	comp2->shaderProgram = renderer->ShaderFactory("shader.vert", "shaderLightSource.frag");
 	renderer->SetPerspective(90, 0.1f, 100.f);
@@ -180,7 +182,7 @@ int main() {
 	renderer->AddObject(cube);
 	renderer->AddObject(light);
 	renderer->AddObject(cube3);
-	
+
 	bool flag = true;
 	std::thread objThread(rotateObj, std::ref(cube3), 1.f, std::ref(flag));
 	renderer->Run();

@@ -1,4 +1,4 @@
-module ShaderProgram;
+module Graphics.Resources:ShaderProgram;
 
 import <glm/gtc/type_ptr.hpp>;
 import <gl/glew.h>;
@@ -96,7 +96,7 @@ void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderTyp
 	}
 
 	const GLchar* shaderText[] = { p_shaderText.c_str() };
-	GLint shaderLengths[] = { p_shaderText.length() };
+	GLint shaderLengths[] = { static_cast<GLint>(p_shaderText.length()) };
 
 	glShaderSource(shader, 1, shaderText, shaderLengths);
 

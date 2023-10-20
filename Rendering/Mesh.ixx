@@ -1,9 +1,7 @@
 export module Graphics.Resources:Mesh;
 
 import Vertex;
-
-import <gl/glew.h>;
-
+import <GL/glew.h>;
 import <vector>;
 
 export class Mesh
@@ -17,7 +15,7 @@ public:
 	Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode = GL_TRIANGLES);
 	const std::vector<Vertex>& GetVertices() const;
 	const std::vector<unsigned int>& GetElements() const;
-	const size_t GetElementCount() const;
+	const GLsizei GetElementCount() const;
 	const GLenum GetDrawMode() const;
 };
 
