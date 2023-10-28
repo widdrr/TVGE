@@ -1,0 +1,13 @@
+Headers:
+Clean Compile 11.328s
+Modifying main 3.7s
+Modifying Vertex.h 7.75s
+Modifying Vertex.cpp 1.1s
+Runtime LUL: good
+
+Modules + Multi Project:
+Clean Compile 14.532s, 13.8s
+Modifying main 1.429 - 2s
+Modifying Vertex.ixx 5s
+Modifying Vertex.cpp 1.3s
+Runtime LUL: placebo might be worse?

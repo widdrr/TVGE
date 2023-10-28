@@ -3,10 +3,7 @@ module Graphics.Components:RenderComponent;
 import <glm/gtc/matrix_transform.hpp>;
 
 RenderComponent::RenderComponent(Entity& p_entity) :
-	Component(p_entity),
-	_vao(),
-	_vbo(),
-	_ebo()
+	Component(p_entity)
 {}
 
 glm::mat4 RenderComponent::GetModelTransformation() const {
@@ -20,5 +17,14 @@ glm::mat4 RenderComponent::GetModelTransformation() const {
 	//scaling along arbitrary axes 
 	modelTransformation = glm::scale(modelTransformation, _entity.scaling);
 
-	return modelTransformation;
+	if (_entity._parent == nullptr) {
+		return modelTransformation;
+	}
+	
+	auto parentComponent = _entity._parent->TryGetComponentOfType<RenderComponent>();
+	if (!parentComponent.expired()) {
+		auto parentTransformation = parentComponent.lock()->GetModelTransformation();
+
+		return parentTransformation * modelTransformation;
+	}
 }

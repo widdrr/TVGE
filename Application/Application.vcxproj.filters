@@ -9,35 +9,39 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{5db1d1e4-1bdf-42c1-a5e7-c6428f1ecd8f}</UniqueIdentifier>
+      <Extensions>frag;vert;</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="awesomeface.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Image>
     <Image Include="Cat.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Image>
     <Image Include="dice.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Image>
     <Image Include="dumi2.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Image>
     <Image Include="face.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Image>
     <Image Include="Matey.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Image>
     <Image Include="wall.jpg">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="earth.png">
+      <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -46,13 +50,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Rendering\shader.frag">
+    <None Include="shader.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\Rendering\shader.vert">
+    <None Include="shader.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\Rendering\shaderLightSource.frag">
+    <None Include="shaderLightSource.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

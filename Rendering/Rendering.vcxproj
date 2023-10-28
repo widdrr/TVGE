@@ -118,7 +118,7 @@
       <AdditionalDependencies>glew32d.lib;glfw3dll.lib;winmm.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;glew32d.lib;winmm.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;glew32d.lib;winmm.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)/Libraries/External/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -149,6 +149,8 @@
     <ClCompile Include="LightSourceComponent.ixx" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Mesh.ixx" />
+    <ClCompile Include="MeshHelpers.cpp" />
+    <ClCompile Include="MeshHelpers.ixx" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="RenderComponent.ixx" />
     <ClCompile Include="Renderer.cpp" />
@@ -157,8 +159,8 @@
     <ClCompile Include="ShaderProgram.ixx" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture.ixx" />
+    <ClCompile Include="Utilities.ixx" />
     <ClCompile Include="Vertex.cpp" />
-    <ClCompile Include="Vertex.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

@@ -3,10 +3,10 @@ module;
 //TODO: see if this can be converted
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <gl/glew.h>
 
 module Graphics.Resources:Texture;
 
-import <gl/glew.h>;
 import <iostream>;
 
 Texture::Texture(const std::string& p_texturePath):
@@ -44,4 +44,5 @@ Texture::Texture(const std::string& p_texturePath):
 Texture::~Texture() {
 
 	stbi_image_free(_textureData);
+	glDeleteTextures(1, &_id);
 }

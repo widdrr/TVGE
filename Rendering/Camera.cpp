@@ -1,4 +1,4 @@
-module Camera;
+module Graphics.Components:Camera;
 
 import <glm/gtc/matrix_transform.hpp>;
 
@@ -6,16 +6,15 @@ import <cctype>;
 import <algorithm>;
 import <iostream>;
 
-Camera::Camera(float p_posX, float p_posY, float p_posZ, float p_yaw, float p_pitch) :
+Camera::Camera(float p_posX, float p_posY, float p_posZ, float p_frontX, float p_frontY, float p_frontZ) :
 	_position(p_posX, p_posY, p_posZ),
 	//roll not yet supported, not really needed
 	_up(0.f, 1.f, 0.f),
-	_yaw(-p_yaw),
-	_pitch(p_pitch)
+	_front(p_frontX, p_frontY, p_frontZ),
+	_yaw(),
+	_pitch()
 {
-	_front.x = cosf(glm::radians(_yaw)) * cosf(glm::radians(_pitch));
-	_front.y = sinf(glm::radians(_pitch));
-	_front.z = sinf(glm::radians(_yaw)) * cosf(glm::radians(_pitch));
+	DetermineAngles();
 	_front = glm::normalize(_front);
 }
 
@@ -58,7 +57,27 @@ void Camera::MoveCamera(Movement p_movement, float p_delta) {
 
 }
 
-void Camera::PointCamera(float p_offsetX, float p_offsetY) {
+void Camera::SetCameraPosition(float p_posX, float p_posY, float p_posZ) {
+	_position.x = p_posX;
+	_position.y = p_posY;
+	_position.z = p_posZ;
+}
+
+void Camera::SetCameraDirection(float p_frontX, float p_frontY, float p_frontZ) {
+
+	_front.x = p_frontX;
+	_front.y = p_frontY;
+	_front.z = p_frontZ;
+
+	DetermineAngles();
+}
+
+void Camera::DetermineAngles() {
+
+
+}
+
+void Camera::RotateCamera(float p_offsetX, float p_offsetY) {
 
 	float adjustedSensitivity = _cameraSensitivity;
 

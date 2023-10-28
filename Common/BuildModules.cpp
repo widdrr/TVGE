@@ -16,5 +16,5 @@ import <glm/mat4x4.hpp>;
 import <glm/geometric.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 import <glm/gtc/type_ptr.hpp>;
-import <gl/glew.h>;
-import <gl/glfw3.h>;
+
+//only glm is well behaved as a module

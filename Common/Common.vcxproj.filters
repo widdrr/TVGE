@@ -14,7 +14,10 @@
     <ClCompile Include="Common.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="Common.cpp">
+    <ClCompile Include="Entity.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
   </ItemGroup>

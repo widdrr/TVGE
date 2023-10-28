@@ -113,6 +113,10 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/Libraries/External/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)Libraries\External\bin\glew32d.dll" "$(OutDir)"
+xcopy /y "$(SolutionDir)Libraries\External\bin\glfw3.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -135,6 +139,7 @@
     <Image Include="Cat.png" />
     <Image Include="dice.png" />
     <Image Include="dumi2.png" />
+    <Image Include="earth.png" />
     <Image Include="face.png" />
     <Image Include="Matey.png" />
     <Image Include="wall.jpg" />
@@ -154,9 +159,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Rendering\shader.frag" />
-    <None Include="..\Rendering\shader.vert" />
-    <None Include="..\Rendering\shaderLightSource.frag" />
+    <None Include="shader.frag" />
+    <None Include="shader.vert" />
+    <None Include="shaderLightSource.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

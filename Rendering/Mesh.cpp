@@ -1,14 +1,21 @@
+module;
+
+#include <gl/glew.h>
+#include <glm/vec4.hpp>;
+
 module Graphics.Resources:Mesh;
 
-import <glm/geometric.hpp>;
-import <glm/vec3.hpp>;
+import :Utilities;
 
-import <vector>;
+import <glm/geometric.hpp>;
 
 Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) :
 	_vertices(p_vertices),
 	_indices(p_indices),
-	_drawMode(p_mode)
+	_drawMode(p_mode),
+	_vao(),
+	_vbo(),
+	_ebo()
 {
 	//TODO: make this work for something other than triangles
 	for (size_t i = 0; i < _indices.size() - 3; i += 3) {
@@ -25,6 +32,42 @@ Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int
 		Vertex2._normal = triangleNormal;
 		Vertex3._normal = triangleNormal;
 	}
+
+	//generating VAO to store buffer data
+	glGenVertexArrays(1, &_vao);
+
+	//generating the VBO and EBO
+	glGenBuffers(1, &_vbo);
+	glGenBuffers(1, &_ebo);
+
+	//activating VAO
+	glBindVertexArray(_vao);
+
+	//copying data to VBO
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), reinterpret_cast<void*>(const_cast<Vertex*>(_vertices.data())), GL_STATIC_DRAW);
+
+	//copying data to EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), reinterpret_cast<void*>(const_cast<unsigned int*>(_indices.data())), GL_STATIC_DRAW);
+
+	//TODO: refactor this to not send worthless data if object has no texture
+	//setting Position attribute
+	glVertexAttribPointer(VertexAttributes::Position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
+	glEnableVertexAttribArray(VertexAttributes::Position);
+	//setting Color attribute
+	glVertexAttribPointer(VertexAttributes::Color, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(VertexAttributes::Color);
+	//setting Texture attribute
+	glVertexAttribPointer(VertexAttributes::TextureCoordinates, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(7 * sizeof(float)));
+	glEnableVertexAttribArray(VertexAttributes::TextureCoordinates);
+	//setting Normal attribute
+	glVertexAttribPointer(VertexAttributes::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
+	glEnableVertexAttribArray(VertexAttributes::Normal);
+
+	//deactivating VAO
+	glBindVertexArray(0);
 }
 
 const std::vector<Vertex>& Mesh::GetVertices() const {
@@ -46,3 +89,21 @@ const GLenum Mesh::GetDrawMode() const {
 	return _drawMode;
 }
 
+Mesh::~Mesh() {
+
+	glBindVertexArray(_vao);
+
+	glDisableVertexAttribArray(VertexAttributes::Position);
+	glDisableVertexAttribArray(VertexAttributes::Color);
+	glDisableVertexAttribArray(VertexAttributes::TextureCoordinates);
+	glDisableVertexAttribArray(VertexAttributes::Normal);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glDeleteBuffers(1, &_vbo);
+	glDeleteBuffers(1, &_ebo);
+
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &_vao);
+}

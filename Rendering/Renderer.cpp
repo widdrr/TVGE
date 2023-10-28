@@ -4,28 +4,18 @@ module;
 
 //TODO: investigate C5105
 #include <Windows.h>
+#include <gl/glew.h>
 #include <gl/glfw3.h>
 
 module Rendering;
 
 import <glm/gtc/type_ptr.hpp>;
-import <gl/glew.h>;
 
 import <iostream>;
 import <fstream>;
 
 
-std::shared_ptr<Renderer> Renderer::_instance = nullptr;
-
-const std::string Renderer::UniformVariables::viewMatrix = "glViewMatrix";
-const std::string Renderer::UniformVariables::projectionMatrix = "glProjectionMatrix";
-const std::string Renderer::UniformVariables::modelMatrix = "glModelMatrix";
-const std::string Renderer::UniformVariables::hasTexture = "glHasTexture";
-const std::string Renderer::UniformVariables::lightColor = "glLightColor";
-const std::string Renderer::UniformVariables::lightPosition = "glLightPosition";
-const std::string Renderer::UniformVariables::lightAmbianceStrength = "glLightAmbianceStrength";
-const std::string Renderer::UniformVariables::lightSpecularStrength = "glLightSpecularStrength";
-const std::string Renderer::UniformVariables::cameraPosition = "glCameraPosition";
+std::unique_ptr<Renderer> Renderer::_instance = nullptr;
 
 void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) {
 	
@@ -33,35 +23,39 @@ void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) {
 }
 
 
-std::shared_ptr<Renderer> Renderer::GetInstance() {
+Renderer& Renderer::GetInstance() {
 
 	if (_instance == nullptr) {
-		_instance = std::shared_ptr<Renderer>(new Renderer());
+		_instance = std::unique_ptr<Renderer>(new Renderer());
 	}
 
-	return _instance;
+	return *_instance;
 }
 
 std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) {
 
 	_shaders.push_back(std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath)));
-	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix); 
+	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 
 	glm::vec3 lightColor(1.f, 1.f, 1.f);
 	glm::vec3 lightPosition(0.f, 0.f, 0.f);
-	float ambianceStrength = 0.1f;
-	float specularStrength = 0.1f;
+	float ambianceStrength = 1.f;
+	float specularStrength = 0.f;
+	float diffuseStrength = 0.f;
 
-	if (_lightSource != nullptr) {
-		lightColor = _lightSource->getLightColor();
-		lightPosition = _lightSource->getLightPosition();
-		ambianceStrength = _lightSource->getAmbienceStrength();
-		specularStrength = _lightSource->getSpecularStrength();
+	if (!_lightSource.expired()) {
+		auto lightSource = _lightSource.lock();
+		lightColor = lightSource->getLightColor();
+		lightPosition = lightSource->getLightPosition();
+		ambianceStrength = lightSource->getAmbienceStrength();
+		diffuseStrength = lightSource->getDiffuseStrength();
+		specularStrength = lightSource->getSpecularStrength();
 	}
 
 	_shaders.back()->SetVariable(UniformVariables::lightColor, lightColor);
 	_shaders.back()->SetVariable(UniformVariables::lightPosition, lightPosition);
 	_shaders.back()->SetVariable(UniformVariables::lightAmbianceStrength, ambianceStrength);
+	_shaders.back()->SetVariable(UniformVariables::lightDiffuseStrength, diffuseStrength);
 	_shaders.back()->SetVariable(UniformVariables::lightSpecularStrength, specularStrength);
 
 	return _shaders.back();
@@ -78,58 +72,48 @@ std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePa
 	return _textures.back();
 }
 
+std::shared_ptr<Mesh> Renderer::MeshFactory(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) {
+	
+	return std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_mode));
+}
+
+void Renderer::SetCameraLock(bool p_lock) {
+	_cameraLock = p_lock;
+}
+
 void Renderer::AddObject(const Entity& p_object) {
 
 	//obtaining the GraphicsComponent of the Entity
-	auto graphicsComponent = p_object.GetComponentOfType<RenderComponent>();
-	if (graphicsComponent == nullptr) {
+
+	auto graphicsComponentWeak = p_object.TryGetComponentOfType<RenderComponent>();
+	if (graphicsComponentWeak.expired()) {
 		std::cerr << "Object does not have a Graphics Component";
 		return;
 	}
+
+	auto graphicsComponent = graphicsComponentWeak.lock();
 
 	if (graphicsComponent->mesh == nullptr) {
 		std::cerr << "Graphics Component does not have a Mesh";
 		return;
 	}
 
-	//generating VAO to store buffer data
-	glGenVertexArrays(1, &graphicsComponent->_vao);
+	_entities.push_back(graphicsComponentWeak);
+}
 
-	//generating the VBO and EBO
-	glGenBuffers(1, &graphicsComponent->_vbo);
-	glGenBuffers(1, &graphicsComponent->_ebo);
+void Renderer::Set2DMode(float p_width, float p_height) {
 
-	//activating VAO
-	glBindVertexArray(graphicsComponent->_vao);
+	_camera.SetCameraPosition(0.f, 0.f, 1.f);
+	_camera.SetCameraDirection(0.f, 0.f, -1.f);
+	SetCameraLock(true);
+	_projectionMatrix = glm::ortho(-p_width / 2, p_width / 2, 
+									-p_height / 2, p_height / 2, 
+									0.1f, 5.f);
+	
+	for (auto& shader : _shaders) {
 
-	//copying data to VBO
-	glBindBuffer(GL_ARRAY_BUFFER, graphicsComponent->_vbo);
-	auto& vertices = graphicsComponent->mesh->GetVertices();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), reinterpret_cast<void*>(const_cast<Vertex*>(vertices.data())), GL_STATIC_DRAW);
-
-	//copying data to EBO
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphicsComponent->_ebo);
-	auto& elements = graphicsComponent->mesh->GetElements();
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), reinterpret_cast<void*>(const_cast<unsigned int*>(elements.data())), GL_STATIC_DRAW);
-
-	//TODO: refactor this to not send worthless data if object has no texture
-	//setting Position attribute
-	glVertexAttribPointer(ShaderAttributes::Position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
-	glEnableVertexAttribArray(ShaderAttributes::Position);
-	//setting Color attribute
-	glVertexAttribPointer(ShaderAttributes::Color, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(ShaderAttributes::Color);
-	//setting Texture attribute
-	glVertexAttribPointer(ShaderAttributes::TextureCoordinates, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(7 * sizeof(float)));
-	glEnableVertexAttribArray(ShaderAttributes::TextureCoordinates);
-	//setting Normal attribute
-	glVertexAttribPointer(ShaderAttributes::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
-	glEnableVertexAttribArray(ShaderAttributes::Normal);
-
-	//deactivating VAO
-	glBindVertexArray(0);
-
-	_entities.push_back(graphicsComponent);
+		shader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
+	}
 }
 
 void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) {
@@ -138,53 +122,65 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 	_projectionMatrix = glm::perspective(p_fov / 2.f, aspectRatio, p_nearPlane, p_farPlane);
 
 	for (auto& shader : _shaders) {
+
 		shader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 	}
 }
 
 void Renderer::SetLightSource(const Entity& p_object) {
 
-	_lightSource = p_object.GetComponentOfType<LightSourceComponent>();
-	if (_lightSource == nullptr) {
+	_lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
+	if (_lightSource.expired()) {
 		std::cerr << "Object does not contain a LightSourceComponent\n";
 	}
 
+	auto lightSource = _lightSource.lock();
+
 	for (auto& shader : _shaders) {
-		shader->SetVariable(UniformVariables::lightColor, _lightSource->getLightColor());
-		shader->SetVariable(UniformVariables::lightPosition, _lightSource->getLightPosition());
-		shader->SetVariable(UniformVariables::lightAmbianceStrength, _lightSource->getAmbienceStrength());
-		shader->SetVariable(UniformVariables::lightSpecularStrength, _lightSource->getSpecularStrength());
+		shader->SetVariable(UniformVariables::lightColor, lightSource->getLightColor());
+		shader->SetVariable(UniformVariables::lightPosition, lightSource->getLightPosition());
+		shader->SetVariable(UniformVariables::lightAmbianceStrength, lightSource->getAmbienceStrength());
+		shader->SetVariable(UniformVariables::lightDiffuseStrength, lightSource->getDiffuseStrength());
+		shader->SetVariable(UniformVariables::lightSpecularStrength, lightSource->getSpecularStrength());
 	}
 }
-
-
 
 void Renderer::RenderFunction() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (const auto& object : _entities) {
-		glBindVertexArray(object->_vao);
+	for (const auto& entity : _entities) {
+		
+		//TODO: expired components removal;
+		if (entity.expired()) {
+			continue;
+		}
+		auto component = entity.lock();
+		auto& mesh = component->mesh;
+		if (mesh == nullptr) {
+			continue;
+		}
+		glBindVertexArray(mesh->_vao);
 
 		//If there is a shader associated we use it
 		//else fallback to the default shader
-		auto& shader = object->shaderProgram != nullptr ? object->shaderProgram : _shaders[0];
+		auto shader = component->shaderProgram != nullptr ? component->shaderProgram : _shaders[0];
 
-		shader->SetVariable(UniformVariables::modelMatrix, object->GetModelTransformation());
+		shader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
 		shader->SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
 		glUseProgram(shader->_id);
 
 		shader->SetVariable(UniformVariables::hasTexture, false);
-		if (object->texture != nullptr) {
+		if (component->texture != nullptr) {
 			shader->SetVariable(UniformVariables::hasTexture, true);
-			glBindTexture(GL_TEXTURE_2D, object->texture->_id);
+			glBindTexture(GL_TEXTURE_2D, component->texture->_id);
 		}
 
 		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
 		//to permit customizing this
 		//Update: partially done via storing DrawMode
-		glDrawElements(object->mesh->GetDrawMode(), object->mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
+		glDrawElements(mesh->GetDrawMode(), mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}
@@ -194,34 +190,7 @@ void Renderer::RenderFunction() {
 
 void Renderer::CleanupFunction() {
 
-	for (const auto& entity : _entities) {
-		glBindVertexArray(entity->_vao);
-
-		glDisableVertexAttribArray(ShaderAttributes::Position);
-		glDisableVertexAttribArray(ShaderAttributes::Color);
-		glDisableVertexAttribArray(ShaderAttributes::TextureCoordinates);
-		glDisableVertexAttribArray(ShaderAttributes::Normal);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glDeleteBuffers(1, &entity->_vbo);
-		glDeleteBuffers(1, &entity->_ebo);
-
-		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &entity->_vao);
-	}
-
-	//TODO, bulk delete?
-	for (const auto& texture : _textures) {
-
-		glDeleteTextures(1, &texture->_id);
-	}
-
 	glUseProgram(0);
-	for (const auto& shader : _shaders) {
-		glDeleteProgram(shader->_id);
-	}
 }
 void Renderer::ComputeTime() {
 
@@ -242,6 +211,10 @@ void Renderer::ComputeTime() {
 void Renderer::ProcessInput() {
 
 	glfwPollEvents();
+
+	if (_cameraLock) {
+		return;
+	}
 
 	if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -266,6 +239,10 @@ void Renderer::ProcessInput() {
 
 void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 	
+	if (_cameraLock) {
+		return;
+	}
+
 	if (_focused) {
 		if (_initial) {
 			_prevX = _crtX;
@@ -279,7 +256,7 @@ void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 			_prevX = _crtX;
 			_prevY = _crtY;
 		
-			_camera.PointCamera(offsetX, offsetY);
+			_camera.RotateCamera(offsetX, offsetY);
 		}
 	}
 }
@@ -289,7 +266,8 @@ Renderer::Renderer() :
 	_camera(),
 	_lightSource(),
 	_focused(false),
-	_initial(true)
+	_initial(true),
+	_cameraLock(false)
 {
 
 	//TODO: critical, try and get away with not using this

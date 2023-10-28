@@ -1,18 +1,44 @@
 import Common;
-import Vertex;
 import Graphics.Components;
 import Graphics.Resources;
 import Rendering;
-//TODO: transition to modules :)
+import MeshHelpers;
+
+#include <GL/glew.h>
+
+import <glm/vec3.hpp>;
+
+import <iostream>;
 import <thread>;
 import <chrono>;
 import <memory>;
+
 
 void rotateObj(Entity& obj, float theta, bool& flag) {
 	while (flag) {
 
 		obj.Rotate(0.f, 1.f, 0.f, theta);
 		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+	}
+}
+
+void OrbitParentEntity2D(Entity& obj, float theta, bool& flag) {
+
+	float totalTheta = 0.f;
+
+	while (flag) {
+
+		auto previousTheta = totalTheta;
+		totalTheta += theta;
+		totalTheta = fmodf(totalTheta + 360, 360.f);
+
+		float xDist = glm::length(obj.position) * (cosf(glm::radians(totalTheta)) - cosf(glm::radians(previousTheta)));
+		float yDist = glm::length(obj.position) * (sinf(glm::radians(totalTheta)) - sinf(glm::radians(previousTheta)));
+
+		obj.Translate(xDist, yDist, 0);
+		obj.Rotate(0.f, 0.f, 1.f, theta);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
 }
 
@@ -26,109 +52,109 @@ int main() {
 		//B L
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.25f},
+		0.5f, 0.33f},
 		//B R
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.25f},
+		0.75f, 0.33f},
 		//T R
 		{0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.5f},
+		0.75f, 0.66f},
 		//T L
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.5f},
+		0.5f, 0.66f},
 
 		//Right Face
 		//B L
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.25f},
+		0.75f, 0.33f},
 		//B R
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		1.f, 0.25f},
+		1.f, 0.33f},
 		//T R
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		1.f, 0.5f},
+		1.f, 0.66f},
 		//T L
 		{0.5f, 0.5f, 0.5f,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75, 0.5},
+		0.75f, 0.33f},
 
 		//Back Face
 		//B L
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.f, 0.25},
+		0.f, 0.33f},
 		//B R
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25, 0.25},
+		0.25f, 0.33f},
 		//T R
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25, 0.5},
+		0.25f, 0.66f},
 		//T L
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.f, 0.5},
+		0.f, 0.66f},
 
 		//Left Face
 		//B L
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.25},
+		0.25f, 0.33f},
 		//B R
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5, 0.25},
+		0.5f, 0.33f},
 		//T R
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5, 0.5},
+		0.5f, 0.66f},
 		//T L
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.5},
+		0.25f, 0.66f},
 
 		//Top Face
 		//B L
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5, 0.5},
+		0.5f, 0.66f},
 		//B R
 		{0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75, 0.5},
+		0.75f, 0.66f},
 		//T R
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75, 0.75},
+		0.75f, 0.1f},
 		//T L
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5, 0.75},
+		0.5f, 0.1f},
 
 		//Bottom Face
 		//B L
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5, 0.f},
+		0.5f, 0.f},
 		//B R
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75, 0.f},
+		0.75f, 0.f},
 		//T R
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75, 0.25},
+		0.75f, 0.33f},
 		//T L
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5, 0.25}
+		0.5f, 0.3f}
 	};
 
 	std::vector<unsigned int> order = {
@@ -151,42 +177,39 @@ int main() {
 		22, 23, 20,
 	};
 
-	Mesh cubeMesh(vertices, order);
-	Entity cube;
-	Entity light;
-	Entity cube3;
-	auto comp = cube.CreateComponent<RenderComponent>();
-	comp->mesh = std::make_shared<Mesh>(cubeMesh);
+	auto& renderer = Renderer::GetInstance();
 
+	Entity sun;
+	auto sunData = CommonMeshes::Circle(50, 36, glm::vec4(1.f, 1.f, 0.f, 0.f));
+	auto sunComp = sun.CreateComponent<RenderComponent>().lock();
+	sunComp->mesh = renderer.MeshFactory(sunData.first, sunData.second, GL_TRIANGLE_FAN);
 
-	auto comp2 = light.CreateComponent<RenderComponent>();
-	comp2->mesh = std::make_shared<Mesh>(cubeMesh);
-	light.CreateComponent<LightSourceComponent>(1.f, 1.f, 1.f, 0.3f, 0.3f);
+	Entity earth;
+	earth.SetParent(sun);
+	auto earthData = CommonMeshes::Circle(20, 36, glm::vec4(0.f,0.f,1.f,0.f));
+	auto earthComp = earth.CreateComponent<RenderComponent>().lock();
+	earthComp->mesh = renderer.MeshFactory(earthData.first, earthData.second, GL_TRIANGLE_FAN);
+	earth.Translate(200.f, 0.f, 0.f);
 
-	auto comp3 = cube3.CreateComponent<RenderComponent>();
-	comp3->mesh = std::make_shared<Mesh>(cubeMesh);
+	Entity moon;
+	moon.SetParent(earth);
+	auto moonData = CommonMeshes::Circle(10, 36, glm::vec4(.25f, .25f, .25f, 0.f));
+	auto moonComp = moon.CreateComponent<RenderComponent>().lock();
+	moonComp->mesh = renderer.MeshFactory(moonData.first, moonData.second, GL_TRIANGLE_FAN);
+	moon.Translate(50.f, 0.f, 0.f);
 
-	cube.Translate(0.f, -5.f, 0.f);
-	cube.Scale(100.f, .1f, 100.f);
-	light.Scale(0.1f, 0.1f, 0.1f);
+	renderer.Set2DMode(800, 600);
 
-	light.Translate(0.f, 0.f, -5.f);
-	cube3.Translate(0.f, 0.f, 0);
-
-	auto renderer = Renderer::GetInstance();
-
-	comp3->texture = renderer->TextureFactory("dice.png");
-	comp2->shaderProgram = renderer->ShaderFactory("shader.vert", "shaderLightSource.frag");
-	renderer->SetPerspective(90, 0.1f, 100.f);
-	renderer->SetLightSource(light);
-	renderer->AddObject(cube);
-	renderer->AddObject(light);
-	renderer->AddObject(cube3);
+	renderer.AddObject(sun);
+	renderer.AddObject(earth);
+	renderer.AddObject(moon);
 
 	bool flag = true;
-	std::thread objThread(rotateObj, std::ref(cube3), 1.f, std::ref(flag));
-	renderer->Run();
+	std::thread earthOrbit(OrbitParentEntity2D, std::ref(earth), 1.f, std::ref(flag));
+	std::thread moonOrbit(OrbitParentEntity2D, std::ref(moon), 1.f, std::ref(flag));
+	
+	renderer.Run();
 	flag = false;
-	objThread.join();
-
+	earthOrbit.join();
+	moonOrbit.join();
 }

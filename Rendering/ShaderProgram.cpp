@@ -1,7 +1,10 @@
+module;
+
+#include <gl/glew.h>
+
 module Graphics.Resources:ShaderProgram;
 
 import <glm/gtc/type_ptr.hpp>;
-import <gl/glew.h>;
 
 import <fstream>;
 import <iostream>;
@@ -25,7 +28,7 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 
 	if (!linkSuccess) {
 		GLchar dump[_dumpSize];
-		glGetProgramInfoLog(_id, _dumpSize, NULL, dump);
+		glGetProgramInfoLog(_id, _dumpSize, nullptr, dump);
 		std::cerr << "Error while linking shader program: " << dump << "\n";
 		exit(1);
 	}
@@ -37,7 +40,7 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 
 	if (!validateSuccess) {
 		GLchar dump[_dumpSize];
-		glGetProgramInfoLog(_id, _dumpSize, NULL, dump);
+		glGetProgramInfoLog(_id, _dumpSize, nullptr, dump);
 		std::cerr << "Error while validating shader program: " << dump << "\n";
 		exit(1);
 	}
@@ -71,7 +74,6 @@ void ShaderProgram::SetVariable(std::string p_variableName, glm::vec3 p_value, b
 
 	glProgramUniform3fv(_id, location, 1, glm::value_ptr(p_value));
 }
-
 
 void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool p_debug) {
 
@@ -135,3 +137,10 @@ std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName){
 	}
 	return content;
 }
+
+
+ShaderProgram::~ShaderProgram() {
+
+	glDeleteProgram(_id);
+}
+

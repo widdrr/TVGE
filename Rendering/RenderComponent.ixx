@@ -9,11 +9,6 @@ import <memory>;
 
 export class RenderComponent : public Component {
 
-	friend class Renderer;
-private:
-	//Renderer class should have unrestricted access to GraphicsComponents
-	unsigned int _vao, _vbo, _ebo;
-
 public:
 	std::shared_ptr<Mesh> mesh;
 	//TODO: texture unit support for texture blending?

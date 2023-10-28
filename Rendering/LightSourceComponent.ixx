@@ -11,15 +11,18 @@ export class LightSourceComponent : public Component {
 
 private:
 	glm::vec3 _lightColor;
+	//TODO: these might be moved to materials
 	const float _ambienceStrength;
+	const float _diffuseStrength;
 	const float _specularStrength;
 public:
 	LightSourceComponent(Entity& p_entity, 
 						 float p_lightR = 1.f, float p_lightG = 1.f, float p_lightB = 1.f, 
-						 float p_ambience = 0.1f, float p_specular = 0.3f);
+						 float p_ambience = 0.1f, float p_diffuse = 1.f, float p_specular = 0.3f);
 
 	const glm::vec3& getLightColor() const;
 	const glm::vec3& getLightPosition() const;
 	const float getAmbienceStrength() const;
+	const float getDiffuseStrength() const;
 	const float getSpecularStrength() const;
 };

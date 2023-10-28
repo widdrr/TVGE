@@ -11,15 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsComponents.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsResources.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
@@ -62,7 +53,22 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
-    <ClCompile Include="Vertex.ixx">
+    <ClCompile Include="Camera.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsComponents.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshHelpers.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshHelpers.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
   </ItemGroup>

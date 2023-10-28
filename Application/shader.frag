@@ -12,6 +12,7 @@ uniform bool glHasTexture;
 uniform vec3 glLightPosition;
 uniform vec3 glLightColor;
 uniform float glLightAmbianceStrength;
+uniform float glLightDiffuseStrength;
 uniform float glLightSpecularStrength;
 uniform vec3 glCameraPosition;
 
@@ -26,7 +27,7 @@ void main()
     vec3 NormalizedNormal = normalize(Normal);
     vec3 LightDirection = normalize(glLightPosition - FragmentPosition);
     float DiffuseValue = max(dot(NormalizedNormal, LightDirection), 0.0);
-    vec3 DiffuseColor = DiffuseValue * glLightColor;
+    vec3 DiffuseColor = glLightDiffuseStrength * DiffuseValue * glLightColor;
 
     //Specular component of Phong shading
     vec3 CameraDirection = normalize(glCameraPosition - FragmentPosition);
