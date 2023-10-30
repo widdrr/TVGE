@@ -43,6 +43,9 @@
     <Image Include="earth.png">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="sun.jpg">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

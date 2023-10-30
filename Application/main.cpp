@@ -14,11 +14,11 @@ import <chrono>;
 import <memory>;
 
 
-void rotateObj(Entity& obj, float theta, bool& flag) {
+void RotateAxis2D(Entity& obj, float theta, bool& flag) {
 	while (flag) {
 
-		obj.Rotate(0.f, 1.f, 0.f, theta);
-		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+		obj.Rotate(0.f, 0.f, 1.f, theta);
+		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
 }
 
@@ -180,23 +180,26 @@ int main() {
 	auto& renderer = Renderer::GetInstance();
 
 	Entity sun;
-	auto sunData = CommonMeshes::Circle(50, 36, glm::vec4(1.f, 1.f, 0.f, 0.f));
+	auto sunData = CommonMeshes::Circle(50, 36);
 	auto sunComp = sun.CreateComponent<RenderComponent>().lock();
 	sunComp->mesh = renderer.MeshFactory(sunData.first, sunData.second, GL_TRIANGLE_FAN);
+	sunComp->texture = renderer.TextureFactory("sun.png");
 
 	Entity earth;
 	earth.SetParent(sun);
-	auto earthData = CommonMeshes::Circle(20, 36, glm::vec4(0.f,0.f,1.f,0.f));
+	auto earthData = CommonMeshes::Circle(30, 36);
 	auto earthComp = earth.CreateComponent<RenderComponent>().lock();
 	earthComp->mesh = renderer.MeshFactory(earthData.first, earthData.second, GL_TRIANGLE_FAN);
+	earthComp->texture = renderer.TextureFactory("earth.png");
 	earth.Translate(200.f, 0.f, 0.f);
 
 	Entity moon;
 	moon.SetParent(earth);
-	auto moonData = CommonMeshes::Circle(10, 36, glm::vec4(.25f, .25f, .25f, 0.f));
+	auto moonData = CommonMeshes::Circle(20, 36);
 	auto moonComp = moon.CreateComponent<RenderComponent>().lock();
 	moonComp->mesh = renderer.MeshFactory(moonData.first, moonData.second, GL_TRIANGLE_FAN);
-	moon.Translate(50.f, 0.f, 0.f);
+	moonComp->texture = renderer.TextureFactory("moon.png");
+	moon.Translate(75.f, 0.f, 0.f);
 
 	renderer.Set2DMode(800, 600);
 
@@ -206,10 +209,12 @@ int main() {
 
 	bool flag = true;
 	std::thread earthOrbit(OrbitParentEntity2D, std::ref(earth), 1.f, std::ref(flag));
-	std::thread moonOrbit(OrbitParentEntity2D, std::ref(moon), 1.f, std::ref(flag));
+	std::thread earthRotation(RotateAxis2D, std::ref(earth), 2.f, std::ref(flag));
+	std::thread moonOrbit(OrbitParentEntity2D, std::ref(moon), -1.f, std::ref(flag));
 	
 	renderer.Run();
 	flag = false;
 	earthOrbit.join();
+	earthRotation.join();
 	moonOrbit.join();
 }

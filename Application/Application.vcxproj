@@ -142,6 +142,7 @@ xcopy /y "$(SolutionDir)Libraries\External\bin\glfw3.dll" "$(OutDir)"</Command>
     <Image Include="earth.png" />
     <Image Include="face.png" />
     <Image Include="Matey.png" />
+    <Image Include="sun.jpg" />
     <Image Include="wall.jpg" />
   </ItemGroup>
   <ItemGroup>
