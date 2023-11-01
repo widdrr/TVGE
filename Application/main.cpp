@@ -53,91 +53,91 @@ int main()
 		//B L
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.33f},
+		0.5f, 0.25f},
 		//B R
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.33f},
+		0.75f, 0.25f},
 		//T R
 		{0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.66f},
+		0.75f, 0.5f},
 		//T L
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.66f},
+		0.5f, 0.5f},
 
 		//Right Face
 		//B L
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.33f},
+		0.75f, 0.25f},
 		//B R
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		1.f, 0.33f},
+		1.f, 0.25f},
 		//T R
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		1.f, 0.66f},
+		1.f, 0.5f},
 		//T L
 		{0.5f, 0.5f, 0.5f,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.33f},
+		0.75f, 0.5f},
 
 		//Back Face
 		//B L
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.f, 0.33f},
+		0.f, 0.25f},
 		//B R
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.33f},
+		0.25f, 0.25f},
 		//T R
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.66f},
+		0.25f, 0.5f},
 		//T L
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.f, 0.66f},
+		0.f, 0.5f},
 
 		//Left Face
 		//B L
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.33f},
+		0.25f, 0.25f},
 		//B R
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.33f},
+		0.5f, 0.25f},
 		//T R
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.66f},
+		0.5f, 0.5f},
 		//T L
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.66f},
+		0.25f, 0.5f},
 
 		//Top Face
 		//B L
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.66f},
+		0.5f, 0.5f},
 		//B R
 		{0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.66f},
+		0.75f, 0.5f},
 		//T R
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.1f},
+		0.75f, 0.75f},
 		//T L
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.1f},
+		0.5f, 0.75f},
 
 		//Bottom Face
 		//B L
@@ -151,11 +151,11 @@ int main()
 		//T R
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.33f},
+		0.75f, 0.25f},
 		//T L
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.3f}
+		0.5f, 0.25f}
 	};
 
 	std::vector<unsigned int> order = {
@@ -180,42 +180,33 @@ int main()
 
 	auto& renderer = Renderer::GetInstance();
 
-	Entity sun;
-	auto sunData = CommonMeshes::Circle(50, 36);
-	auto sunComp = sun.CreateComponent<RenderComponent>().lock();
-	sunComp->mesh = renderer.MeshFactory(sunData.first, sunData.second, GL_TRIANGLE_FAN);
-	sunComp->texture = renderer.TextureFactory("sun.png");
+	Entity dice;
+	auto diceComp = dice.CreateComponentOfType<RenderComponent>();
+	diceComp.lock()->mesh = renderer.MeshFactory(vertices, order);
+	diceComp.lock()->texture = renderer.TextureFactory("dice.png");
 
-	Entity earth;
-	earth.SetParent(sun);
-	auto earthData = CommonMeshes::Circle(30, 36);
-	auto earthComp = earth.CreateComponent<RenderComponent>().lock();
-	earthComp->mesh = renderer.MeshFactory(earthData.first, earthData.second, GL_TRIANGLE_FAN);
-	earthComp->texture = renderer.TextureFactory("earth.png");
-	earth.Translate(200.f, 0.f, 0.f);
+	dice.Translate(0.f, 0.f, 5.f);
 
-	Entity moon;
-	moon.SetParent(earth);
-	auto moonData = CommonMeshes::Circle(20, 36);
-	auto moonComp = moon.CreateComponent<RenderComponent>().lock();
-	moonComp->mesh = renderer.MeshFactory(moonData.first, moonData.second, GL_TRIANGLE_FAN);
-	moonComp->texture = renderer.TextureFactory("moon.png");
-	moon.Translate(75.f, 0.f, 0.f);
+	Entity light;
+	auto lightComp = light.CreateComponentOfType<RenderComponent>();
+	lightComp.lock()->mesh = renderer.MeshFactory(vertices, order);
+	auto lightSource = light.CreateComponentOfType<LightSourceComponent>();
+	lightComp.lock()->shaderProgram = renderer.ShaderFactory("shader.vert", "shaderLightSource.frag");
+	light.Scale(0.1f, 0.1f, 0.1f);
+	light.Translate(0.f, 0.f, -1.f);
 
-	renderer.Set2DMode(800, 600);
-
-	renderer.AddObject(sun);
-	renderer.AddObject(earth);
-	renderer.AddObject(moon);
-
-	bool flag = true;
-	std::thread earthOrbit(OrbitParentEntity2D, std::ref(earth), 1.f, std::ref(flag));
-	std::thread earthRotation(RotateAxis2D, std::ref(earth), 2.f, std::ref(flag));
-	std::thread moonOrbit(OrbitParentEntity2D, std::ref(moon), -1.f, std::ref(flag));
+	Entity floor;
+	auto floorComp = floor .CreateComponentOfType<RenderComponent>();
+	floorComp.lock()->mesh = renderer.MeshFactory(vertices, order);
+	floor.Scale(100.f, 0.1f, 100.f);
+	floor.Translate(0.f, -5.f, 0.f);
 	
+	renderer.AddObject(dice);
+	renderer.AddObject(light);
+	renderer.AddObject(floor);
+	renderer.SetLightSource(light);
+
+	renderer.SetPerspective(90.f, 0.1f, 100.f);
+
 	renderer.Run();
-	flag = false;
-	earthOrbit.join();
-	earthRotation.join();
-	moonOrbit.join();
 }

@@ -14,8 +14,8 @@ Camera::Camera(float p_posX, float p_posY, float p_posZ, float p_frontX, float p
 	_yaw(),
 	_pitch()
 {
-	DetermineAngles();
 	_front = glm::normalize(_front);
+	DetermineAngles();
 }
 
 const glm::vec3 Camera::GetPosition() const {
@@ -92,6 +92,6 @@ void Camera::RotateCamera(float p_offsetX, float p_offsetY) {
 
 void Camera::DetermineAngles()
 {
-
-
+	_pitch = glm::degrees(asinf(_front.y));
+	_yaw = -glm::degrees(acosf(_front.x / cosf(_pitch)));
 }

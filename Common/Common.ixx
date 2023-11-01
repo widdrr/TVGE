@@ -34,7 +34,7 @@ public:
 	
 	//template definitions have to be defined here to save a lot of headaches
 	template <IsComponentType TComponent, class... TArgs>
-	const std::weak_ptr<TComponent> CreateComponent(TArgs... args)
+	const std::weak_ptr<TComponent> CreateComponentOfType(TArgs... args)
 	{
 
 		auto component = std::make_shared<TComponent>(*this, std::forward<TArgs>(args)...);
