@@ -1,6 +1,6 @@
 module MeshHelpers;
 
-std::pair<std::vector<Vertex>, std::vector<unsigned int>> CommonMeshes::Circle(
+std::pair<std::vector<Vertex>, std::vector<unsigned int>> Common2DMeshes::Circle(
 	unsigned int p_radius, 
 	unsigned int p_vertexCount,
 	glm::vec4 p_color) {

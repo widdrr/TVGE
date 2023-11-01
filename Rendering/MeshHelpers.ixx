@@ -9,7 +9,7 @@ import <vector>;
 
 constexpr float PI = 3.141529f;
 
-export namespace CommonMeshes 
+export namespace Common2DMeshes 
 {
 	std::pair<std::vector<Vertex>, std::vector<unsigned int>> Circle(
 		unsigned int p_radius, 

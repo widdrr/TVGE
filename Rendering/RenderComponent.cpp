@@ -14,7 +14,7 @@ glm::mat4 RenderComponent::GetModelTransformation() const
 	//Rotating object around 0,0
 	modelTransformation = modelTransformation * glm::mat4_cast(_entity.rotation);
 
-	//scaling along arbitrary axes 
+	//scaling along main axes 
 	modelTransformation = glm::scale(modelTransformation, _entity.scaling);
 
 	if (_entity._parent == nullptr) {
