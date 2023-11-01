@@ -1,4 +1,4 @@
-module Graphics.Resources:Mesh;
+module Graphics.Resources:Vertex;
 
 Vertex::Vertex(float p_posX, float p_posY, float p_posZ, 
 	           float p_colR, float p_colG, float p_colB, float p_colA,

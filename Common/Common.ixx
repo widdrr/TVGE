@@ -6,47 +6,36 @@ import <glm/gtc/quaternion.hpp>;
 import <vector>;
 import <memory>;
 
-export class Component {
+export class Component 
+{
 	//Entity acts as a component factory
 	friend class Entity;
+
+protected:
+	Component(Entity& p_entity);
+public:
+	//declaring a virtual default destructor makes the hierarchy polymorphic
+	virtual ~Component() = default;
 
 protected:
 	Entity& _entity;
 	//TODO: implement the use for this -> component removal
 	std::vector<Component>::size_type _index;
-	Component(Entity& p_entity);
-public:
-	//declaring a virtual default destructor makes the hierarchy polymorphic
-	virtual ~Component() = default;
+	
 };
 
 template <class TComponent>
 concept IsComponentType = std::is_base_of<Component, TComponent>::value;
 
-export class Entity {
-private:
-	static unsigned int _current_id;
-	unsigned int _id;
-
-	//TODO: better data structure for efficient retrieval(hashmap via class name?)
-	std::vector<std::shared_ptr<Component>> _components;
-
+export class Entity 
+{
 public:
-	//TODO: polish the parent system implementation
-	const Entity* _parent;
-
-	//coordinates of center in 3D Space
-	glm::vec3 position;
-	//scaling along each axis
-	glm::vec3 scaling;
-	//rotation quaternion
-	glm::quat rotation;
-
 	Entity();
-
+	
 	//template definitions have to be defined here to save a lot of headaches
 	template <IsComponentType TComponent, class... TArgs>
-	const std::weak_ptr<TComponent> CreateComponent(TArgs... args) {
+	const std::weak_ptr<TComponent> CreateComponent(TArgs... args)
+	{
 
 		auto component = std::make_shared<TComponent>(*this, std::forward<TArgs>(args)...);
 		component->_index = _components.size();
@@ -56,7 +45,8 @@ public:
 	}
 
 	template <IsComponentType TComponent>
-	const std::weak_ptr<TComponent> TryGetComponentOfType() const {
+	const std::weak_ptr<TComponent> TryGetComponentOfType() const
+	{
 
 		for (auto& component : _components) {
 			auto castComponent = std::dynamic_pointer_cast<TComponent>(component);
@@ -75,5 +65,21 @@ public:
 	void Translate(const glm::vec3& p_translation);
 
 	void SetParent(const Entity& p_parent);
-};
 
+private:
+	static unsigned int _current_id;
+	unsigned int _id;
+
+	//TODO: better data structure for efficient retrieval(hashmap via class name?)
+	std::vector<std::shared_ptr<Component>> _components;
+public:
+	//TODO: polish the parent system implementation
+	const Entity* _parent;
+
+	//coordinates of center in 3D Space
+	glm::vec3 position;
+	//scaling along each axis
+	glm::vec3 scaling;
+	//rotation quaternion
+	glm::quat rotation;
+};

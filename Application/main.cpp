@@ -14,7 +14,8 @@ import <chrono>;
 import <memory>;
 
 
-void RotateAxis2D(Entity& obj, float theta, bool& flag) {
+void RotateAxis2D(Entity& obj, float theta, bool& flag) 
+{
 	while (flag) {
 
 		obj.Rotate(0.f, 0.f, 1.f, theta);
@@ -22,8 +23,8 @@ void RotateAxis2D(Entity& obj, float theta, bool& flag) {
 	}
 }
 
-void OrbitParentEntity2D(Entity& obj, float theta, bool& flag) {
-
+void OrbitParentEntity2D(Entity& obj, float theta, bool& flag) 
+{
 	float totalTheta = 0.f;
 
 	while (flag) {
@@ -42,8 +43,8 @@ void OrbitParentEntity2D(Entity& obj, float theta, bool& flag) {
 	}
 }
 
-int main() {
-
+int main() 
+{
 	//TODO: make a builder for this mess
 	//Just make the model loader instead
 	std::vector<Vertex> vertices = {

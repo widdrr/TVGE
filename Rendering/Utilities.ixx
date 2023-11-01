@@ -2,15 +2,16 @@ export module Graphics.Resources:Utilities;
 
 import <string>;
 
-export enum VertexAttributes {
+export enum VertexAttributes 
+{
 	Position,
 	Color,
 	TextureCoordinates,
 	Normal
 };
 
-export namespace UniformVariables {
-
+export namespace UniformVariables 
+{
 	const std::string viewMatrix = "glViewMatrix";
 	const std::string projectionMatrix = "glProjectionMatrix";
 	const std::string modelMatrix = "glModelMatrix";

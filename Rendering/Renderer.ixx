@@ -19,6 +19,7 @@ import <vector>;
 
 export class Renderer
 {
+	//Types and Constants
 private:
 	static constexpr unsigned int _windowHeight = 600;
 	static constexpr unsigned int _windowWidth = 800;
@@ -27,7 +28,38 @@ private:
 
 		void operator()(GLFWwindow* p_ptr);
 	};
+
+    //Constructors and Destructors
+	Renderer();
+public:
+	static Renderer& GetInstance();
+	~Renderer();
+
+	//Methods
+	std::shared_ptr<ShaderProgram> ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
+	std::shared_ptr<Texture> TextureFactory(const std::string& p_texturePath);
+	std::shared_ptr<Mesh> MeshFactory(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode = GL_TRIANGLES);
 	
+	//TODO: rework so that Renderer automatically has access to all components
+	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
+	void SetLightSource(const Entity& p_object);
+	
+	//TODO: rework Cameras
+	void SetCameraLock(bool p_lock);
+	void AddObject(const Entity& p_object);
+
+	void Set2DMode(float p_width, float p_height);
+
+	void Run();
+
+private:
+	void RenderFunction();
+	void CleanupFunction();
+	void ProcessInput();
+	void ComputeTime();
+	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
+
+	//Members
 	static std::unique_ptr<Renderer> _instance;
 	std::unique_ptr<GLFWwindow, GLFWwindowDeleter> _window;
 	
@@ -50,31 +82,4 @@ private:
 	bool _focused;
 	bool _initial;
 	bool _cameraLock;
-	
-	Renderer();
-
-	void RenderFunction();
-	void CleanupFunction();
-	void ProcessInput();
-	void ComputeTime();
-	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
-
-public:
-	static Renderer& GetInstance();
-	
-	std::shared_ptr<ShaderProgram> ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
-	std::shared_ptr<Texture> TextureFactory(const std::string& p_texturePath);
-	std::shared_ptr<Mesh> MeshFactory(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode = GL_TRIANGLES);
-	//TODO: rework so that Renderer automatically has access to all components
-	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
-	void SetLightSource(const Entity& p_object);
-	//TODO: rework Cameras
-	void SetCameraLock(bool p_lock);
-	void AddObject(const Entity& p_object);
-
-	void Set2DMode(float p_width, float p_height);
-	
-	void Run();
-	~Renderer();
 };
-

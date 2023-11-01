@@ -14,17 +14,83 @@ import <glm/gtc/type_ptr.hpp>;
 import <iostream>;
 import <fstream>;
 
-
 std::unique_ptr<Renderer> Renderer::_instance = nullptr;
 
-void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) {
-	
+void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) 
+{	
 	glfwDestroyWindow(p_ptr);
 }
 
+Renderer::Renderer() :
+	_projectionMatrix(glm::identity<glm::mat4>()),
+	_camera(),
+	_lightSource(),
+	_focused(false),
+	_initial(true),
+	_cameraLock(false)
+{
+	//TODO: critical, try and get away with not using this
+	timeBeginPeriod(1);
+	//init and setup glfw
+	GLenum res = glfwInit();
+	if (res == GLFW_FALSE) {
+		std::cerr << "GLFW initialization failed\n";
+		exit(1);
+	}
 
-Renderer& Renderer::GetInstance() {
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	//setup and create window
+	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.6a", nullptr, nullptr)
+	);
+
+	if (_window == nullptr) {
+		std::cerr << "Failed to create GLFW window \n";
+		glfwTerminate();
+		exit(-1);
+	}
+	glfwMakeContextCurrent(_window.get());
+
+	//init glew
+	res = glewInit();
+	if (res != GLEW_OK) {
+		std::cerr << "Error: " << glewGetErrorString(res) << "\n";
+		exit(1);
+	}
+
+	//we register a callback when the window is resized to always keep the viewport accurate
+	glfwSetFramebufferSizeCallback(_window.get(),
+		[](GLFWwindow* p_window, int p_width, int p_height) {
+			glViewport(0, 0, p_width, p_height);
+			_instance->RenderFunction();
+		}
+	);
+
+	glfwSetCursorPosCallback(_window.get(),
+		[](GLFWwindow* _window, double _crtX, double _crtY) {
+			_instance->MouseCallback(_window, _crtX, _crtY);
+		}
+	);
+	//VSync 1 = set to Refresh Rate 0 = Unbound
+	glfwSwapInterval(1);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+
+	//configuring face culling
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
+
+	glEnable(GL_DEPTH_TEST);
+
+	//loading the default shader
+	ShaderFactory("shader.vert", "shader.frag");
+}
+
+Renderer& Renderer::GetInstance() 
+{
 	if (_instance == nullptr) {
 		_instance = std::unique_ptr<Renderer>(new Renderer());
 	}
@@ -32,8 +98,15 @@ Renderer& Renderer::GetInstance() {
 	return *_instance;
 }
 
-std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) {
+Renderer::~Renderer()
+{
+	timeEndPeriod(1);
+	CleanupFunction();
+	glfwTerminate();
+}
 
+std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) 
+{
 	_shaders.push_back(std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath)));
 	_shaders.back()->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 
@@ -45,11 +118,11 @@ std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vert
 
 	if (!_lightSource.expired()) {
 		auto lightSource = _lightSource.lock();
-		lightColor = lightSource->getLightColor();
-		lightPosition = lightSource->getLightPosition();
-		ambianceStrength = lightSource->getAmbienceStrength();
-		diffuseStrength = lightSource->getDiffuseStrength();
-		specularStrength = lightSource->getSpecularStrength();
+		lightColor = lightSource->GetLightColor();
+		lightPosition = lightSource->GetLightPosition();
+		ambianceStrength = lightSource->GetAmbienceStrength();
+		diffuseStrength = lightSource->GetDiffuseStrength();
+		specularStrength = lightSource->GetSpecularStrength();
 	}
 
 	_shaders.back()->SetVariable(UniformVariables::lightColor, lightColor);
@@ -61,8 +134,8 @@ std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vert
 	return _shaders.back();
 }
 
-std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePath) {
-
+std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePath) 
+{
 	_textures.push_back(std::shared_ptr<Texture>(new Texture(p_texturePath)));
 
 	if (_textures.back()->_textureData == nullptr) {
@@ -72,19 +145,19 @@ std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePa
 	return _textures.back();
 }
 
-std::shared_ptr<Mesh> Renderer::MeshFactory(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) {
-	
+std::shared_ptr<Mesh> Renderer::MeshFactory(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) 
+{	
 	return std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_mode));
 }
 
-void Renderer::SetCameraLock(bool p_lock) {
+void Renderer::SetCameraLock(bool p_lock) 
+{
 	_cameraLock = p_lock;
 }
 
-void Renderer::AddObject(const Entity& p_object) {
-
+void Renderer::AddObject(const Entity& p_object) 
+{
 	//obtaining the GraphicsComponent of the Entity
-
 	auto graphicsComponentWeak = p_object.TryGetComponentOfType<RenderComponent>();
 	if (graphicsComponentWeak.expired()) {
 		std::cerr << "Object does not have a Graphics Component";
@@ -101,8 +174,8 @@ void Renderer::AddObject(const Entity& p_object) {
 	_entities.push_back(graphicsComponentWeak);
 }
 
-void Renderer::Set2DMode(float p_width, float p_height) {
-
+void Renderer::Set2DMode(float p_width, float p_height) 
+{
 	_camera.SetCameraPosition(0.f, 0.f, 1.f);
 	_camera.SetCameraDirection(0.f, 0.f, -1.f);
 	SetCameraLock(true);
@@ -116,8 +189,8 @@ void Renderer::Set2DMode(float p_width, float p_height) {
 	}
 }
 
-void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) {
-
+void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
+{
 	float aspectRatio = static_cast<float>(_windowWidth) / static_cast<float>(_windowHeight);
 	_projectionMatrix = glm::perspective(p_fov / 2.f, aspectRatio, p_nearPlane, p_farPlane);
 
@@ -127,8 +200,8 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 	}
 }
 
-void Renderer::SetLightSource(const Entity& p_object) {
-
+void Renderer::SetLightSource(const Entity& p_object) 
+{
 	_lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
 	if (_lightSource.expired()) {
 		std::cerr << "Object does not contain a LightSourceComponent\n";
@@ -137,16 +210,16 @@ void Renderer::SetLightSource(const Entity& p_object) {
 	auto lightSource = _lightSource.lock();
 
 	for (auto& shader : _shaders) {
-		shader->SetVariable(UniformVariables::lightColor, lightSource->getLightColor());
-		shader->SetVariable(UniformVariables::lightPosition, lightSource->getLightPosition());
-		shader->SetVariable(UniformVariables::lightAmbianceStrength, lightSource->getAmbienceStrength());
-		shader->SetVariable(UniformVariables::lightDiffuseStrength, lightSource->getDiffuseStrength());
-		shader->SetVariable(UniformVariables::lightSpecularStrength, lightSource->getSpecularStrength());
+		shader->SetVariable(UniformVariables::lightColor, lightSource->GetLightColor());
+		shader->SetVariable(UniformVariables::lightPosition, lightSource->GetLightPosition());
+		shader->SetVariable(UniformVariables::lightAmbianceStrength, lightSource->GetAmbienceStrength());
+		shader->SetVariable(UniformVariables::lightDiffuseStrength, lightSource->GetDiffuseStrength());
+		shader->SetVariable(UniformVariables::lightSpecularStrength, lightSource->GetSpecularStrength());
 	}
 }
 
-void Renderer::RenderFunction() {
-
+void Renderer::RenderFunction() 
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (const auto& entity : _entities) {
@@ -188,12 +261,12 @@ void Renderer::RenderFunction() {
 	glfwSwapBuffers(_window.get());
 }
 
-void Renderer::CleanupFunction() {
-
+void Renderer::CleanupFunction() 
+{
 	glUseProgram(0);
 }
-void Renderer::ComputeTime() {
-
+void Renderer::ComputeTime() 
+{
 	double currentTime = glfwGetTime();
 	double delta = currentTime - _lastTime;
 	_deltaTime = static_cast<float>(delta);
@@ -261,76 +334,6 @@ void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 	}
 }
 
-Renderer::Renderer() :
-	_projectionMatrix(glm::identity<glm::mat4>()),
-	_camera(),
-	_lightSource(),
-	_focused(false),
-	_initial(true),
-	_cameraLock(false)
-{
-
-	//TODO: critical, try and get away with not using this
-	timeBeginPeriod(1);
-	//init and setup glfw
-	GLenum res =  glfwInit();
-	if (res == GLFW_FALSE) {
-		std::cerr << "GLFW initialization failed\n";
-		exit(1);
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	//setup and create window
-	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.6a", nullptr, nullptr)
-	);
-
-	if (_window == nullptr)
-	{
-		std::cerr << "Failed to create GLFW window \n";
-		glfwTerminate();
-		exit(-1);
-	}
-	glfwMakeContextCurrent(_window.get());
-
-	//init glew
-	res = glewInit();
-	if (res != GLEW_OK) {
-		std::cerr << "Error: " << glewGetErrorString(res) << "\n";
-		exit(1);
-	}
-
-	//we register a callback when the window is resized to always keep the viewport accurate
-	glfwSetFramebufferSizeCallback(_window.get(),
-		[](GLFWwindow* p_window, int p_width, int p_height) {
-			glViewport(0, 0, p_width, p_height);
-			_instance->RenderFunction();
-		}
-	);
-
-	glfwSetCursorPosCallback(_window.get(), 
-		[](GLFWwindow* _window, double _crtX, double _crtY) {
-			_instance->MouseCallback(_window, _crtX, _crtY); 
-		}
-	);
-	//VSync 1 = set to Refresh Rate 0 = Unbound
-	glfwSwapInterval(1);
-	glClearColor(0.f, 0.f, 0.f, 0.f);
-	
-	//configuring face culling
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CCW);
-	glCullFace(GL_BACK);
-
-	glEnable(GL_DEPTH_TEST);
-
-	//loading the default shader
-	ShaderFactory("shader.vert", "shader.frag");
-}
-
 //TODO:
 //multithread
 void Renderer::Run() {
@@ -342,11 +345,4 @@ void Renderer::Run() {
 		RenderFunction();
 		ComputeTime();
 	}
-}
-
-Renderer::~Renderer() {
-
-	timeEndPeriod(1);
-	CleanupFunction();
-	glfwTerminate();
 }

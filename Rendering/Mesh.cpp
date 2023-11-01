@@ -1,7 +1,6 @@
 module;
 
 #include <gl/glew.h>
-#include <glm/vec4.hpp>;
 
 module Graphics.Resources:Mesh;
 
@@ -70,22 +69,23 @@ Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int
 	glBindVertexArray(0);
 }
 
-const std::vector<Vertex>& Mesh::GetVertices() const {
-	
+const std::vector<Vertex>& Mesh::GetVertices() const 
+{	
 	return _vertices;
 }
 
-const std::vector<unsigned int>& Mesh::GetElements() const {
-	
+const std::vector<unsigned int>& Mesh::GetElements() const 
+{	
 	return _indices;
 }
 
-const GLsizei Mesh::GetElementCount() const {
-	
+const GLsizei Mesh::GetElementCount() const 
+{	
 	return static_cast<GLsizei>(_indices.size());
 }
 
-const GLenum Mesh::GetDrawMode() const {
+const GLenum Mesh::GetDrawMode() const 
+{
 	return _drawMode;
 }
 

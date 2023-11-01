@@ -71,5 +71,8 @@
     <ClCompile Include="MeshHelpers.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="Vertex.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

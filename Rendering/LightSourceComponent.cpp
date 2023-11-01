@@ -8,29 +8,29 @@ LightSourceComponent::LightSourceComponent(Entity& p_entity,
 	_ambienceStrength(p_ambience),
 	_diffuseStrength(p_diffuse),
 	_specularStrength(p_specular)
-{
-}
+{}
 
-const glm::vec3& LightSourceComponent::getLightColor() const {
-	
+const glm::vec3& LightSourceComponent::GetLightColor() const 
+{	
 	return _lightColor;
 }
 
-const glm::vec3& LightSourceComponent::getLightPosition() const {
-	
+const glm::vec3& LightSourceComponent::GetLightPosition() const 
+{	
 	return _entity.position;
 }
 
-const float LightSourceComponent::getAmbienceStrength() const {
-	
+const float LightSourceComponent::GetAmbienceStrength() const 
+{	
 	return _ambienceStrength;
 }
 
-const float LightSourceComponent::getDiffuseStrength() const {
+const float LightSourceComponent::GetDiffuseStrength() const 
+{
 	return _diffuseStrength;
 }
 
-const float LightSourceComponent::getSpecularStrength() const {
-	
+const float LightSourceComponent::GetSpecularStrength() const 
+{	
 	return _specularStrength;
 }

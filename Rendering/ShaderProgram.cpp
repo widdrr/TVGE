@@ -9,8 +9,8 @@ import <glm/gtc/type_ptr.hpp>;
 import <fstream>;
 import <iostream>;
 
-ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath){
-	
+ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath)
+{	
 	_id = glCreateProgram();
 
 	if (_id == 0) {
@@ -49,8 +49,13 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug) {
-	
+ShaderProgram::~ShaderProgram()
+{
+	glDeleteProgram(_id);
+}
+
+void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug) 
+{	
 	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
 	if (location == -1) {
 		if (p_debug) {
@@ -62,8 +67,8 @@ void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value, b
 	glProgramUniformMatrix4fv(_id, location, 1, GL_FALSE, glm::value_ptr(p_value));
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug) {
-
+void ShaderProgram::SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug) 
+{
 	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
 	if (location == -1) {
 		if (p_debug) {
@@ -75,8 +80,8 @@ void ShaderProgram::SetVariable(std::string p_variableName, glm::vec3 p_value, b
 	glProgramUniform3fv(_id, location, 1, glm::value_ptr(p_value));
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool p_debug) {
-
+void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool p_debug) 
+{
 	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
 	if (location == -1) {
 		if (p_debug) {
@@ -88,8 +93,8 @@ void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool 
 	glProgramUniform1f(_id, location, p_value);
 }
 
-void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderType){
-	
+void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderType)
+{	
 	GLuint shader = glCreateShader(p_shaderType);
 
 	if (shader == 0) {
@@ -120,8 +125,8 @@ void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderTyp
 }
 
 
-std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName){
-	
+std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName)
+{	
 	std::ifstream file(p_fileName);
 
 	if (!file.is_open()) {
@@ -137,10 +142,3 @@ std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName){
 	}
 	return content;
 }
-
-
-ShaderProgram::~ShaderProgram() {
-
-	glDeleteProgram(_id);
-}
-

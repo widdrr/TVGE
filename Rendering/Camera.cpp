@@ -72,11 +72,6 @@ void Camera::SetCameraDirection(float p_frontX, float p_frontY, float p_frontZ) 
 	DetermineAngles();
 }
 
-void Camera::DetermineAngles() {
-
-
-}
-
 void Camera::RotateCamera(float p_offsetX, float p_offsetY) {
 
 	float adjustedSensitivity = _cameraSensitivity;
@@ -93,4 +88,10 @@ void Camera::RotateCamera(float p_offsetX, float p_offsetY) {
 	_front.y = sinf(glm::radians(_pitch));
 	_front.z = sinf(glm::radians(_yaw)) * cosf(glm::radians(_pitch));
 	_front = glm::normalize(_front);
+}
+
+void Camera::DetermineAngles()
+{
+
+
 }
