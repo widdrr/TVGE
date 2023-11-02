@@ -17,8 +17,7 @@ import <memory>;
 void RotateAxis2D(Entity& obj, float theta, bool& flag) 
 {
 	while (flag) {
-
-		obj.Rotate(0.f, 0.f, 1.f, theta);
+		obj.Rotate(0.f, 1.f, 0.f, theta);
 		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
 }
@@ -28,7 +27,6 @@ void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 	float totalTheta = 0.f;
 
 	while (flag) {
-
 		auto previousTheta = totalTheta;
 		totalTheta += theta;
 		totalTheta = fmodf(totalTheta + 360, 360.f);
@@ -214,8 +212,10 @@ int main()
 
 	bool flag = true;
 	std::thread diceOrbit(OrbitParentEntity2D, std::ref(dice), 0.1f, std::ref(flag));
+	std::thread diceRotate(RotateAxis2D, std::ref(dice), 1.f, std::ref(flag));
 
 	renderer.Run();
 	flag = false;
 	diceOrbit.join();
+	diceRotate.join();
 }
