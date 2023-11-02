@@ -23,6 +23,7 @@ Texture::Texture(const std::string& p_texturePath):
 	if (_textureData) {
 		glGenTextures(1, &_id);
 
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _id);
 
 		//TODO customizations
@@ -41,8 +42,8 @@ Texture::Texture(const std::string& p_texturePath):
 	}
 }
 
-Texture::~Texture() {
-
+Texture::~Texture() 
+{
 	stbi_image_free(_textureData);
 	glDeleteTextures(1, &_id);
 }

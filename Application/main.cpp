@@ -33,15 +33,16 @@ void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 		totalTheta += theta;
 		totalTheta = fmodf(totalTheta + 360, 360.f);
 
-		float xDist = glm::length(obj.position) * (cosf(glm::radians(totalTheta)) - cosf(glm::radians(previousTheta)));
-		float yDist = glm::length(obj.position) * (sinf(glm::radians(totalTheta)) - sinf(glm::radians(previousTheta)));
+		float zDist = glm::length(obj.position) * (cosf(glm::radians(totalTheta)) - cosf(glm::radians(previousTheta)));
+		float xDist = glm::length(obj.position) * (sinf(glm::radians(totalTheta)) - sinf(glm::radians(previousTheta)));
 
-		obj.Translate(xDist, yDist, 0);
-		obj.Rotate(0.f, 0.f, 1.f, theta);
+		obj.Translate(xDist, 0.f, zDist);
+		obj.Rotate(0.f, 1.f, 0.f, theta);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
 }
+
 
 int main() 
 {
@@ -185,18 +186,21 @@ int main()
 	diceComp.lock()->mesh = renderer.MeshFactory(vertices, order);
 	diceComp.lock()->texture = renderer.TextureFactory("dice.png");
 
-	dice.Translate(0.f, 0.f, 5.f);
+	dice.Translate(0.f, 0.f, 50.f);
+	dice.Scale(5.f, 5.f, 5.f);
 
 	Entity light;
 	auto lightComp = light.CreateComponentOfType<RenderComponent>();
 	lightComp.lock()->mesh = renderer.MeshFactory(vertices, order);
-	auto lightSource = light.CreateComponentOfType<LightSourceComponent>();
+	auto lightSource = light.CreateComponentOfType<LightSourceComponent>(1.f, 1.f, 1.f, 0.5f, 1.f, 0.7f);
 	lightComp.lock()->shaderProgram = renderer.ShaderFactory("shader.vert", "shaderLightSource.frag");
 	light.Scale(0.1f, 0.1f, 0.1f);
 	light.Translate(0.f, 0.f, -1.f);
 
+	dice.SetParent(light);
+
 	Entity floor;
-	auto floorComp = floor .CreateComponentOfType<RenderComponent>();
+	auto floorComp = floor.CreateComponentOfType<RenderComponent>();
 	floorComp.lock()->mesh = renderer.MeshFactory(vertices, order);
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -5.f, 0.f);
@@ -208,5 +212,10 @@ int main()
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
+	bool flag = true;
+	std::thread diceOrbit(OrbitParentEntity2D, std::ref(dice), 0.1f, std::ref(flag));
+
 	renderer.Run();
+	flag = false;
+	diceOrbit.join();
 }

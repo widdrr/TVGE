@@ -20,28 +20,28 @@ uniform vec3 glCameraPosition;
 void main()
 {
     //Ambient component of Phong shading
-    vec3 AmbientColor = glLightAmbianceStrength * glLightColor;
+    vec3 ambientColor = glLightAmbianceStrength * glLightColor;
 
     //Is a strength variable necessary here?
     //Diffuse component of Phong shading
-    vec3 NormalizedNormal = normalize(Normal);
-    vec3 LightDirection = normalize(glLightPosition - FragmentPosition);
-    float DiffuseValue = max(dot(NormalizedNormal, LightDirection), 0.0);
-    vec3 DiffuseColor = glLightDiffuseStrength * DiffuseValue * glLightColor;
+    vec3 normalizedNormal = normalize(Normal);
+    vec3 lightDirection = normalize(glLightPosition - FragmentPosition);
+    float diffuseValue = max(dot(normalizedNormal, lightDirection), 0.0);
+    vec3 diffuseColor = glLightDiffuseStrength * diffuseValue * glLightColor;
 
     //Specular component of Phong shading
-    vec3 CameraDirection = normalize(glCameraPosition - FragmentPosition);
-    vec3 ReflectedLightDirection = reflect(-LightDirection, NormalizedNormal);
-    float SpecularValue = pow(max(dot(CameraDirection, ReflectedLightDirection), 0.0), 32);
-    vec3 SpecularColor = glLightSpecularStrength * SpecularValue * glLightColor;
+    vec3 cameraDirection = normalize(glCameraPosition - FragmentPosition);
+    vec3 reflectedLightDirection = reflect(-lightDirection, normalizedNormal);
+    float specularValue = pow(max(dot(cameraDirection, reflectedLightDirection), 0.0), 32);
+    vec3 specularColor = glLightSpecularStrength * specularValue * glLightColor;
 
 
-    vec4 ShadedColor = vec4(((AmbientColor + DiffuseColor + SpecularColor) * Color.rgb),Color.a);
+    vec4 shadedColor = vec4(((ambientColor + diffuseColor + specularColor) * Color.rgb),Color.a);
     
     if (glHasTexture) {
-        FragmentColor = texture(Texture, TextureCoordinates) * ShadedColor;
+        FragmentColor = texture(Texture, TextureCoordinates) * shadedColor;
     }
     else {
-        FragmentColor = ShadedColor;
+        FragmentColor = shadedColor;
     }
 }

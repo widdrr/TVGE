@@ -24,7 +24,6 @@ void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr)
 Renderer::Renderer() :
 	_projectionMatrix(glm::identity<glm::mat4>()),
 	_camera(),
-	_lightSource(),
 	_focused(false),
 	_initial(true),
 	_cameraLock(false)
@@ -44,7 +43,7 @@ Renderer::Renderer() :
 
 	//setup and create window
 	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.6a", nullptr, nullptr)
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.7a", nullptr, nullptr)
 	);
 
 	if (_window == nullptr) {
@@ -134,6 +133,76 @@ std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vert
 	return _shaders.back();
 }
 
+void Renderer::RenderFunction()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	for (const auto& entity : _entities) {
+
+		//TODO: expired components removal;
+		if (entity.expired()) {
+			continue;
+		}
+		auto component = entity.lock();
+		auto& mesh = component->mesh;
+		if (mesh == nullptr) {
+			continue;
+		}
+		glBindVertexArray(mesh->_vao);
+
+		//If there is a shader associated we use it
+		//else fallback to the default shader
+		auto& shader = component->shaderProgram != nullptr ? component->shaderProgram : _shaders[0];
+
+		shader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
+		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
+		shader->SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
+		glUseProgram(shader->_id);
+
+		shader->SetVariable(UniformVariables::hasTexture, false);
+		if (component->texture != nullptr) {
+			shader->SetVariable(UniformVariables::hasTexture, true);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, component->texture->_id);
+		}
+
+		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
+		//to permit customizing this
+		//Update: partially done via storing DrawMode
+		glDrawElements(mesh->GetDrawMode(), mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
+
+	glfwSwapBuffers(_window.get());
+}
+
+void Renderer::CleanupFunction()
+{
+	glUseProgram(0);
+}
+
+
+void Renderer::AddObject(const Entity& p_object)
+{
+	//obtaining the GraphicsComponent of the Entity
+	auto graphicsComponentWeak = p_object.TryGetComponentOfType<RenderComponent>();
+	if (graphicsComponentWeak.expired()) {
+		std::cerr << "Object does not have a Graphics Component";
+		return;
+	}
+
+	auto graphicsComponent = graphicsComponentWeak.lock();
+
+	if (graphicsComponent->mesh == nullptr) {
+		std::cerr << "Graphics Component does not have a Mesh";
+		return;
+	}
+
+	_entities.push_back(graphicsComponentWeak);
+}
+
+
 std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePath) 
 {
 	_textures.push_back(std::shared_ptr<Texture>(new Texture(p_texturePath)));
@@ -155,24 +224,6 @@ void Renderer::SetCameraLock(bool p_lock)
 	_cameraLock = p_lock;
 }
 
-void Renderer::AddObject(const Entity& p_object) 
-{
-	//obtaining the GraphicsComponent of the Entity
-	auto graphicsComponentWeak = p_object.TryGetComponentOfType<RenderComponent>();
-	if (graphicsComponentWeak.expired()) {
-		std::cerr << "Object does not have a Graphics Component";
-		return;
-	}
-
-	auto graphicsComponent = graphicsComponentWeak.lock();
-
-	if (graphicsComponent->mesh == nullptr) {
-		std::cerr << "Graphics Component does not have a Mesh";
-		return;
-	}
-
-	_entities.push_back(graphicsComponentWeak);
-}
 
 void Renderer::Set2DMode(float p_width, float p_height) 
 {
@@ -184,7 +235,6 @@ void Renderer::Set2DMode(float p_width, float p_height)
 									0.1f, 5.f);
 	
 	for (auto& shader : _shaders) {
-
 		shader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 	}
 }
@@ -218,53 +268,6 @@ void Renderer::SetLightSource(const Entity& p_object)
 	}
 }
 
-void Renderer::RenderFunction() 
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	for (const auto& entity : _entities) {
-		
-		//TODO: expired components removal;
-		if (entity.expired()) {
-			continue;
-		}
-		auto component = entity.lock();
-		auto& mesh = component->mesh;
-		if (mesh == nullptr) {
-			continue;
-		}
-		glBindVertexArray(mesh->_vao);
-
-		//If there is a shader associated we use it
-		//else fallback to the default shader
-		auto shader = component->shaderProgram != nullptr ? component->shaderProgram : _shaders[0];
-
-		shader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
-		shader->SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
-		shader->SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
-		glUseProgram(shader->_id);
-
-		shader->SetVariable(UniformVariables::hasTexture, false);
-		if (component->texture != nullptr) {
-			shader->SetVariable(UniformVariables::hasTexture, true);
-			glBindTexture(GL_TEXTURE_2D, component->texture->_id);
-		}
-
-		//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
-		//to permit customizing this
-		//Update: partially done via storing DrawMode
-		glDrawElements(mesh->GetDrawMode(), mesh->GetElementCount(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glUseProgram(0);
-	}
-
-	glfwSwapBuffers(_window.get());
-}
-
-void Renderer::CleanupFunction() 
-{
-	glUseProgram(0);
-}
 void Renderer::ComputeTime() 
 {
 	double currentTime = glfwGetTime();

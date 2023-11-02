@@ -53,12 +53,6 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsComponents.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
@@ -73,6 +67,12 @@
     </ClCompile>
     <ClCompile Include="Vertex.ixx">
       <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Implementations</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
