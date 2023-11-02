@@ -14,7 +14,7 @@ import <chrono>;
 import <memory>;
 
 
-void RotateAxis2D(Entity& obj, float theta, bool& flag) 
+void RotateAxis2D(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 
@@ -23,7 +23,7 @@ void RotateAxis2D(Entity& obj, float theta, bool& flag)
 	}
 }
 
-void OrbitParentEntity2D(Entity& obj, float theta, bool& flag) 
+void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 {
 	float totalTheta = 0.f;
 
@@ -33,18 +33,17 @@ void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 		totalTheta += theta;
 		totalTheta = fmodf(totalTheta + 360, 360.f);
 
-		float zDist = glm::length(obj.position) * (cosf(glm::radians(totalTheta)) - cosf(glm::radians(previousTheta)));
-		float xDist = glm::length(obj.position) * (sinf(glm::radians(totalTheta)) - sinf(glm::radians(previousTheta)));
+		float xDist = glm::length(obj.position) * (cosf(glm::radians(totalTheta)) - cosf(glm::radians(previousTheta)));
+		float yDist = glm::length(obj.position) * (sinf(glm::radians(totalTheta)) - sinf(glm::radians(previousTheta)));
 
-		obj.Translate(xDist, 0.f, zDist);
-		obj.Rotate(0.f, 1.f, 0.f, theta);
+		obj.Translate(xDist, yDist, 0);
+		obj.Rotate(0.f, 0.f, 1.f, theta);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
 }
 
-
-int main() 
+int main()
 {
 	//TODO: make a builder for this mess
 	//Just make the model loader instead
@@ -54,91 +53,91 @@ int main()
 		//B L
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.25f},
+		0.5f, 0.33f},
 		//B R
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.25f},
+		0.75f, 0.33f},
 		//T R
 		{0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.5f},
+		0.75f, 0.66f},
 		//T L
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.5f},
+		0.5f, 0.66f},
 
 		//Right Face
 		//B L
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.25f},
+		0.75f, 0.33f},
 		//B R
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		1.f, 0.25f},
+		1.f, 0.33f},
 		//T R
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		1.f, 0.5f},
+		1.f, 0.66f},
 		//T L
 		{0.5f, 0.5f, 0.5f,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.5f},
+		0.75f, 0.33f},
 
 		//Back Face
 		//B L
 		{0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.f, 0.25f},
+		0.f, 0.33f},
 		//B R
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.25f},
+		0.25f, 0.33f},
 		//T R
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.5f},
+		0.25f, 0.66f},
 		//T L
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.f, 0.5f},
+		0.f, 0.66f},
 
 		//Left Face
 		//B L
 		{-0.5f, -0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.25f},
+		0.25f, 0.33f},
 		//B R
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.25f},
+		0.5f, 0.33f},
 		//T R
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.5f},
+		0.5f, 0.66f},
 		//T L
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.25f, 0.5f},
+		0.25f, 0.66f},
 
 		//Top Face
 		//B L
 		{-0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.5f},
+		0.5f, 0.66f},
 		//B R
 		{0.5f, 0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.5f},
+		0.75f, 0.66f},
 		//T R
 		{0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.75f},
+		0.75f, 0.1f},
 		//T L
 		{-0.5f, 0.5, -0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.75f},
+		0.5f, 0.1f},
 
 		//Bottom Face
 		//B L
@@ -152,11 +151,11 @@ int main()
 		//T R
 		{0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.75f, 0.25f},
+		0.75f, 0.33f},
 		//T L
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.5f, 0.5f, 1.f,
-		0.5f, 0.25f}
+		0.5f, 0.3f}
 	};
 
 	std::vector<unsigned int> order = {
@@ -181,41 +180,42 @@ int main()
 
 	auto& renderer = Renderer::GetInstance();
 
-	Entity dice;
-	auto diceComp = dice.CreateComponentOfType<RenderComponent>();
-	diceComp.lock()->mesh = renderer.MeshFactory(vertices, order);
-	diceComp.lock()->texture = renderer.TextureFactory("dice.png");
+	Entity sun;
+	auto sunData = Common2DMeshes::Circle(50, 36);
+	auto sunComp = sun.CreateComponentOfType<RenderComponent>().lock();
+	sunComp->mesh = renderer.MeshFactory(sunData.first, sunData.second, GL_TRIANGLE_FAN);
+	sunComp->texture = renderer.TextureFactory("sun.png");
 
-	dice.Translate(0.f, 0.f, 50.f);
-	dice.Scale(5.f, 5.f, 5.f);
+	Entity earth;
+	earth.SetParent(sun);
+	auto earthData = Common2DMeshes::Circle(30, 36);
+	auto earthComp = earth.CreateComponentOfType<RenderComponent>().lock();
+	earthComp->mesh = renderer.MeshFactory(earthData.first, earthData.second, GL_TRIANGLE_FAN);
+	earthComp->texture = renderer.TextureFactory("earth.png");
+	earth.Translate(200.f, 0.f, 0.f);
 
-	Entity light;
-	auto lightComp = light.CreateComponentOfType<RenderComponent>();
-	lightComp.lock()->mesh = renderer.MeshFactory(vertices, order);
-	auto lightSource = light.CreateComponentOfType<LightSourceComponent>(1.f, 1.f, 1.f, 0.5f, 1.f, 0.7f);
-	lightComp.lock()->shaderProgram = renderer.ShaderFactory("shader.vert", "shaderLightSource.frag");
-	light.Scale(0.1f, 0.1f, 0.1f);
-	light.Translate(0.f, 0.f, -1.f);
+	Entity moon;
+	moon.SetParent(earth);
+	auto moonData = Common2DMeshes::Circle(20, 36);
+	auto moonComp = moon.CreateComponentOfType<RenderComponent>().lock();
+	moonComp->mesh = renderer.MeshFactory(moonData.first, moonData.second, GL_TRIANGLE_FAN);
+	moonComp->texture = renderer.TextureFactory("moon.png");
+	moon.Translate(75.f, 0.f, 0.f);
 
-	dice.SetParent(light);
+	renderer.Set2DMode(800, 600);
 
-	Entity floor;
-	auto floorComp = floor.CreateComponentOfType<RenderComponent>();
-	floorComp.lock()->mesh = renderer.MeshFactory(vertices, order);
-	floor.Scale(100.f, 0.1f, 100.f);
-	floor.Translate(0.f, -5.f, 0.f);
-	
-	renderer.AddObject(dice);
-	renderer.AddObject(light);
-	renderer.AddObject(floor);
-	renderer.SetLightSource(light);
-
-	renderer.SetPerspective(90.f, 0.1f, 100.f);
+	renderer.AddObject(sun);
+	renderer.AddObject(earth);
+	renderer.AddObject(moon);
 
 	bool flag = true;
-	std::thread diceOrbit(OrbitParentEntity2D, std::ref(dice), 0.1f, std::ref(flag));
+	std::thread earthOrbit(OrbitParentEntity2D, std::ref(earth), 1.f, std::ref(flag));
+	std::thread earthRotation(RotateAxis2D, std::ref(earth), 2.f, std::ref(flag));
+	std::thread moonOrbit(OrbitParentEntity2D, std::ref(moon), -1.f, std::ref(flag));
 
 	renderer.Run();
 	flag = false;
-	diceOrbit.join();
+	earthOrbit.join();
+	earthRotation.join();
+	moonOrbit.join();
 }
