@@ -15,4 +15,8 @@ export namespace Common2DMeshes
 		unsigned int p_radius, 
 		unsigned int p_vertexCount,
 		glm::vec4 p_color = glm::vec4(1.f));
+
+	std::pair<std::vector<Vertex>, std::vector<unsigned int>> Rectangle(
+		float p_width, float p_height,
+		glm::vec4 p_color = glm::vec4(1.f));
 }

@@ -1,7 +1,7 @@
 export module Graphics.Resources:Vertex;
 
 import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
+import <glm/vec3.hpp>; 
 import <glm/vec4.hpp>;
 
 export class Vertex {

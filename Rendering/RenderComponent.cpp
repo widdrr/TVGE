@@ -3,7 +3,8 @@ module Graphics.Components:RenderComponent;
 import <glm/gtc/matrix_transform.hpp>;
 
 RenderComponent::RenderComponent(Entity& p_entity) :
-	Component(p_entity)
+	Component(p_entity),
+	disabled(false)
 {}
 
 glm::mat4 RenderComponent::GetModelTransformation() const

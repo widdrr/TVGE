@@ -84,6 +84,9 @@ Renderer::Renderer() :
 
 	glEnable(GL_DEPTH_TEST);
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+
 	//loading the default shader
 	ShaderFactory("shader.vert", "shader.frag");
 }
@@ -144,6 +147,11 @@ void Renderer::RenderFunction()
 			continue;
 		}
 		auto component = entity.lock();
+
+		if (component->disabled) {
+			continue;
+		}
+
 		auto& mesh = component->mesh;
 		if (mesh == nullptr) {
 			continue;

@@ -1,3 +1,7 @@
+module;
+
+#include <gl/glew.h>
+
 export module Graphics.Resources:Texture;
 
 import <string>;
