@@ -322,13 +322,15 @@ int main()
 	renderer.AddObject(earth);
 	renderer.AddObject(moon);
 
+	std::thread sunRotation(RotateAxis2D, std::ref(sun), 0.1f, std::ref(flag));
 	std::thread earthOrbit(OrbitParentEntity2D, std::ref(earth), 0.1f, std::ref(flag));
-	std::thread earthRotation(RotateAxis2D, std::ref(earth), 0.2f, std::ref(flag));
+	std::thread earthRotation(RotateAxis2D, std::ref(earth), 1.f, std::ref(flag));
 	std::thread moonOrbit(OrbitParentEntity2D, std::ref(moon), -0.1f, std::ref(flag));
 
 	renderer.Run();
 	
 	flag = false;
+	sunRotation.join();
 	earthOrbit.join();
 	earthRotation.join();
 	moonOrbit.join();
