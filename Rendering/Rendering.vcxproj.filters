@@ -26,10 +26,10 @@
     <ClCompile Include="Mesh.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="RenderComponent.cpp">
+    <ClCompile Include="ModelComponent.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
-    <ClCompile Include="RenderComponent.ixx">
+    <ClCompile Include="ModelComponent.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
@@ -72,6 +72,12 @@
       <Filter>Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
   </ItemGroup>

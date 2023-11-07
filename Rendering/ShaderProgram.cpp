@@ -9,13 +9,17 @@ import <glm/gtc/type_ptr.hpp>;
 import <fstream>;
 import <iostream>;
 
-ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath)
+ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath):
+	_vertexShaderPath(p_vertexShaderPath),
+	_fragmentShaderPath(p_fragmentShaderPath),
+	_failed(false)
 {	
 	_id = glCreateProgram();
 
 	if (_id == 0) {
 		std::cerr << "Error creating shader program\n";
-		exit(1);
+		_failed = true;
+		return;
 	}
 
 	AddShader(ReadShaderFromFile(p_vertexShaderPath), GL_VERTEX_SHADER);
@@ -30,7 +34,8 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 		GLchar dump[_dumpSize];
 		glGetProgramInfoLog(_id, _dumpSize, nullptr, dump);
 		std::cerr << "Error while linking shader program: " << dump << "\n";
-		exit(1);
+		_failed = true;
+		return;
 	}
 
 	glValidateProgram(_id);
@@ -42,7 +47,8 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 		GLchar dump[_dumpSize];
 		glGetProgramInfoLog(_id, _dumpSize, nullptr, dump);
 		std::cerr << "Error while validating shader program: " << dump << "\n";
-		exit(1);
+		_failed = true;
+		return;
 	}
 
 	glUseProgram(_id);
@@ -59,7 +65,7 @@ void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value, b
 	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
 	if (location == -1) {
 		if (p_debug) {
-			std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
+			std::cerr << "Variable " << p_variableName << " not defined in Shader\n";
 			return;
 		}
 	}
@@ -99,7 +105,8 @@ void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderTyp
 
 	if (shader == 0) {
 		std::cerr << "Error creating shader object \n";
-		exit(1);
+		_failed = true;
+		return;
 	}
 
 	const GLchar* shaderText[] = { p_shaderText.c_str() };
@@ -116,7 +123,8 @@ void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderTyp
 		GLchar dump[_dumpSize];
 		glGetShaderInfoLog(shader, _dumpSize, NULL, dump);
 		std::cerr << "Error while compiling shader: " << dump << "\n";
-		exit(1);
+		_failed = true;
+		return;
 	}
 
 	glAttachShader(_id, shader);

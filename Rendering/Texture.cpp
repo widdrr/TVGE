@@ -10,6 +10,7 @@ module Graphics.Resources:Texture;
 import <iostream>;
 
 Texture::Texture(const std::string& p_texturePath):
+	_texturePath(p_texturePath),
 	_id(),
 	_width(),
 	_height(),
@@ -46,4 +47,9 @@ Texture::~Texture()
 {
 	stbi_image_free(_textureData);
 	glDeleteTextures(1, &_id);
+}
+
+const unsigned int Texture::GetId() const
+{
+	return _id;
 }

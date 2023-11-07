@@ -8,28 +8,29 @@ import :Utilities;
 
 import <glm/geometric.hpp>;
 
-Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const GLenum p_mode) :
+Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool genNormals) :
 	_vertices(p_vertices),
 	_indices(p_indices),
-	_drawMode(p_mode),
+	_material(p_material),
 	_vao(),
 	_vbo(),
 	_ebo()
 {
-	//TODO: make this work for something other than triangles
-	for (size_t i = 0; i < _indices.size() - 3; i += 3) {
-		auto& Vertex1 = _vertices[_indices[i]];
-		auto& Vertex2 = _vertices[_indices[i + 1]];
-		auto& Vertex3 = _vertices[_indices[i + 2]];
+	if (genNormals) {
+		for (size_t i = 0; i < _indices.size() - 3; i += 3) {
+			auto& Vertex1 = _vertices[_indices[i]];
+			auto& Vertex2 = _vertices[_indices[i + 1]];
+			auto& Vertex3 = _vertices[_indices[i + 2]];
 
-		glm::vec3 edge1 = Vertex2._position - Vertex1._position;
-		glm::vec3 edge2 = Vertex3._position - Vertex2._position;
+			glm::vec3 edge1 = Vertex2._position - Vertex1._position;
+			glm::vec3 edge2 = Vertex3._position - Vertex2._position;
 
-		glm::vec3 triangleNormal = glm::cross(edge1, edge2);
+			glm::vec3 triangleNormal = glm::cross(edge1, edge2);
 
-		Vertex1._normal = triangleNormal;
-		Vertex2._normal = triangleNormal;
-		Vertex3._normal = triangleNormal;
+			Vertex1._normal = triangleNormal;
+			Vertex2._normal = triangleNormal;
+			Vertex3._normal = triangleNormal;
+		}
 	}
 
 	//generating VAO to store buffer data
@@ -55,46 +56,22 @@ Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int
 	//setting Position attribute
 	glVertexAttribPointer(VertexAttributes::Position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
 	glEnableVertexAttribArray(VertexAttributes::Position);
-	//setting Color attribute
-	glVertexAttribPointer(VertexAttributes::Color, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(VertexAttributes::Color);
 	//setting Texture attribute
-	glVertexAttribPointer(VertexAttributes::TextureCoordinates, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(7 * sizeof(float)));
+	glVertexAttribPointer(VertexAttributes::TextureCoordinates, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(VertexAttributes::TextureCoordinates);
 	//setting Normal attribute
-	glVertexAttribPointer(VertexAttributes::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
+	glVertexAttribPointer(VertexAttributes::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(VertexAttributes::Normal);
 
 	//deactivating VAO
 	glBindVertexArray(0);
 }
 
-const std::vector<Vertex>& Mesh::GetVertices() const 
-{	
-	return _vertices;
-}
-
-const std::vector<unsigned int>& Mesh::GetElements() const 
-{	
-	return _indices;
-}
-
-const GLsizei Mesh::GetElementCount() const 
-{	
-	return static_cast<GLsizei>(_indices.size());
-}
-
-const GLenum Mesh::GetDrawMode() const 
+Mesh::~Mesh()
 {
-	return _drawMode;
-}
-
-Mesh::~Mesh() {
-
 	glBindVertexArray(_vao);
 
 	glDisableVertexAttribArray(VertexAttributes::Position);
-	glDisableVertexAttribArray(VertexAttributes::Color);
 	glDisableVertexAttribArray(VertexAttributes::TextureCoordinates);
 	glDisableVertexAttribArray(VertexAttributes::Normal);
 

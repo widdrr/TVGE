@@ -18,13 +18,10 @@ Camera::Camera(float p_posX, float p_posY, float p_posZ, float p_frontX, float p
 	DetermineAngles();
 }
 
-const glm::vec3 Camera::GetPosition() const {
-	return _position;
-}
-
-const glm::mat4 Camera::GetViewTransformation() const {
-
-	return glm::lookAt(_position, _position + _front, _up);
+void Camera::SetCameraVariables(ShaderProgram& p_shader)
+{
+	p_shader.SetVariable(UniformVariables::viewMatrix, glm::lookAt(_position, _position + _front, _up));
+	p_shader.SetVariable(UniformVariables::cameraPosition, _position);
 }
 
 void Camera::MoveCamera(Movement p_movement, float p_delta) {

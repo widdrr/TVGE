@@ -12,8 +12,11 @@ private:
 public:
 	~Texture();
 
+	const unsigned int GetId() const;
+
+public:
+	const std::string _texturePath;
 private:
-	
 	unsigned int _id;
 	const int _width, _height, _channels;
 	unsigned char* _textureData;

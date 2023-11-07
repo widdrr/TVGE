@@ -13,6 +13,5 @@ export namespace Common2DMeshes
 {
 	std::pair<std::vector<Vertex>, std::vector<unsigned int>> Circle(
 		unsigned int p_radius, 
-		unsigned int p_vertexCount,
-		glm::vec4 p_color = glm::vec4(1.f));
+		unsigned int p_vertexCount);
 }

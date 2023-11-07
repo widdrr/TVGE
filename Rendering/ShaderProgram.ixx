@@ -19,11 +19,17 @@ private:
 	void AddShader(std::string p_shaderText, unsigned int p_shaderType);
 	static std::string ReadShaderFromFile(std::string p_fileName);
 public:
+
 	void SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug = false);
 	void SetVariable(std::string p_variableName, float p_value, bool p_debug = false);
 	void SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug = false);
 
+public:
+	const std::string _vertexShaderPath;
+	const std::string _fragmentShaderPath;
 private:
 	unsigned int _id;
+	bool _failed;
+
 };
 
