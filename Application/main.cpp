@@ -187,8 +187,9 @@ int main()
 	cube.Translate(0.f, 0.f, 5.f);
 
 	Entity light;
-	auto lightComp = light.CreateComponentOfType<ModelComponent>();
-	lightComp.lock()->_meshes.push_back(renderer.MeshFactory(vertices, order, lightMaterial));
+	auto lightComp = light.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*lightComp, "sphere.dae");
+	lightComp->_meshes[0]->_material = lightMaterial;
 	light.CreateComponentOfType<LightSourceComponent>(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
 	light.Scale(0.1f, 0.1f, 0.1f);
 	light.Translate(0.f, 0.f, -1.f);

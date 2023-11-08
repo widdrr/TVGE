@@ -19,10 +19,12 @@ private:
 public:
 	~Mesh();
 
+	std::shared_ptr<Material> _material;
+
 private:
 	std::vector<Vertex> _vertices;
 	const std::vector<unsigned int> _indices;
-	const std::shared_ptr<Material> _material;
+	
 
 	unsigned int _vao, _vbo, _ebo;
 };
