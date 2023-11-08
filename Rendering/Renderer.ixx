@@ -46,6 +46,7 @@ public:
 									  bool p_genNormal = false);
 
 	void LoadModel(ModelComponent& p_model, const std::string& p_path);
+	std::shared_ptr<ShaderProgram> DefaultShader();
 	
 	//TODO: rework so that Renderer automatically has access to all components
 	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
@@ -84,6 +85,7 @@ private:
 	//TODO multi lightsource?
 	std::weak_ptr<LightSourceComponent> _lightSource;
 	Entity _defaultLight;
+	std::shared_ptr<ShaderProgram> _defaultShader;
 
 	double _lastTime;
 	float _deltaTime;

@@ -8,6 +8,7 @@
 
 *.png
 *.jpg
+*.dae
 
 # User-specific files
 *.rsuser

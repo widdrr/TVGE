@@ -48,7 +48,7 @@ Renderer::Renderer() :
 
 	//setup and create window
 	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.7a", nullptr, nullptr)
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.8a", nullptr, nullptr)
 	);
 
 	if (_window == nullptr) {
@@ -90,7 +90,7 @@ Renderer::Renderer() :
 	glEnable(GL_DEPTH_TEST);
 
 	//loading the default shader
-	ShaderFactory("shader.vert", "shader.frag");
+	_defaultShader = ShaderFactory("shader.vert", "shader.frag");
 }
 
 Renderer& Renderer::GetInstance() 
@@ -213,6 +213,11 @@ void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path)
 	ProcessAssimpNode(scene->mRootNode, scene, p_model);
 }
 
+std::shared_ptr<ShaderProgram> Renderer::DefaultShader()
+{
+	return _defaultShader;
+}
+
 void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelComponent& p_model)
 {
 	for (unsigned int i = 0; i < p_node->mNumMeshes; ++i) {
@@ -249,7 +254,7 @@ std::shared_ptr<Mesh> Renderer::MeshFactory(aiMesh* p_mesh, const aiScene* p_sce
 			indices.push_back(face.mIndices[j]);
 	}
 
-	auto material = std::shared_ptr<Material>(new Material(*_shaders[0]));
+	auto material = std::shared_ptr<Material>(new Material(*_defaultShader));
 	
 	auto assimpMaterial = p_scene->mMaterials[p_mesh->mMaterialIndex];
 

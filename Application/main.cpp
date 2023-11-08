@@ -174,6 +174,12 @@ int main()
 	auto lightMaterial = std::make_shared<Material>(*lightShader);
 	lightMaterial->_lightProperties.emissive = glm::vec3(1.f, 1.f, 1.f);
 
+	Entity sphere;
+	auto sphereComp = sphere.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*sphereComp, "monke.dae");
+	sphere.Translate(0.f, 0.f, -5.f);
+	sphere.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90.f);
+
 	Entity cube;
 	auto diceComp = cube.CreateComponentOfType<ModelComponent>();
 	diceComp.lock()->_meshes.push_back(renderer.MeshFactory(vertices, order, emerald, true));
@@ -196,13 +202,14 @@ int main()
 	renderer.AddObject(cube);
 	renderer.AddObject(light);
 	renderer.AddObject(floor);
+	renderer.AddObject(sphere);
 	renderer.SetLightSource(light);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 	bool flag = true;
-	std::thread t(RotateAxis2D, std::ref(cube), 1.f, std::ref(flag));
+	//std::thread t(RotateAxis2D, std::ref(sphere), 1.f, std::ref(flag));
 
 	renderer.Run();
 	flag = false;
-	t.join();
+	//t.join();
 }
