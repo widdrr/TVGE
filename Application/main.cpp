@@ -186,6 +186,13 @@ int main()
 
 	cube.Translate(0.f, 0.f, 5.f);
 
+	Entity backpack;
+	auto bkpComp = backpack.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*bkpComp, "backpack.obj");
+
+	backpack.Translate(10.f, 0.f, 0.f);
+	backpack.Rotate(glm::vec3(0.f, 1.f, 0.f), -90.f);
+
 	Entity light;
 	auto lightComp = light.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*lightComp, "sphere.dae");
@@ -204,6 +211,7 @@ int main()
 	renderer.AddObject(light);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
+	renderer.AddObject(backpack);
 	renderer.SetLightSource(light);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);

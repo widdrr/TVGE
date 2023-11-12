@@ -9,6 +9,13 @@ export enum VertexAttributes
 	Normal
 };
 
+export enum TextureUnits 
+{
+	Ambient,
+	Diffuse,
+	Specular
+};
+
 export namespace UniformVariables 
 {
 	const std::string viewMatrix = "glViewMatrix";
@@ -18,12 +25,16 @@ export namespace UniformVariables
 	
 	namespace Material 
 	{
-		const std::string materialMainTexture = "glMaterial.mainTexture";
 		const std::string materialHasTexture = "glMaterial.hasTexture";
+		const std::string materialAmbientMap = "glMaterial.ambientMap";
+		const std::string materialDiffuseMap = "glMaterial.diffuseMap";
+		const std::string materialSpecularMap = "glMaterial.specularMap";
+
 		const std::string materialAmbientColor = "glMaterial.ambientColor";
 		const std::string materialDiffuseColor = "glMaterial.diffuseColor";
 		const std::string materialSpecularColor = "glMaterial.specularColor";
 		const std::string materialEmissiveColor = "glMaterial.emissiveColor";
+		
 		const std::string materialShininess = "glMaterial.shininess";
 	}
 	

@@ -6,9 +6,13 @@
 #Libraries
 [Ll]ibraries/
 
+#Resources 
 *.png
 *.jpg
 *.dae
+*.obj
+*.mtl
+*.txt
 
 # User-specific files
 *.rsuser

@@ -13,6 +13,7 @@ public:
 	~Texture();
 
 	const unsigned int GetId() const;
+	void Bind(unsigned int p_unit) const;
 
 public:
 	const std::string _texturePath;

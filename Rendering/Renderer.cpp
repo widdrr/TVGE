@@ -48,7 +48,7 @@ Renderer::Renderer() :
 
 	//setup and create window
 	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.8a", nullptr, nullptr)
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.9a", nullptr, nullptr)
 	);
 
 	if (_window == nullptr) {
@@ -268,6 +268,22 @@ std::shared_ptr<Mesh> Renderer::MeshFactory(aiMesh* p_mesh, const aiScene* p_sce
 	material->_lightProperties.specular = glm::vec3(output.r, output.g, output.b);
 
 	assimpMaterial->Get(AI_MATKEY_SHININESS, material->_lightProperties.shininess);
+
+	aiString texture_path;
+	if (assimpMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0) {
+		assimpMaterial->GetTexture(aiTextureType_AMBIENT, 0, &texture_path);
+		material->_ambientMap = TextureFactory(texture_path.C_Str());
+	}
+
+	if (assimpMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+		assimpMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture_path);
+		material->_diffuseMap = TextureFactory(texture_path.C_Str());
+	}
+
+	if (assimpMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0) {
+		assimpMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texture_path);
+		material->_specularMap = TextureFactory(texture_path.C_Str());
+	}
 
 	return MeshFactory(vertices, indices, material);
 }

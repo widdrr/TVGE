@@ -10,11 +10,15 @@ uniform vec3 glCameraPosition;
 
 uniform struct Material
 {
-    sampler2D mainTexture;
     bool hasTexture;
+    sampler2D ambientMap;
+    sampler2D diffuseMap;
+    sampler2D specularMap;
+
     vec3 ambientColor;
     vec3 diffuseColor;
     vec3 specularColor;
+
     vec3 emissiveColor;
     float shininess;
 } glMaterial;
@@ -31,13 +35,30 @@ uniform struct LightSource
 
 vec3 ComputeAmbientColor(){
 
-    return glMaterial.ambientColor * glLight.ambientColor;
+    vec3 color = glLight.ambientColor;
+    if(glMaterial.hasTexture){
+        color *= vec3(texture(glMaterial.ambientMap, TextureCoordinates));
+    }
+    else{
+        color *= glMaterial.ambientColor;
+    }
+        
+    return color;
 }
 
 vec3 ComputeDiffuseColor(vec3 normal, vec3 lightDirection){
 
     float diffuseValue = max(dot(normal, lightDirection), 0.0);
-    return glMaterial.diffuseColor * diffuseValue * glLight.diffuseColor;
+    
+    vec3 color = diffuseValue * glLight.diffuseColor;
+    if(glMaterial.hasTexture){
+        color *= vec3(texture(glMaterial.diffuseMap, TextureCoordinates));
+    }
+    else{
+        color *= glMaterial.diffuseColor;
+    }
+
+    return color;
 }
 
 vec3 ComputeSpecularColor(vec3 normal, vec3 lightDirection){
@@ -45,7 +66,16 @@ vec3 ComputeSpecularColor(vec3 normal, vec3 lightDirection){
     vec3 cameraDirection = normalize(glCameraPosition - FragmentPosition);
     vec3 reflectedLightDirection = reflect(-lightDirection, normal);
     float specularValue = pow(max(dot(cameraDirection, reflectedLightDirection), 0.0), glMaterial.shininess);
-    return glMaterial.specularColor * specularValue * glLight.specularColor;
+
+    vec3 color = specularValue * glLight.specularColor;
+    if(glMaterial.hasTexture){
+        color *= vec3(texture(glMaterial.specularMap, TextureCoordinates));
+    }
+    else{
+        color *= glMaterial.specularColor;
+    }
+
+    return color;
 }
 
 void main()
@@ -63,10 +93,5 @@ void main()
 
     vec4 shadedColor = vec4(((ambientColor + diffuseColor + specularColor)), 1.f);
     
-    if (glMaterial.hasTexture) {
-        FragmentColor = texture(glMaterial.mainTexture, TextureCoordinates) * shadedColor;
-    }
-    else {
-        FragmentColor = shadedColor;
-    }
+    FragmentColor = shadedColor;
 }

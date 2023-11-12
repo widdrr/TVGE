@@ -53,3 +53,9 @@ const unsigned int Texture::GetId() const
 {
 	return _id;
 }
+
+void Texture::Bind(unsigned int p_unit) const
+{
+	glActiveTexture(GL_TEXTURE0 + p_unit);
+	glBindTexture(GL_TEXTURE_2D, _id);
+}

@@ -4,6 +4,8 @@ module;
 
 module Graphics.Resources:ShaderProgram;
 
+import :Utilities;
+
 import <glm/gtc/type_ptr.hpp>;
 
 import <fstream>;
@@ -50,8 +52,10 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 		_failed = true;
 		return;
 	}
-
-	glUseProgram(_id);
+	
+	SetVariable(UniformVariables::Material::materialAmbientMap, TextureUnits::Ambient);
+	SetVariable(UniformVariables::Material::materialDiffuseMap, TextureUnits::Diffuse);
+	SetVariable(UniformVariables::Material::materialSpecularMap, TextureUnits::Specular);
 
 }
 
