@@ -13,7 +13,6 @@ import <thread>;
 import <chrono>;
 import <memory>;
 
-
 void RotateAxis2D(Entity& obj, float theta, bool& flag) 
 {
 	while (flag) {

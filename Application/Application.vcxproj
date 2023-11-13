@@ -114,9 +114,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)/Libraries/External/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)Libraries\External\bin\glew32.dll" "$(OutDir)"
+      <Command>xcopy /y "$(SolutionDir)Libraries\External\bin\glew32d.dll" "$(OutDir)"
 xcopy /y "$(SolutionDir)Libraries\External\bin\glfw3.dll" "$(OutDir)"
-xcopy /y "$(SolutionDir)Libraries\External\bin\assimp-vc143-mt.dll" "$(OutDir)"</Command>
+xcopy /y "$(SolutionDir)Libraries\External\bin\assimp-vc143-mtd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

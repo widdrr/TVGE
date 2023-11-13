@@ -36,10 +36,10 @@ uniform struct LightSource
 vec3 ComputeAmbientColor(){
 
     vec3 color = glLight.ambientColor;
-    if(glMaterial.hasTexture){
+    if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.ambientMap, TextureCoordinates));
     }
-    else{
+    else {
         color *= glMaterial.ambientColor;
     }
         
@@ -51,10 +51,10 @@ vec3 ComputeDiffuseColor(vec3 normal, vec3 lightDirection){
     float diffuseValue = max(dot(normal, lightDirection), 0.0);
     
     vec3 color = diffuseValue * glLight.diffuseColor;
-    if(glMaterial.hasTexture){
+    if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.diffuseMap, TextureCoordinates));
     }
-    else{
+    else {
         color *= glMaterial.diffuseColor;
     }
 
@@ -68,10 +68,10 @@ vec3 ComputeSpecularColor(vec3 normal, vec3 lightDirection){
     float specularValue = pow(max(dot(cameraDirection, reflectedLightDirection), 0.0), glMaterial.shininess);
 
     vec3 color = specularValue * glLight.specularColor;
-    if(glMaterial.hasTexture){
+    if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.specularMap, TextureCoordinates));
     }
-    else{
+    else {
         color *= glMaterial.specularColor;
     }
 
