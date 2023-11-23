@@ -23,8 +23,7 @@ public:
 
 private:
 	std::vector<Vertex> _vertices;
-	const std::vector<unsigned int> _indices;
+	std::vector<unsigned int> _indices;
 	
-
 	unsigned int _vao, _vbo, _ebo;
 };

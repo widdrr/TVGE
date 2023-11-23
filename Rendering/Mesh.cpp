@@ -46,11 +46,11 @@ Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int
 	//copying data to VBO
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), reinterpret_cast<void*>(const_cast<Vertex*>(_vertices.data())), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), reinterpret_cast<void*>(_vertices.data()), GL_STATIC_DRAW);
 
 	//copying data to EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), reinterpret_cast<void*>(const_cast<unsigned int*>(_indices.data())), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), reinterpret_cast<void*>(_indices.data()), GL_STATIC_DRAW);
 
 	//TODO: refactor this to not send worthless data if object has no texture
 	//setting Position attribute

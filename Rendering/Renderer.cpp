@@ -18,6 +18,7 @@ import <assimp/postprocess.h>;
 
 import <iostream>;
 import <fstream>;
+import <thread>;
 
 std::unique_ptr<Renderer> Renderer::_instance = nullptr;
 
@@ -48,7 +49,7 @@ Renderer::Renderer() :
 
 	//setup and create window
 	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.9a", nullptr, nullptr)
+		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.10a", nullptr, nullptr)
 	);
 
 	if (_window == nullptr) {
@@ -130,7 +131,18 @@ void Renderer::RenderFunction()
 
 			shader.SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 			_camera.SetCameraVariables(shader);
-			_lightSource.lock()->SetLightVariables(shader);
+			
+			unsigned int deadLights = 0;
+			for (unsigned int i = 0; i < _lightSources.size(); ++i) {
+				if (_lightSources[i].expired()) {
+					++deadLights;
+					continue;
+				}
+				_lightSources[i].lock()->SetLightVariables(shader, i - deadLights);
+			}
+
+			shader.SetVariable(UniformVariables::Light::lightCount, static_cast<int>(_lightSources.size() - deadLights));
+
 			mesh->_material->SetMaterialVariables();
 
 			glUseProgram(shader._id);
@@ -194,6 +206,7 @@ std::shared_ptr<Mesh> Renderer::MeshFactory(const std::vector<Vertex>& p_vertice
 	return std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_material, p_genNormal));
 }
 
+//TODO: System to reuse models
 void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path)
 {
 	Assimp::Importer importer;
@@ -329,19 +342,15 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane)
 	}
 }
 
-void Renderer::SetLightSource(const Entity& p_object) 
+void Renderer::AddLightSource(const Entity& p_object) 
 {
-	_lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
-	if (_lightSource.expired()) {
+	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
+	if (lightSource.expired()) {
 		std::cerr << "Object does not contain a LightSourceComponent\n";
 		return;
 	}
 
-	auto lightSource = _lightSource.lock();
-
-	for (auto&& [key, shader] : _shaders) {
-		lightSource->SetLightVariables(*shader);
-	}
+	_lightSources.push_back(lightSource);
 }
 
 void Renderer::ComputeTime() 

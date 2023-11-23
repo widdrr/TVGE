@@ -80,5 +80,11 @@
     <ClCompile Include="Material.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
+    <ClCompile Include="PointLightComponent.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightComponent.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

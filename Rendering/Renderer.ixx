@@ -16,6 +16,7 @@ import <assimp/scene.h>;
 import <string>;
 import <memory>;
 import <vector>;
+import <thread>;
 import <unordered_map>;
 
 export class Renderer
@@ -50,7 +51,7 @@ public:
 	
 	//TODO: rework so that Renderer automatically has access to all components
 	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
-	void SetLightSource(const Entity& p_object);
+	void AddLightSource(const Entity& p_object);
 	
 	//TODO: rework Cameras
 	void LockCamera(bool p_lock);
@@ -82,8 +83,8 @@ private:
 	glm::mat4 _projectionMatrix;
 	//TODO: multicamera?
 	Camera _camera;
-	//TODO multi lightsource?
-	std::weak_ptr<LightSourceComponent> _lightSource;
+	
+	std::vector<std::weak_ptr<LightSourceComponent>> _lightSources;
 	Entity _defaultLight;
 	std::shared_ptr<ShaderProgram> _defaultShader;
 

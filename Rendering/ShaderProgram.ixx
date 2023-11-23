@@ -18,11 +18,14 @@ public:
 private:
 	void AddShader(std::string p_shaderText, unsigned int p_shaderType);
 	static std::string ReadShaderFromFile(std::string p_fileName);
+	unsigned int GetUniformLocation(std::string_view p_variableName, bool p_debug);
 public:
 
-	void SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug = false);
-	void SetVariable(std::string p_variableName, float p_value, bool p_debug = false);
-	void SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug = false);
+	void SetVariable(std::string_view p_variableName, glm::mat4 p_value, bool p_debug = false);
+	void SetVariable(std::string_view p_variableName, float p_value, bool p_debug = false);
+	void SetVariable(std::string_view p_variableName, int p_value, bool p_debug = false);
+	void SetVariable(std::string_view p_variableName, glm::vec3 p_value, bool p_debug = false);
+	void SetVariable(std::string_view p_variableName, glm::vec4 p_value, bool p_debug = false);
 
 public:
 	const std::string _vertexShaderPath;

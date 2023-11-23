@@ -23,19 +23,29 @@ uniform struct Material
     float shininess;
 } glMaterial;
 
-uniform struct LightSource
+//TODO: figure out a way to not allocate useless data for different light types.
+struct LightSource
 {
-    vec3 position;
-    vec3 direction;
-    float radius;
+    vec4 position;
+    
     vec3 ambientColor;
     vec3 diffuseColor;
     vec3 specularColor;
-} glLight;
 
-vec3 ComputeAmbientColor(){
+    float constantAttenuation;
+    float linearAttenuation;
+    float quadraticAttenuation;
+};
 
-    vec3 color = glLight.ambientColor;
+//TODO: Shader Buffers to support more lights
+const int MaxLightSources = 128;
+
+uniform LightSource glLights[MaxLightSources];
+uniform int glLightCount;
+
+vec3 ComputeAmbientColor(LightSource light){
+
+    vec3 color = light.ambientColor;
     if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.ambientMap, TextureCoordinates));
     }
@@ -46,11 +56,11 @@ vec3 ComputeAmbientColor(){
     return color;
 }
 
-vec3 ComputeDiffuseColor(vec3 normal, vec3 lightDirection){
+vec3 ComputeDiffuseColor(LightSource light, vec3 normal, vec3 lightDirection){
 
     float diffuseValue = max(dot(normal, lightDirection), 0.0);
     
-    vec3 color = diffuseValue * glLight.diffuseColor;
+    vec3 color = diffuseValue * light.diffuseColor;
     if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.diffuseMap, TextureCoordinates));
     }
@@ -61,13 +71,12 @@ vec3 ComputeDiffuseColor(vec3 normal, vec3 lightDirection){
     return color;
 }
 
-vec3 ComputeSpecularColor(vec3 normal, vec3 lightDirection){
+vec3 ComputeSpecularColor(LightSource light, vec3 normal, vec3 lightDirection, vec3 cameraDirection){
 
-    vec3 cameraDirection = normalize(glCameraPosition - FragmentPosition);
     vec3 reflectedLightDirection = reflect(-lightDirection, normal);
     float specularValue = pow(max(dot(cameraDirection, reflectedLightDirection), 0.0), glMaterial.shininess);
 
-    vec3 color = specularValue * glLight.specularColor;
+    vec3 color = specularValue * light.specularColor;
     if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.specularMap, TextureCoordinates));
     }
@@ -80,16 +89,38 @@ vec3 ComputeSpecularColor(vec3 normal, vec3 lightDirection){
 
 void main()
 {
-    vec3 lightDirection = normalize(glLight.position - FragmentPosition);
     vec3 normalizedNormal = normalize(Normal);
-    //Ambient component of Phong shading
-    vec3 ambientColor = ComputeAmbientColor();
+    vec3 cameraDirection = normalize(glCameraPosition - FragmentPosition);
 
-    //Diffuse component of Phong shading
-    vec3 diffuseColor = ComputeDiffuseColor(normalizedNormal, lightDirection);
 
-    //Specular component of Phong shading
-    vec3 specularColor = ComputeSpecularColor(normalizedNormal, lightDirection);
+    vec3 ambientColor, diffuseColor, specularColor;
+
+    for (int i = 0; i< glLightCount; ++i) {
+        //Determining if light source is point or directional
+        vec3 lightDirection;
+        float attenuation;
+        
+        if(glLights[i].position.w == 1) {
+            float lightDistance = length(glLights[0].position.xyz - FragmentPosition);
+
+            lightDirection = normalize(glLights[i].position.xyz - FragmentPosition);
+
+            attenuation = 1.f / (glLights[i].constantAttenuation + 
+                                 glLights[i].linearAttenuation * lightDistance + 
+                                 glLights[i].quadraticAttenuation * (lightDistance * lightDistance)); 
+        }
+        else {
+            lightDirection = normalize(glLights[i].position.xyz);
+            //Directional Lights do not have attenuation since there is no concept of distance
+            attenuation = 1.f;
+        }
+        
+        ambientColor += ComputeAmbientColor(glLights[i]) * attenuation;
+
+        diffuseColor += ComputeDiffuseColor(glLights[i], normalizedNormal, lightDirection) * attenuation;
+
+        specularColor += ComputeSpecularColor(glLights[i], normalizedNormal, lightDirection, cameraDirection) * attenuation;
+    }
 
     vec4 shadedColor = vec4(((ambientColor + diffuseColor + specularColor)), 1.f);
     

@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera.ixx" />
+    <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="GraphicsComponents.ixx" />
     <ClCompile Include="GraphicsResources.ixx" />
     <ClCompile Include="LightSourceComponent.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="MeshHelpers.ixx" />
     <ClCompile Include="ModelComponent.cpp" />
     <ClCompile Include="ModelComponent.ixx" />
+    <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Renderer.ixx" />
     <ClCompile Include="ShaderProgram.cpp" />

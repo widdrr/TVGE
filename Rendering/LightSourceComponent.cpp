@@ -7,13 +7,3 @@ LightSourceComponent::LightSourceComponent(Entity& p_entity,
 	_diffuseColor(p_diffuse),
 	_specularColor(p_specular)
 {}
-
-void LightSourceComponent::SetLightVariables(ShaderProgram& p_shader)
-{
-	using namespace UniformVariables::Light;
-
-	p_shader.SetVariable(lightPosition, _entity.position);
-	p_shader.SetVariable(lightAmbientColor, _ambientColor);
-	p_shader.SetVariable(lightDiffuseColor, _diffuseColor);
-	p_shader.SetVariable(lightSpecularColor, _specularColor);
-}

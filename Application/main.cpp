@@ -43,8 +43,6 @@ void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 
 int main() 
 {
-	//TODO: make a builder for this mess
-	//Just make the model loader instead
 	std::vector<Vertex> vertices = {
 
 		//Front Face
@@ -158,9 +156,9 @@ int main()
 	auto lightShader = renderer.ShaderFactory("shader.vert", "shaderLightSource.frag");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
-	basicMaterial->_lightProperties.ambient = glm::vec3(1.f, 1.f, 1.f);
-	basicMaterial->_lightProperties.diffuse = glm::vec3(1.f, 1.f, 1.f);
-	basicMaterial->_lightProperties.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	basicMaterial->_lightProperties.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+	basicMaterial->_lightProperties.specular = glm::vec3(0.f, 0.f, 0.f);
 	basicMaterial->_lightProperties.shininess = 32.f;
 
 	auto emerald = std::make_shared<Material>(*defaultShader);
@@ -196,9 +194,25 @@ int main()
 	auto lightComp = light.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*lightComp, "sphere.dae");
 	lightComp->_meshes[0]->_material = lightMaterial;
-	light.CreateComponentOfType<LightSourceComponent>(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
+	light.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
 	light.Scale(0.1f, 0.1f, 0.1f);
 	light.Translate(0.f, 0.f, -1.f);
+
+	Entity light2;
+	auto lightComp2 = light2.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*lightComp2, "sphere.dae");
+	lightComp2->_meshes[0]->_material = lightMaterial;
+	light2.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
+	light2.Scale(0.1f, 0.1f, 0.1f);
+	light2.Translate(7.f, 0.f, 7.f);
+
+	Entity light3;
+	auto lightComp3 = light3.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*lightComp3, "sphere.dae");
+	lightComp3->_meshes[0]->_material = lightMaterial;
+	light3.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
+	light3.Scale(0.1f, 0.1f, 0.1f);
+	light3.Translate(-7.f, 0.f, -7.f);
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
@@ -208,16 +222,21 @@ int main()
 	
 	renderer.AddObject(cube);
 	renderer.AddObject(light);
+	renderer.AddObject(light2);
+	renderer.AddObject(light3);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
 	renderer.AddObject(backpack);
-	renderer.SetLightSource(light);
+	renderer.AddLightSource(light);
+	renderer.AddLightSource(light2);
+	renderer.AddLightSource(light3);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 	bool flag = true;
-	//std::thread t(RotateAxis2D, std::ref(sphere), 1.f, std::ref(flag));
+	//std::thread t(RotateAxis2D, std::ref(light), 1.f, std::ref(flag));
 
 	renderer.Run();
 	flag = false;
 	//t.join();
+
 }

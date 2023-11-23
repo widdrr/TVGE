@@ -8,6 +8,8 @@ import <algorithm>;
 import <thread>;
 import <chrono>;
 import <unordered_map>;
+import <format>;
+import <string_view>;
 
 //External headers
 import <glm/vec2.hpp>;

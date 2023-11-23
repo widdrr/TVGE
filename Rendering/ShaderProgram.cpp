@@ -64,43 +64,54 @@ ShaderProgram::~ShaderProgram()
 	glDeleteProgram(_id);
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, glm::mat4 p_value, bool p_debug) 
+void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat4 p_value, bool p_debug) 
 {	
-	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
+	GLuint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
-		if (p_debug) {
-			std::cerr << "Variable " << p_variableName << " not defined in Shader\n";
-			return;
-		}
+		return;
 	}
 
 	glProgramUniformMatrix4fv(_id, location, 1, GL_FALSE, glm::value_ptr(p_value));
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, glm::vec3 p_value, bool p_debug) 
+void ShaderProgram::SetVariable(std::string_view p_variableName, glm::vec3 p_value, bool p_debug) 
 {
-	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
+	GLuint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
-		if (p_debug) {
-			std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
-			return;
-		}
+		return;
 	}
 
 	glProgramUniform3fv(_id, location, 1, glm::value_ptr(p_value));
 }
 
-void ShaderProgram::SetVariable(std::string p_variableName, float p_value, bool p_debug) 
+void ShaderProgram::SetVariable(std::string_view p_variableName, glm::vec4 p_value, bool p_debug)
 {
-	GLuint location = glGetUniformLocation(_id, p_variableName.c_str());
+	GLuint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
-		if (p_debug) {
-			std::cerr << "Variable " << p_variableName << " not defined in Vertex Shader\n";
-			return;
-		}
+		return;
+	}
+
+	glProgramUniform4fv(_id, location, 1, glm::value_ptr(p_value));
+}
+
+void ShaderProgram::SetVariable(std::string_view p_variableName, float p_value, bool p_debug) 
+{
+	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	if (location == -1) {
+		return;
 	}
 
 	glProgramUniform1f(_id, location, p_value);
+}
+
+void ShaderProgram::SetVariable(std::string_view p_variableName, int p_value, bool p_debug)
+{
+	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	if (location == -1) {
+		return;
+	}
+
+	glProgramUniform1i(_id, location, p_value);
 }
 
 void ShaderProgram::AddShader(std::string p_shaderText, unsigned int p_shaderType)
@@ -153,4 +164,14 @@ std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName)
 		content += line + "\n";
 	}
 	return content;
+}
+
+unsigned int ShaderProgram::GetUniformLocation(std::string_view p_variableName, bool p_debug)
+{
+	GLuint location = glGetUniformLocation(_id, p_variableName.data());
+	if (location == -1 && p_debug) {
+		std::cerr << "Variable " << p_variableName << " not defined in Shader\n";
+	}
+
+	return location;
 }
