@@ -1,5 +1,5 @@
-# TavaGL
-### A simple 3D Rendering and Physics Engine for Rigid Body Simulation using OpenGL with C++
+# TVGE
+### A simple 3D Game Engine providing 3D Rendering and Physics Rigidbody Simulation using OpenGL with C++.
 ----------
 
 ## Building
