@@ -11,13 +11,12 @@ export class Component
 	//Entity acts as a component factory
 	friend class Entity;
 
-protected:
-	Component(Entity& p_entity);
 public:
 	//declaring a virtual default destructor makes the hierarchy polymorphic
 	virtual ~Component() = default;
 
 protected:
+	Component(Entity& p_entity);
 	Entity& _entity;
 	//TODO: implement the use for this -> component removal
 	std::vector<Component>::size_type _index;
@@ -31,7 +30,7 @@ export class Entity
 {
 public:
 	Entity();
-	
+
 	//template definitions have to be defined here to save a lot of headaches
 	template <IsComponentType TComponent, class... TArgs>
 	const std::weak_ptr<TComponent> CreateComponentOfType(TArgs... args)
@@ -66,13 +65,6 @@ public:
 
 	void SetParent(const Entity& p_parent);
 
-private:
-	static unsigned int _current_id;
-	unsigned int _id;
-
-	//TODO: better data structure for efficient retrieval(hashmap via class name?)
-	std::vector<std::shared_ptr<Component>> _components;
-public:
 	//TODO: polish the parent system implementation
 	const Entity* _parent;
 
@@ -82,4 +74,18 @@ public:
 	glm::vec3 scaling;
 	//rotation quaternion
 	glm::quat rotation;
+
+private:
+	static unsigned int _current_id;
+	unsigned int _id;
+
+	//TODO: better data structure for efficient retrieval(hashmap via class name?)
+	std::vector<std::shared_ptr<Component>> _components;
 };
+
+
+module : private;
+Component::Component(Entity& p_entity) :
+	_entity(p_entity),
+	_index()
+{}

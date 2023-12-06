@@ -122,7 +122,7 @@ void main()
         specularColor += ComputeSpecularColor(glLights[i], normalizedNormal, lightDirection, cameraDirection) * attenuation;
     }
 
-    vec4 shadedColor = vec4(((ambientColor + diffuseColor + specularColor)), 1.f);
+    vec4 shadedColor = vec4(((glMaterial.emissiveColor +  ambientColor + diffuseColor + specularColor)), 1.f);
     
     FragmentColor = shadedColor;
 }

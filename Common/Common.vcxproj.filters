@@ -17,8 +17,5 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

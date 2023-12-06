@@ -158,11 +158,11 @@ xcopy /y "$(SolutionDir)Libraries\External\bin\assimp-vc143-mt.dll" "$(OutDir)"<
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{709c0a0d-33a1-4df4-b1b9-d6e2ba554f80}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Graphics\Graphics.vcxproj">
+      <Project>{cdbe0118-21e7-44b4-a545-e368aca3d45a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Libraries\Libraries.vcxproj">
       <Project>{a34fa71b-a60d-4a9d-b25d-063bc7240cc5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Rendering\Rendering.vcxproj">
-      <Project>{cdbe0118-21e7-44b4-a545-e368aca3d45a}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

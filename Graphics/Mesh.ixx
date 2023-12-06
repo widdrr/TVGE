@@ -14,14 +14,14 @@ export class Mesh
 {
 	friend class Renderer;
 
-private:
-	Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool genNormals = false);
 public:
 	~Mesh();
 
 	std::shared_ptr<Material> _material;
 
 private:
+	Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool genNormals = false);
+
 	std::vector<Vertex> _vertices;
 	std::vector<unsigned int> _indices;
 	

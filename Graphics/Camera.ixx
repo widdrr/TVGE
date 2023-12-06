@@ -29,10 +29,10 @@ public:
 	void RotateCamera(float p_offsetX, float p_offsetY);
 	void SetCameraDirection(float p_frontX, float p_frontY, float p_frontZ);
 
+
 private:
 	void DetermineAngles();
 
-private:
 	float _cameraSpeed = 5.f;
 	float _cameraSensitivity = .05f;
 	float _yaw, _pitch;

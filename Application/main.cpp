@@ -1,10 +1,8 @@
 import Common;
-import Graphics.Components;
+import Graphics;
 import Graphics.Resources;
-import Rendering;
+import Graphics.Components;
 import MeshHelpers;
-
-#include <GL/glew.h>
 
 import <glm/vec3.hpp>;
 
@@ -150,10 +148,12 @@ int main()
 		22, 23, 20,
 	};
 
-	auto& renderer = Renderer::GetInstance();
+	auto& window = Window::Initialize("TVGE v0.11A", 800, 600);
 
-	auto defaultShader = renderer.ShaderFactory("shader.vert", "shader.frag");
-	auto lightShader = renderer.ShaderFactory("shader.vert", "shaderLightSource.frag");
+	auto& renderer = window.GetRenderer();
+
+	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
+	auto lightShader = renderer.GenerateShader("shader.vert", "shaderLightSource.frag");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -178,8 +178,8 @@ int main()
 	sphere.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90.f);
 
 	Entity cube;
-	auto diceComp = cube.CreateComponentOfType<ModelComponent>();
-	diceComp.lock()->_meshes.push_back(renderer.MeshFactory(vertices, order, emerald, true));
+	auto diceComp = cube.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*diceComp, "cube.dae");
 
 	cube.Translate(0.f, 0.f, 5.f);
 
@@ -216,7 +216,7 @@ int main()
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
-	floorComp.lock()->_meshes.push_back(renderer.MeshFactory(vertices, order, basicMaterial, true));
+	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh(vertices, order, basicMaterial, true));
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -5.f, 0.f);
 	
@@ -232,11 +232,11 @@ int main()
 	renderer.AddLightSource(light3);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
-	bool flag = true;
-	//std::thread t(RotateAxis2D, std::ref(light), 1.f, std::ref(flag));
 
-	renderer.Run();
-	flag = false;
-	//t.join();
-
+	renderer.InitializeTime();
+	while (window.IsOpen()) {
+		renderer.ComputeTime();
+		renderer.ProcessInput();
+		renderer.RenderFrame();
+	}
 }

@@ -1,15 +1,10 @@
 module;
 
-//don't think this can be converted to a module
-
-//TODO: investigate C5105
-#include <Windows.h>
-#include <gl/glew.h>
-#include <gl/glfw3.h>
-
+#include <GL/glew.h>
+#include <GL/glfw3.h>
 #include <assimp/material.h>
 
-module Rendering;
+module Graphics:Renderer;
 
 import <glm/gtc/type_ptr.hpp>;
 import <assimp/Importer.hpp>;
@@ -18,67 +13,17 @@ import <assimp/postprocess.h>;
 
 import <iostream>;
 import <fstream>;
-import <thread>;
 
-std::unique_ptr<Renderer> Renderer::_instance = nullptr;
-
-void Renderer::GLFWwindowDeleter::operator()(GLFWwindow* p_ptr) 
-{	
-	glfwDestroyWindow(p_ptr);
-}
-
-Renderer::Renderer() :
-	_projectionMatrix(glm::identity<glm::mat4>()),
-	_camera(),
-	_focused(false),
-	_initial(true),
-	_cameraLock(false)
+Renderer::Renderer(GLFWwindow* p_window):
+	_window(p_window),
+	_camera()
 {
-	//TODO: critical, try and get away with not using this
-	timeBeginPeriod(1);
-	//init and setup glfw
-	GLenum res = glfwInit();
-	if (res == GLFW_FALSE) {
-		std::cerr << "GLFW initialization failed\n";
-		exit(1);
-	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	//setup and create window
-	_window = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>(
-		glfwCreateWindow(_windowWidth, _windowHeight, "TavaGL V0.10a", nullptr, nullptr)
-	);
-
-	if (_window == nullptr) {
-		std::cerr << "Failed to create GLFW window \n";
-		glfwTerminate();
-		exit(-1);
-	}
-	glfwMakeContextCurrent(_window.get());
-
-	//init glew
-	res = glewInit();
-	if (res != GLEW_OK) {
-		std::cerr << "Error: " << glewGetErrorString(res) << "\n";
-		exit(1);
-	}
-
-	//we register a callback when the window is resized to always keep the viewport accurate
-	glfwSetFramebufferSizeCallback(_window.get(),
-		[](GLFWwindow* p_window, int p_width, int p_height) {
-			glViewport(0, 0, p_width, p_height);
-			_instance->RenderFunction();
-		}
-	);
-
-	glfwSetCursorPosCallback(_window.get(),
+	/*glfwSetCursorPosCallback(_window,
 		[](GLFWwindow* _window, double _crtX, double _crtY) {
-			_instance->MouseCallback(_window, _crtX, _crtY);
+			MouseCallback(_window, _crtX, _crtY);
 		}
-	);
+	);*/
 	//VSync 1 = set to Refresh Rate 0 = Unbound
 	glfwSwapInterval(1);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
@@ -91,36 +36,25 @@ Renderer::Renderer() :
 	glEnable(GL_DEPTH_TEST);
 
 	//loading the default shader
-	_defaultShader = ShaderFactory("shader.vert", "shader.frag");
-}
-
-Renderer& Renderer::GetInstance() 
-{
-	if (_instance == nullptr) {
-		_instance = std::unique_ptr<Renderer>(new Renderer());
-	}
-
-	return *_instance;
+	_defaultShader = GenerateShader("shader.vert", "shader.frag");
 }
 
 Renderer::~Renderer()
 {
-	timeEndPeriod(1);
-	CleanupFunction();
-	glfwTerminate();
+	glUseProgram(0);
 }
 
-void Renderer::RenderFunction()
+void Renderer::RenderFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (auto&& entity : _entities) {
+	for (auto&& model : _models) {
 
 		//TODO: expired components removal;
-		if (entity.expired()) {
+		if (model.expired()) {
 			continue;
 		}
-		auto&& component = entity.lock();
+		auto&& component = model.lock();
 
 		for (auto&& mesh : component->_meshes) {
 			glBindVertexArray(mesh->_vao);
@@ -155,15 +89,10 @@ void Renderer::RenderFunction()
 		}
 	}
 
-	glfwSwapBuffers(_window.get());
+	glfwSwapBuffers(_window);
 }
 
-void Renderer::CleanupFunction()
-{
-	glUseProgram(0);
-}
-
-std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) 
+std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) 
 {
 	const std::string concatPath = p_vertexShaderPath + p_fragmentShaderPath;
 	if (_shaders.contains(concatPath)) {
@@ -183,7 +112,7 @@ std::shared_ptr<ShaderProgram> Renderer::ShaderFactory(const std::string& p_vert
 	return thisShader;
 }
 
-std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePath)
+std::shared_ptr<Texture> Renderer::GenerateTexture(const std::string& p_texturePath)
 {
 	if (_textures.contains(p_texturePath)) {
 		return _textures[p_texturePath];
@@ -201,7 +130,7 @@ std::shared_ptr<Texture> Renderer::TextureFactory(const std::string& p_texturePa
 }
 
 //TODO: Cache meshes
-std::shared_ptr<Mesh> Renderer::MeshFactory(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool p_genNormal)
+std::shared_ptr<Mesh> Renderer::GenerateMesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool p_genNormal)
 {
 	return std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_material, p_genNormal));
 }
@@ -235,7 +164,7 @@ void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelCo
 {
 	for (unsigned int i = 0; i < p_node->mNumMeshes; ++i) {
 		auto mesh = p_scene->mMeshes[p_node->mMeshes[i]];
-		p_model._meshes.push_back(MeshFactory(mesh, p_scene));
+		p_model._meshes.push_back(GenerateMesh(mesh, p_scene));
 	}
 
 	for (unsigned int i = 0; i < p_node->mNumChildren; ++i) {
@@ -243,7 +172,7 @@ void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelCo
 	}
 }
 
-std::shared_ptr<Mesh> Renderer::MeshFactory(aiMesh* p_mesh, const aiScene* p_scene)
+std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_scene)
 {
 	std::vector<Vertex> vertices;
 
@@ -285,20 +214,20 @@ std::shared_ptr<Mesh> Renderer::MeshFactory(aiMesh* p_mesh, const aiScene* p_sce
 	aiString texture_path;
 	if (assimpMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_AMBIENT, 0, &texture_path);
-		material->_ambientMap = TextureFactory(texture_path.C_Str());
+		material->_ambientMap = GenerateTexture(texture_path.C_Str());
 	}
 
 	if (assimpMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture_path);
-		material->_diffuseMap = TextureFactory(texture_path.C_Str());
+		material->_diffuseMap = GenerateTexture(texture_path.C_Str());
 	}
 
 	if (assimpMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texture_path);
-		material->_specularMap = TextureFactory(texture_path.C_Str());
+		material->_specularMap = GenerateTexture(texture_path.C_Str());
 	}
 
-	return MeshFactory(vertices, indices, material);
+	return GenerateMesh(vertices, indices, material);
 }
 
 void Renderer::LockCamera(bool p_lock)
@@ -315,7 +244,7 @@ void Renderer::AddObject(const Entity& p_object)
 		return;
 	}
 
-	_entities.push_back(component);
+	_models.push_back(component);
 }
 
 void Renderer::Set2DMode(float p_width, float p_height) 
@@ -334,7 +263,10 @@ void Renderer::Set2DMode(float p_width, float p_height)
 
 void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
 {
-	float aspectRatio = static_cast<float>(_windowWidth) / static_cast<float>(_windowHeight);
+	int windowWidth, windowHeight;
+	glfwGetWindowSize(_window, &windowWidth, &windowHeight);
+
+	float aspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
 	_projectionMatrix = glm::perspective(p_fov / 2.f, aspectRatio, p_nearPlane, p_farPlane);
 
 	for (auto&& [key, shader] : _shaders) {
@@ -353,7 +285,13 @@ void Renderer::AddLightSource(const Entity& p_object)
 	_lightSources.push_back(lightSource);
 }
 
-void Renderer::ComputeTime() 
+void Renderer::InitializeTime()
+{
+	_lastTime = glfwGetTime();
+	_frames = 0;
+}
+
+void Renderer::ComputeTime()
 {
 	double currentTime = glfwGetTime();
 	double delta = currentTime - _lastTime;
@@ -381,23 +319,23 @@ void Renderer::ProcessInput() {
 		return;
 	}
 
-	if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	if(glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		_focused = false;
 	}
 
-	if (!_focused && glfwGetMouseButton(_window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (!_focused && glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		_focused = true;
 		_initial = true;
 	}
 
-	bool moveForward = (glfwGetKey(_window.get(), GLFW_KEY_W) == GLFW_PRESS);
-	bool moveBackward = (glfwGetKey(_window.get(), GLFW_KEY_S) == GLFW_PRESS);
-	bool moveLeft = (glfwGetKey(_window.get(), GLFW_KEY_A) == GLFW_PRESS);
-	bool moveRight = (glfwGetKey(_window.get(), GLFW_KEY_D) == GLFW_PRESS);
-	bool moveUp = (glfwGetKey(_window.get(), GLFW_KEY_SPACE) == GLFW_PRESS);
-	bool moveDown = (glfwGetKey(_window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+	bool moveForward = (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS);
+	bool moveBackward = (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS);
+	bool moveLeft = (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS);
+	bool moveRight = (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS);
+	bool moveUp = (glfwGetKey(_window, GLFW_KEY_SPACE) == GLFW_PRESS);
+	bool moveDown = (glfwGetKey(_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 
 	_camera.MoveCamera({ moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown }, _deltaTime);
 }
@@ -423,18 +361,5 @@ void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 		
 			_camera.RotateCamera(offsetX, offsetY);
 		}
-	}
-}
-
-//TODO:
-//multithread
-void Renderer::Run() {
-
-	_lastTime = glfwGetTime();
-	_frames = 0;
-	while (!glfwWindowShouldClose(_window.get())) {
-		ProcessInput();
-		RenderFunction();
-		ComputeTime();
 	}
 }
