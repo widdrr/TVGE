@@ -74,6 +74,12 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 		}
 	);
 
+	glfwSetCursorPosCallback(_window,
+	[](GLFWwindow* _window, double _crtX, double _crtY) {
+		_instance->_renderer->MouseCallback(_window, _crtX, _crtY);
+	}
+	);
+
 	_renderer = std::unique_ptr<Renderer>(new Renderer(_window));
 }
 

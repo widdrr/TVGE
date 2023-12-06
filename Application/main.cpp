@@ -153,7 +153,6 @@ int main()
 	auto& renderer = window.GetRenderer();
 
 	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
-	auto lightShader = renderer.GenerateShader("shader.vert", "shaderLightSource.frag");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -168,7 +167,7 @@ int main()
 	emerald->_lightProperties.shininess = 0.6f * 128.f;
 
 
-	auto lightMaterial = std::make_shared<Material>(*lightShader);
+	auto lightMaterial = std::make_shared<Material>(*defaultShader);
 	lightMaterial->_lightProperties.emissive = glm::vec3(1.f, 1.f, 1.f);
 
 	Entity sphere;
@@ -204,7 +203,7 @@ int main()
 	lightComp2->_meshes[0]->_material = lightMaterial;
 	light2.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
 	light2.Scale(0.1f, 0.1f, 0.1f);
-	light2.Translate(7.f, 0.f, 7.f);
+	light2.Translate(14.f, 0.f, 14.f);
 
 	Entity light3;
 	auto lightComp3 = light3.CreateComponentOfType<ModelComponent>().lock();
@@ -212,7 +211,7 @@ int main()
 	lightComp3->_meshes[0]->_material = lightMaterial;
 	light3.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
 	light3.Scale(0.1f, 0.1f, 0.1f);
-	light3.Translate(-7.f, 0.f, -7.f);
+	light3.Translate(-14.f, 0.f, -14.f);
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();

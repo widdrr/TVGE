@@ -11,6 +11,7 @@ export class ShaderProgram
 public:
 	~ShaderProgram();
 
+	void SetVariable(std::string_view p_variableName, glm::mat3 p_value, bool p_debug = false);
 	void SetVariable(std::string_view p_variableName, glm::mat4 p_value, bool p_debug = false);
 	void SetVariable(std::string_view p_variableName, float p_value, bool p_debug = false);
 	void SetVariable(std::string_view p_variableName, int p_value, bool p_debug = false);

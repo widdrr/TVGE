@@ -92,7 +92,6 @@ void main()
     vec3 normalizedNormal = normalize(Normal);
     vec3 cameraDirection = normalize(glCameraPosition - FragmentPosition);
 
-
     vec3 ambientColor, diffuseColor, specularColor;
 
     for (int i = 0; i< glLightCount; ++i) {
@@ -101,7 +100,7 @@ void main()
         float attenuation;
         
         if(glLights[i].position.w == 1) {
-            float lightDistance = length(glLights[0].position.xyz - FragmentPosition);
+            float lightDistance = length(glLights[i].position.xyz - FragmentPosition);
 
             lightDirection = normalize(glLights[i].position.xyz - FragmentPosition);
 
@@ -122,7 +121,7 @@ void main()
         specularColor += ComputeSpecularColor(glLights[i], normalizedNormal, lightDirection, cameraDirection) * attenuation;
     }
 
-    vec4 shadedColor = vec4(((glMaterial.emissiveColor +  ambientColor + diffuseColor + specularColor)), 1.f);
+    vec4 shadedColor = vec4(((glMaterial.emissiveColor + ambientColor + diffuseColor + specularColor)), 1.f);
     
     FragmentColor = shadedColor;
 }

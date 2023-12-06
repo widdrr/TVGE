@@ -2,6 +2,14 @@ module Graphics.Resources:Material;
 
 import :Utilities;
 
+LightProperties::LightProperties():
+	ambient(0),
+	diffuse(0),
+	specular(0),
+	emissive(0),
+	shininess(1)
+{}
+
 Material::Material(ShaderProgram& p_shader):
 	_shader(p_shader)
 {}

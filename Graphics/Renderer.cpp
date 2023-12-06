@@ -18,12 +18,6 @@ Renderer::Renderer(GLFWwindow* p_window):
 	_window(p_window),
 	_camera()
 {
-
-	/*glfwSetCursorPosCallback(_window,
-		[](GLFWwindow* _window, double _crtX, double _crtY) {
-			MouseCallback(_window, _crtX, _crtY);
-		}
-	);*/
 	//VSync 1 = set to Refresh Rate 0 = Unbound
 	glfwSwapInterval(1);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
@@ -63,7 +57,12 @@ void Renderer::RenderFrame()
 			//else fallback to the default shader
 			auto& shader = mesh->_material->_shader;
 
-			shader.SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
+			auto modelMatrix = component->GetModelTransformation();
+			shader.SetVariable(UniformVariables::modelMatrix, modelMatrix);
+			
+			//the model matrix to apply to normal vectors to correctly transform to world space
+			auto normalModelMatrix = glm::mat3(glm::transpose(glm::inverse(modelMatrix)));
+			shader.SetVariable(UniformVariables::normalMatrix, normalModelMatrix);
 			_camera.SetCameraVariables(shader);
 			
 			unsigned int deadLights = 0;

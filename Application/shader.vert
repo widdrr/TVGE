@@ -9,14 +9,15 @@ out vec3 Normal;
 out vec3 FragmentPosition;
 
 uniform mat4 glModelMatrix;
-uniform mat4 glProjectionMatrix;
 uniform mat4 glViewMatrix;
+uniform mat4 glProjectionMatrix;
+
+uniform mat3 glNormalModelMatrix;
 
 void main()
 {
 	gl_Position = glProjectionMatrix * glViewMatrix * glModelMatrix * vec4(inPosition, 1.f);
 	TextureCoordinates = inTextureCoordinates;
-	//TODO: investigate performance of inverse in shader (perhaps precompute per model?)
-	Normal = mat3(transpose(inverse(glModelMatrix))) * inNormal;
+	Normal = glNormalModelMatrix * inNormal;
 	FragmentPosition = vec3(glModelMatrix * vec4(inPosition, 1.f));
 }

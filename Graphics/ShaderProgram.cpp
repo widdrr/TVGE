@@ -64,7 +64,17 @@ ShaderProgram::~ShaderProgram()
 	glDeleteProgram(_id);
 }
 
-void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat4 p_value, bool p_debug) 
+void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat3 p_value, bool p_debug)
+{
+	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	if (location == -1) {
+		return;
+	}
+
+	glProgramUniformMatrix3fv(_id, location, 1, GL_FALSE, glm::value_ptr(p_value));
+}
+
+void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat4 p_value, bool p_debug)
 {	
 	GLuint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {

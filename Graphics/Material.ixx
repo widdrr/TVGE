@@ -11,11 +11,14 @@ import <memory>;
 export struct LightProperties 
 {
 public:
+	LightProperties();
+
 	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	glm::vec3 emissive;
 	float shininess;
+
 };
 
 export class Material 

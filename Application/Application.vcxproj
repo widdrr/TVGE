@@ -171,7 +171,6 @@ xcopy /y "$(SolutionDir)Libraries\External\bin\assimp-vc143-mt.dll" "$(OutDir)"<
   <ItemGroup>
     <None Include="shader.frag" />
     <None Include="shader.vert" />
-    <None Include="shaderLightSource.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
