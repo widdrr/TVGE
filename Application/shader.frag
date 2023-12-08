@@ -43,8 +43,8 @@ const int MaxLightSources = 128;
 uniform LightSource glLights[MaxLightSources];
 uniform int glLightCount;
 
-vec3 ComputeAmbientColor(LightSource light){
-
+vec3 ComputeAmbientColor(LightSource light)
+{
     vec3 color = light.ambientColor;
     if(glMaterial.hasTexture) {
         color *= vec3(texture(glMaterial.ambientMap, TextureCoordinates));
@@ -56,8 +56,8 @@ vec3 ComputeAmbientColor(LightSource light){
     return color;
 }
 
-vec3 ComputeDiffuseColor(LightSource light, vec3 normal, vec3 lightDirection){
-
+vec3 ComputeDiffuseColor(LightSource light, vec3 normal, vec3 lightDirection)
+{
     float diffuseValue = max(dot(normal, lightDirection), 0.0);
     
     vec3 color = diffuseValue * light.diffuseColor;
@@ -71,10 +71,10 @@ vec3 ComputeDiffuseColor(LightSource light, vec3 normal, vec3 lightDirection){
     return color;
 }
 
-vec3 ComputeSpecularColor(LightSource light, vec3 normal, vec3 lightDirection, vec3 cameraDirection){
-
-    vec3 reflectedLightDirection = reflect(-lightDirection, normal);
-    float specularValue = pow(max(dot(cameraDirection, reflectedLightDirection), 0.0), glMaterial.shininess);
+vec3 ComputeSpecularColor(LightSource light, vec3 normal, vec3 lightDirection, vec3 cameraDirection)
+{
+    vec3 halfwayDirection = normalize(lightDirection + cameraDirection);
+    float specularValue = pow(max(dot(normal, halfwayDirection), 0.0), glMaterial.shininess);
 
     vec3 color = specularValue * light.specularColor;
     if(glMaterial.hasTexture) {

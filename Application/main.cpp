@@ -157,8 +157,8 @@ int main()
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
 	basicMaterial->_lightProperties.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-	basicMaterial->_lightProperties.specular = glm::vec3(0.f, 0.f, 0.f);
-	basicMaterial->_lightProperties.shininess = 32.f;
+	basicMaterial->_lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
+	basicMaterial->_lightProperties.shininess = 10.f;
 
 	auto emerald = std::make_shared<Material>(*defaultShader);
 	emerald->_lightProperties.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
