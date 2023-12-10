@@ -290,7 +290,7 @@ void Renderer::InitializeTime()
 	_frames = 0;
 }
 
-void Renderer::ComputeTime()
+double Renderer::ComputeTime()
 {
 	double currentTime = glfwGetTime();
 	double delta = currentTime - _lastTime;
@@ -308,6 +308,8 @@ void Renderer::ComputeTime()
 		_frames = 0;
 		_fpsDelta = 0;
 	}
+
+	return delta;
 }
 
 void Renderer::ProcessInput() {

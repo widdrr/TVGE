@@ -3,6 +3,8 @@ import Graphics;
 import Graphics.Resources;
 import Graphics.Components;
 import MeshHelpers;
+import Physics;
+import Physics.Components;
 
 import <glm/vec3.hpp>;
 
@@ -225,17 +227,26 @@ int main()
 	renderer.AddObject(light3);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
-	renderer.AddObject(backpack);
+	//renderer.AddObject(backpack);
 	renderer.AddLightSource(light);
 	renderer.AddLightSource(light2);
 	renderer.AddLightSource(light3);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
+	Simulator simulator;
+
+	auto rb = light3.CreateComponentOfType<BodyComponent>(1).lock();
+	simulator.AddObject(light3);
+
 	renderer.InitializeTime();
+	float i = 0;
 	while (window.IsOpen()) {
-		renderer.ComputeTime();
+		double delta = renderer.ComputeTime();
 		renderer.ProcessInput();
+		rb->AddForce(glm::vec3(0.f, 1.f - i / 1000, 0.f));
+		++i;
+		simulator.SimulateStep(delta);
 		renderer.RenderFrame();
 	}
 }

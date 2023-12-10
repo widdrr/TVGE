@@ -30,18 +30,17 @@ public:
 
 	//TODO: move this to Window
 	void InitializeTime();
-	void ComputeTime();
-
+	double ComputeTime();
 
 	void AddObject(const Entity& p_object);
 	void AddLightSource(const Entity& p_object);
 
 	void Set2DMode(float p_width, float p_height);
-
 	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
 
-	
+	void LoadModel(ModelComponent& p_model, const std::string& p_path);
 
+	/*********************************************************************/
 
 	std::shared_ptr<ShaderProgram> GenerateShader(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
 	std::shared_ptr<Texture> GenerateTexture(const std::string& p_texturePath);
@@ -50,7 +49,6 @@ public:
 									   const std::shared_ptr<Material>& p_material,
 									   bool p_genNormal = false);
 
-	void LoadModel(ModelComponent& p_model, const std::string& p_path);
 	std::shared_ptr<ShaderProgram> DefaultShader();
 
 private:
@@ -61,11 +59,11 @@ private:
 	void LockCamera(bool p_lock);
 	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
 	
+	/*********************************************************************/
+
 	GLFWwindow* _window;
 	std::shared_ptr<Mesh> GenerateMesh(aiMesh* mesh, const aiScene* scene);
 
-
-	
 	std::vector<std::weak_ptr<ModelComponent>> _models;
 
 	std::vector<std::weak_ptr<LightSourceComponent>> _lightSources;
