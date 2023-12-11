@@ -60,6 +60,7 @@ public:
 	void Scale(const glm::vec3& p_scaling);
 	void Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDeg);
 	void Rotate(const glm::vec3& p_axis, float p_thetaDeg);
+	void Rotate(const glm::vec3& p_rotation);
 	void Translate(float p_dispX, float p_dispY, float p_dispZ);
 	void Translate(const glm::vec3& p_translation);
 

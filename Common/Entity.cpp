@@ -44,6 +44,13 @@ void Entity::Rotate(const glm::vec3& p_axis, float p_thetaDeg)
 	rotation = rotation * glm::angleAxis(angleRadians, rotationAxis);
 }
 
+void Entity::Rotate(const glm::vec3& p_rotation)
+{
+	glm::vec3 rotationAxis = glm::normalize(p_rotation);
+	float angleRadians = glm::length(p_rotation);
+	rotation = rotation * glm::angleAxis(angleRadians, rotationAxis);
+}
+
 void Entity::SetParent(const Entity& p_parent) 
 {
 	_parent = &p_parent;

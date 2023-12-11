@@ -236,16 +236,18 @@ int main()
 
 	Simulator simulator;
 
-	auto rb = light3.CreateComponentOfType<BodyComponent>(1).lock();
-	simulator.AddObject(light3);
+	auto rb = cube.CreateComponentOfType<BodyComponent>(1).lock();
+	simulator.AddObject(cube);
 
 	renderer.InitializeTime();
-	float i = 0;
+	double time = 0;
 	while (window.IsOpen()) {
 		double delta = renderer.ComputeTime();
+		time += delta;
+		if (time < 1) {
+			rb->AddTorque(glm::vec3(0.f, 0.2f, 0.f));
+		}
 		renderer.ProcessInput();
-		rb->AddForce(glm::vec3(0.f, 1.f - i / 1000, 0.f));
-		++i;
 		simulator.SimulateStep(delta);
 		renderer.RenderFrame();
 	}

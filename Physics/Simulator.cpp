@@ -11,7 +11,6 @@ void Simulator::SimulateStep(float p_delta)
 		if (wbody.expired()) {
 			continue;
 		}
-
 		auto body = wbody.lock();
 
 		body->Update(p_delta);
