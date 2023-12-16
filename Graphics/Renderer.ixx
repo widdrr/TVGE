@@ -24,7 +24,12 @@ export class Renderer
 public:
 	~Renderer();
 
+	void RenderAndDisplayScene();
+
 	void RenderFrame();
+	void RenderFrame(ShaderProgram& p_shader);
+
+	void DisplayScene();
 	//TODO: move Input code to the Input class
 	void ProcessInput();
 
@@ -42,7 +47,9 @@ public:
 
 	/*********************************************************************/
 
-	std::shared_ptr<ShaderProgram> GenerateShader(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath);
+	std::shared_ptr<ShaderProgram> GenerateShader(const std::string& p_vertexShaderPath, 
+												  const std::string& p_fragmentShaderPath,
+												  const std::string& p_geometryShaderPath = "");
 	std::shared_ptr<Texture> GenerateTexture(const std::string& p_texturePath);
 	std::shared_ptr<Mesh> GenerateMesh(const std::vector<Vertex>& p_vertices,
 									   const std::vector<unsigned int>& p_indices,

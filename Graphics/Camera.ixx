@@ -21,7 +21,8 @@ public:
 	Camera(float p_posX = 0.f, float p_posY = 0.f, float p_posZ = 0.f,
 		float p_frontX = 0.f, float p_frontY = 0.f, float p_frontZ = -1.f);
 	
-	void SetCameraVariables(ShaderProgram& p_shader);
+	
+	const glm::mat4 GetViewTransformation() const;
 
 	void MoveCamera(Movement p_movement, float p_delta);
 	void SetCameraPosition(float p_posX, float p_posY, float p_posZ);

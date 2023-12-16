@@ -42,9 +42,9 @@ void Material::SetMaterialVariables()
 
 	}
 
-	_shader.SetVariable(materialAmbientColor, _lightProperties.ambient);
-	_shader.SetVariable(materialDiffuseColor, _lightProperties.diffuse);
-	_shader.SetVariable(materialSpecularColor, _lightProperties.specular);
-	_shader.SetVariable(materialEmissiveColor, _lightProperties.emissive);
-	_shader.SetVariable(materialShininess, _lightProperties.shininess);
+	_shader.SetVariable(materialAmbientColor, _lightProperties.ambient, true);
+	_shader.SetVariable(materialDiffuseColor, _lightProperties.diffuse, true);
+	_shader.SetVariable(materialSpecularColor, _lightProperties.specular, true);
+	_shader.SetVariable(materialEmissiveColor, _lightProperties.emissive, true);
+	_shader.SetVariable(materialShininess, _lightProperties.shininess, true);
 }

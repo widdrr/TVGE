@@ -1,6 +1,7 @@
 export module Graphics.Components:LightSourceComponent;
 
 import Common;
+import :Camera;
 import Graphics.Resources;
 
 import <glm/vec3.hpp>;
@@ -10,7 +11,7 @@ import <memory>;
 export class LightSourceComponent : public Component 
 {
 public:
-	virtual void SetLightVariables(ShaderProgram& p_shaderProgram, int index) = 0;
+	virtual void SetLightVariables(ShaderProgram& p_shaderProgram, Camera& p_camera, int p_index) = 0;
 
 protected:
 	LightSourceComponent(Entity& p_entity,
@@ -34,7 +35,7 @@ public:
 		const float p_linearAttenuation = 0.022f,
 		const float p_constantAttenuation = 1.f);
 
-	void SetLightVariables(ShaderProgram& p_shaderProgram, int index = 0) override;
+	void SetLightVariables(ShaderProgram& p_shaderProgram, Camera& p_camera, int p_index = 0) override;
 
 private:
 	float _constantAttenuation;
@@ -50,7 +51,7 @@ public:
 							  const glm::vec3& p_diffuse, 
 							  const glm::vec3& p_specular);
 
-	void SetLightVariables(ShaderProgram& p_shaderProgram, int index = 0) override;
+	void SetLightVariables(ShaderProgram& p_shaderProgram, Camera& p_camera, int p_index = 0) override;
 
 private:
 	static const glm::vec3 _defaultDirection;

@@ -38,10 +38,16 @@ Renderer::~Renderer()
 	glUseProgram(0);
 }
 
-void Renderer::RenderFrame()
+void Renderer::RenderAndDisplayScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	RenderFrame();
+	glfwSwapBuffers(_window);
+}
 
+void Renderer::RenderFrame()
+{
+	auto viewMatrix = _camera.GetViewTransformation();
 	for (auto&& model : _models) {
 
 		//TODO: expired components removal;
@@ -58,22 +64,20 @@ void Renderer::RenderFrame()
 			auto& shader = mesh->_material->_shader;
 
 			auto modelMatrix = component->GetModelTransformation();
-			shader.SetVariable(UniformVariables::modelMatrix, modelMatrix);
-			
-			//the model matrix to apply to normal vectors to correctly transform to world space
-			auto normalModelMatrix = glm::mat3(glm::transpose(glm::inverse(modelMatrix)));
-			shader.SetVariable(UniformVariables::normalMatrix, normalModelMatrix);
-			_camera.SetCameraVariables(shader);
-			
+			auto modelViewMatrix = viewMatrix * modelMatrix;
+			shader.SetVariable(UniformVariables::modelViewMatrix, modelViewMatrix);
+
+			//the model matrix to apply to normal vectors to correctly transform to view space
+			shader.SetVariable(UniformVariables::modelViewInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelViewMatrix))));
+
 			unsigned int deadLights = 0;
 			for (unsigned int i = 0; i < _lightSources.size(); ++i) {
 				if (_lightSources[i].expired()) {
 					++deadLights;
 					continue;
 				}
-				_lightSources[i].lock()->SetLightVariables(shader, i - deadLights);
+				_lightSources[i].lock()->SetLightVariables(shader, _camera, i - deadLights);
 			}
-
 			shader.SetVariable(UniformVariables::Light::lightCount, static_cast<int>(_lightSources.size() - deadLights));
 
 			mesh->_material->SetMaterialVariables();
@@ -87,18 +91,68 @@ void Renderer::RenderFrame()
 			glUseProgram(0);
 		}
 	}
-
-	glfwSwapBuffers(_window);
 }
 
-std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath) 
+void Renderer::RenderFrame(ShaderProgram& p_shader)
 {
-	const std::string concatPath = p_vertexShaderPath + p_fragmentShaderPath;
+	glUseProgram(p_shader._id);
+	auto viewMatrix = _camera.GetViewTransformation();
+	
+	unsigned int deadLights = 0;
+	for (unsigned int i = 0; i < _lightSources.size(); ++i) {
+		if (_lightSources[i].expired()) {
+			++deadLights;
+			continue;
+		}
+		_lightSources[i].lock()->SetLightVariables(p_shader, _camera, i - deadLights);
+	}
+
+	p_shader.SetVariable(UniformVariables::Light::lightCount, static_cast<int>(_lightSources.size() - deadLights));
+
+	for (auto&& model : _models) {
+
+		//TODO: expired components removal;
+		if (model.expired()) {
+			continue;
+		}
+		auto&& component = model.lock();
+
+		for (auto&& mesh : component->_meshes) {
+			glBindVertexArray(mesh->_vao);
+
+			auto modelMatrix = component->GetModelTransformation();
+			auto modelViewMatrix = viewMatrix * modelMatrix;
+			p_shader.SetVariable(UniformVariables::modelViewMatrix, modelViewMatrix);
+
+			//the model matrix to apply to normal vectors to correctly transform to view space
+			p_shader.SetVariable(UniformVariables::modelViewInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelViewMatrix))));
+
+			//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
+			//to permit customizing this
+			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+			
+		}
+	}
+	glUseProgram(0);
+}
+
+void Renderer::DisplayScene()
+{
+	glfwSwapBuffers(_window);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath, 
+														const std::string& p_fragmentShaderPath,
+														const std::string& p_geometryShaderPath) 
+{
+	const std::string concatPath = p_vertexShaderPath + p_fragmentShaderPath + p_geometryShaderPath;
 	if (_shaders.contains(concatPath)) {
 		return _shaders[concatPath];
 	}
 	
-	auto thisShader = std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath));
+	auto thisShader = std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath, p_geometryShaderPath));
 	
 	if (thisShader->_failed) {
 		std::cerr << "Shader Program creation failed, nullptr is returned\n";

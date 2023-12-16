@@ -19,11 +19,9 @@ export enum TextureUnits
 
 export namespace UniformVariables 
 {
-	constexpr std::string_view viewMatrix = "glViewMatrix";
 	constexpr std::string_view projectionMatrix = "glProjectionMatrix";
-	constexpr std::string_view modelMatrix = "glModelMatrix";
-	constexpr std::string_view normalMatrix = "glNormalModelMatrix";
-	constexpr std::string_view cameraPosition = "glCameraPosition";
+	constexpr std::string_view modelViewMatrix = "glModelViewMatrix";
+	constexpr std::string_view modelViewInverseTranspose = "glModelViewInverseTranspose";
 	
 	namespace Material 
 	{

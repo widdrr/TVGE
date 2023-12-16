@@ -8,16 +8,15 @@ out vec2 TextureCoordinates;
 out vec3 Normal;
 out vec3 FragmentPosition;
 
-uniform mat4 glModelMatrix;
-uniform mat4 glViewMatrix;
+uniform mat4 glModelViewMatrix;
 uniform mat4 glProjectionMatrix;
 
-uniform mat3 glNormalModelMatrix;
+uniform mat3 glModelViewInverseTranspose;
 
 void main()
 {
-	gl_Position = glProjectionMatrix * glViewMatrix * glModelMatrix * vec4(inPosition, 1.f);
+	gl_Position = glProjectionMatrix * glModelViewMatrix * vec4(inPosition, 1.f);
 	TextureCoordinates = inTextureCoordinates;
-	Normal = glNormalModelMatrix * inNormal;
-	FragmentPosition = vec3(glModelMatrix * vec4(inPosition, 1.f));
+	Normal = glModelViewInverseTranspose * inNormal;
+	FragmentPosition = vec3(glModelViewMatrix * vec4(inPosition, 1.f));
 }

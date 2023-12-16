@@ -150,7 +150,7 @@ int main()
 		22, 23, 20,
 	};
 
-	auto& window = Window::Initialize("TVGE v0.11A", 800, 600);
+	auto& window = Window::Initialize("TVGE v0.13A", 800, 600);
 
 	auto& renderer = window.GetRenderer();
 
@@ -227,7 +227,7 @@ int main()
 	renderer.AddObject(light3);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
-	//renderer.AddObject(backpack);
+	renderer.AddObject(backpack);
 	renderer.AddLightSource(light);
 	renderer.AddLightSource(light2);
 	renderer.AddLightSource(light3);
@@ -238,6 +238,8 @@ int main()
 
 	auto rb = cube.CreateComponentOfType<BodyComponent>(1).lock();
 	simulator.AddObject(cube);
+
+	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
 
 	renderer.InitializeTime();
 	double time = 0;
@@ -250,5 +252,7 @@ int main()
 		renderer.ProcessInput();
 		simulator.SimulateStep(delta);
 		renderer.RenderFrame();
+		renderer.RenderFrame(*normals);
+		renderer.DisplayScene();
 	}
 }

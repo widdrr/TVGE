@@ -6,8 +6,6 @@ in vec3 FragmentPosition;
 
 out vec4 FragmentColor;
 
-uniform vec3 glCameraPosition;
-
 uniform struct Material
 {
     bool hasTexture;
@@ -90,11 +88,11 @@ vec3 ComputeSpecularColor(LightSource light, vec3 normal, vec3 lightDirection, v
 void main()
 {
     vec3 normalizedNormal = normalize(Normal);
-    vec3 cameraDirection = normalize(glCameraPosition - FragmentPosition);
+    vec3 cameraDirection = normalize(-FragmentPosition);
 
     vec3 ambientColor, diffuseColor, specularColor;
 
-    for (int i = 0; i< glLightCount; ++i) {
+    for (int i = 0; i < glLightCount; ++i) {
         //Determining if light source is point or directional
         vec3 lightDirection;
         float attenuation;

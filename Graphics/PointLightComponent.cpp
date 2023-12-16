@@ -9,17 +9,17 @@ PointLightComponent::PointLightComponent(Entity& p_entity,
 	_quadraticAttenuation(p_quadraticAttenuation)
 {}
 
-void PointLightComponent::SetLightVariables(ShaderProgram& p_shader, int index)
+void PointLightComponent::SetLightVariables(ShaderProgram& p_shader, Camera& p_camera, int p_index)
 {
 	using namespace UniformVariables::Light;
 
-	p_shader.SetVariable(InsertArrayIndex(lightPositionArray, index), glm::vec4(_entity.position, 1.f));
+	p_shader.SetVariable(InsertArrayIndex(lightPositionArray, p_index), p_camera.GetViewTransformation() * glm::vec4(_entity.position, 1.f));
 	
-	p_shader.SetVariable(InsertArrayIndex(lightAmbientColorArray, index), _ambientColor);
-	p_shader.SetVariable(InsertArrayIndex(lightDiffuseColorArray, index), _diffuseColor);
-	p_shader.SetVariable(InsertArrayIndex(lightSpecularColorArray, index), _specularColor);
+	p_shader.SetVariable(InsertArrayIndex(lightAmbientColorArray, p_index), _ambientColor);
+	p_shader.SetVariable(InsertArrayIndex(lightDiffuseColorArray, p_index), _diffuseColor);
+	p_shader.SetVariable(InsertArrayIndex(lightSpecularColorArray, p_index), _specularColor);
 
-	p_shader.SetVariable(InsertArrayIndex(lightAttenuationConstantArray, index), _constantAttenuation);
-	p_shader.SetVariable(InsertArrayIndex(lightAttenuationLinearArray, index), _linearAttenuation);
-	p_shader.SetVariable(InsertArrayIndex(lightAttenuationQuadraticArray, index), _quadraticAttenuation);
+	p_shader.SetVariable(InsertArrayIndex(lightAttenuationConstantArray, p_index), _constantAttenuation);
+	p_shader.SetVariable(InsertArrayIndex(lightAttenuationLinearArray, p_index), _linearAttenuation);
+	p_shader.SetVariable(InsertArrayIndex(lightAttenuationQuadraticArray, p_index), _quadraticAttenuation);
 }

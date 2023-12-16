@@ -55,5 +55,14 @@
     <None Include="shader.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="normal.geom">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="normal.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="normal.frag">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

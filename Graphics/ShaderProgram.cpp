@@ -11,9 +11,12 @@ import <glm/gtc/type_ptr.hpp>;
 import <fstream>;
 import <iostream>;
 
-ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath):
+ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
+							 const std::string& p_fragmentShaderPath,
+							 const std::string& p_geometryShaderPath) :
 	_vertexShaderPath(p_vertexShaderPath),
 	_fragmentShaderPath(p_fragmentShaderPath),
+	_geometryShaderPath(""),
 	_failed(false)
 {	
 	_id = glCreateProgram();
@@ -26,6 +29,9 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath, const std::s
 
 	AddShader(ReadShaderFromFile(p_vertexShaderPath), GL_VERTEX_SHADER);
 	AddShader(ReadShaderFromFile(p_fragmentShaderPath), GL_FRAGMENT_SHADER);
+	if (p_geometryShaderPath != "") {
+		AddShader(ReadShaderFromFile(p_geometryShaderPath), GL_GEOMETRY_SHADER);
+	}
 
 	glLinkProgram(_id);
 

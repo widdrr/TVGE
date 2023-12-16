@@ -6,14 +6,14 @@ DirectionalLightComponent::DirectionalLightComponent(Entity& p_entity, const glm
 	LightSourceComponent(p_entity, p_ambient, p_diffuse, p_specular)
 {
 }
-void DirectionalLightComponent::SetLightVariables(ShaderProgram& p_shader, int index)
+void DirectionalLightComponent::SetLightVariables(ShaderProgram& p_shader, Camera& p_camera, int p_index)
 {
 	using namespace UniformVariables::Light;
 
 	glm::vec3 direction = _defaultDirection * _entity.rotation;
 
-	p_shader.SetVariable(InsertArrayIndex(lightPositionArray, index), glm::vec4(direction, 0.f));
-	p_shader.SetVariable(InsertArrayIndex(lightAmbientColorArray, index), _ambientColor);
-	p_shader.SetVariable(InsertArrayIndex(lightDiffuseColorArray, index), _diffuseColor);
-	p_shader.SetVariable(InsertArrayIndex(lightSpecularColorArray, index), _specularColor);
+	p_shader.SetVariable(InsertArrayIndex(lightPositionArray, p_index), p_camera.GetViewTransformation() * glm::vec4(direction, 0.f));
+	p_shader.SetVariable(InsertArrayIndex(lightAmbientColorArray, p_index), _ambientColor);
+	p_shader.SetVariable(InsertArrayIndex(lightDiffuseColorArray, p_index), _diffuseColor);
+	p_shader.SetVariable(InsertArrayIndex(lightSpecularColorArray, p_index), _specularColor);
 }
