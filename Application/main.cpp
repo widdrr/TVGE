@@ -246,13 +246,13 @@ int main()
 	while (window.IsOpen()) {
 		double delta = renderer.ComputeTime();
 		time += delta;
-		if (time < 1) {
+		if (time < 5) {
 			rb->AddTorque(glm::vec3(0.f, 0.2f, 0.f));
 		}
 		renderer.ProcessInput();
 		simulator.SimulateStep(delta);
 		renderer.RenderFrame();
-		renderer.RenderFrame(*normals);
+		//renderer.RenderFrame(*normals);
 		renderer.DisplayScene();
 	}
 }
