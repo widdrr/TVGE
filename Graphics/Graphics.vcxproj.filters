@@ -9,51 +9,24 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp</Extensions>
     </Filter>
+    <Filter Include="Interfaces\Resources">
+      <UniqueIdentifier>{995a9720-69f2-417f-86ae-91fb6e4a8a24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces\Components">
+      <UniqueIdentifier>{2983ffc9-5bbb-42dc-99ce-138d8ba4a9da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Components">
+      <UniqueIdentifier>{2c16348e-5858-4501-bd15-90860a3c8626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Resources">
+      <UniqueIdentifier>{6045b3af-96f1-423f-b634-8b922df5bddb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphicsResources.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="LightSourceComponent.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="LightSourceComponent.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelComponent.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelComponent.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderProgram.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderProgram.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Vertex.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsComponents.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="Utilities.ixx">
@@ -64,27 +37,6 @@
     </ClCompile>
     <ClCompile Include="MeshHelpers.ixx">
       <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Vertex.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLightComponent.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectionalLightComponent.cpp">
-      <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.ixx">
       <Filter>Interfaces</Filter>
@@ -100,6 +52,84 @@
     </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsResources.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Textures.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsComponents.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSourceComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSourceComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

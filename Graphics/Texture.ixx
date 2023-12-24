@@ -1,24 +1,21 @@
-export module Graphics.Resources:Texture;
+export module Graphics.Resources.Textures:Texture;
 
 import <string>;
 
-//TODO: support for multiple cubemaps, 3d textures, etc
-export class Texture 
-{
+export class Texture {
 	friend class Renderer;
 
 public:
-	~Texture();
+	virtual ~Texture();
 
 	const unsigned int GetId() const;
-	void Bind(unsigned int p_unit) const;
+	
 
-	const std::string _texturePath;
+	const std::string& _texturePath;
 
-private:
+protected:
 	Texture(const std::string& p_texturePath);
+	void Bind(unsigned int p_unit, unsigned int type) const;
 
 	unsigned int _id;
-	const int _width, _height, _channels;
-	unsigned char* _textureData;
 };

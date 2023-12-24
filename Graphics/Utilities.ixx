@@ -12,6 +12,7 @@ export enum VertexAttributes
 
 export enum TextureUnits 
 {
+	Skybox,
 	Ambient,
 	Diffuse,
 	Specular
@@ -37,6 +38,8 @@ export namespace UniformVariables
 		
 		constexpr std::string_view materialShininess = "glMaterial.shininess";
 	}
+
+	constexpr std::string_view skyBoxMap = "glSkyboxMap";
 	
 	namespace Light 
 	{

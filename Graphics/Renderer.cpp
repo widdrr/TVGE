@@ -6,6 +6,8 @@ module;
 
 module Graphics:Renderer;
 
+import MeshHelpers;
+
 import <glm/gtc/type_ptr.hpp>;
 import <assimp/Importer.hpp>;
 import <assimp/scene.h>;
@@ -14,7 +16,7 @@ import <assimp/postprocess.h>;
 import <iostream>;
 import <fstream>;
 
-Renderer::Renderer(GLFWwindow* p_window):
+Renderer::Renderer(GLFWwindow* p_window) :
 	_window(p_window),
 	_camera()
 {
@@ -28,9 +30,11 @@ Renderer::Renderer(GLFWwindow* p_window):
 	glCullFace(GL_BACK);
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 
 	//loading the default shader
 	_defaultShader = GenerateShader("shader.vert", "shader.frag");
+	_camera.SetCameraDirection(0, 0, -1);
 }
 
 Renderer::~Renderer()
@@ -91,13 +95,15 @@ void Renderer::RenderFrame()
 			glUseProgram(0);
 		}
 	}
+
+	DrawSkybox();
 }
 
 void Renderer::RenderFrame(ShaderProgram& p_shader)
 {
 	glUseProgram(p_shader._id);
 	auto viewMatrix = _camera.GetViewTransformation();
-	
+
 	unsigned int deadLights = 0;
 	for (unsigned int i = 0; i < _lightSources.size(); ++i) {
 		if (_lightSources[i].expired()) {
@@ -131,7 +137,7 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 			//to permit customizing this
 			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
-			
+
 		}
 	}
 	glUseProgram(0);
@@ -143,41 +149,65 @@ void Renderer::DisplayScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath, 
-														const std::string& p_fragmentShaderPath,
-														const std::string& p_geometryShaderPath) 
+std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath,
+	const std::string& p_fragmentShaderPath,
+	const std::string& p_geometryShaderPath)
 {
 	const std::string concatPath = p_vertexShaderPath + p_fragmentShaderPath + p_geometryShaderPath;
 	if (_shaders.contains(concatPath)) {
 		return _shaders[concatPath];
 	}
-	
+
 	auto thisShader = std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath, p_geometryShaderPath));
-	
+
 	if (thisShader->_failed) {
 		std::cerr << "Shader Program creation failed, nullptr is returned\n";
 		return nullptr;
 	}
-	
+
 	_shaders[concatPath] = thisShader;
 	thisShader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 
 	return thisShader;
 }
 
-std::shared_ptr<Texture> Renderer::GenerateTexture(const std::string& p_texturePath)
+std::shared_ptr<Texture2D> Renderer::GenerateTexture2D(const std::string& p_texturePath)
 {
 	if (_textures.contains(p_texturePath)) {
-		return _textures[p_texturePath];
+		return dynamic_pointer_cast<Texture2D>(_textures[p_texturePath]);
 	}
 
-	auto thisTexture = std::shared_ptr<Texture>(new Texture(p_texturePath));
+	auto thisTexture = std::shared_ptr<Texture2D>(new Texture2D(p_texturePath));
 
 	if (thisTexture->_textureData == nullptr) {
 		std::cerr << "Texture creation failed, nullptr is returned\n";
 		return nullptr;
 	}
 	_textures[p_texturePath] = thisTexture;
+
+	return thisTexture;
+}
+
+std::shared_ptr<Cubemap> Renderer::GenerateCubemap(const std::string& p_frontPath, const std::string& p_rightPath, const std::string& p_leftPath, const std::string& p_topPath, const std::string& p_bottomPath, const std::string& p_backPath)
+{
+	const auto& concatPath = p_frontPath + p_rightPath + p_leftPath + p_topPath + p_bottomPath + p_backPath;
+
+	if (_textures.contains(concatPath)) {
+		return dynamic_pointer_cast<Cubemap>(_textures[concatPath]);
+	}
+
+	auto thisTexture = std::shared_ptr<Cubemap>(new Cubemap(p_frontPath,
+		p_rightPath,
+		p_leftPath,
+		p_topPath,
+		p_bottomPath,
+		p_backPath));
+
+	if (thisTexture->_textureData == nullptr) {
+		std::cerr << "Texture creation failed, nullptr is returned\n";
+		return nullptr;
+	}
+	_textures[concatPath] = thisTexture;
 
 	return thisTexture;
 }
@@ -195,7 +225,7 @@ void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path)
 	//TODO: look into preprocess options
 	const aiScene* scene = importer.ReadFile(p_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 
-	if (scene == nullptr){
+	if (scene == nullptr) {
 		std::cerr << "Error loading model: " << importer.GetErrorString() << "\n";
 		return;
 	}
@@ -204,13 +234,35 @@ void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path)
 		std::cerr << "Assimp Scene is empty\n";
 		return;
 	}
-	
+
 	ProcessAssimpNode(scene->mRootNode, scene, p_model);
 }
 
 std::shared_ptr<ShaderProgram> Renderer::DefaultShader()
 {
 	return _defaultShader;
+}
+
+void Renderer::DrawSkybox()
+{
+	auto skyboxComp = _skybox.TryGetComponentOfType<SkyboxComponent>();
+	if (!skyboxComp.expired()) {
+		glCullFace(GL_FRONT);
+		
+		auto&& skybox = skyboxComp.lock();
+
+		glBindVertexArray(skybox->mesh->_vao);
+		glUseProgram(skybox->shader._id);
+		
+		auto viewMatrix = glm::mat4(glm::mat3(_camera.GetViewTransformation()));
+		skybox->shader.SetVariable(UniformVariables::modelViewMatrix, viewMatrix);
+		
+		glDrawElements(GL_TRIANGLES, skybox->mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+		
+		glBindVertexArray(0);
+		glUseProgram(0);
+		glCullFace(GL_BACK);
+	}
 }
 
 void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelComponent& p_model)
@@ -244,13 +296,13 @@ std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_sc
 
 	for (unsigned int i = 0; i < p_mesh->mNumFaces; i++) {
 		const aiFace& face = p_mesh->mFaces[i];
-		
+
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
 
 	auto material = std::shared_ptr<Material>(new Material(*_defaultShader));
-	
+
 	auto assimpMaterial = p_scene->mMaterials[p_mesh->mMaterialIndex];
 
 	aiColor3D output;
@@ -267,17 +319,17 @@ std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_sc
 	aiString texture_path;
 	if (assimpMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_AMBIENT, 0, &texture_path);
-		material->_ambientMap = GenerateTexture(texture_path.C_Str());
+		material->_ambientMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
 	if (assimpMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture_path);
-		material->_diffuseMap = GenerateTexture(texture_path.C_Str());
+		material->_diffuseMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
 	if (assimpMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texture_path);
-		material->_specularMap = GenerateTexture(texture_path.C_Str());
+		material->_specularMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
 	return GenerateMesh(vertices, indices, material);
@@ -300,21 +352,21 @@ void Renderer::AddObject(const Entity& p_object)
 	_models.push_back(component);
 }
 
-void Renderer::Set2DMode(float p_width, float p_height) 
+void Renderer::Set2DMode(float p_width, float p_height)
 {
 	_camera.SetCameraPosition(0.f, 0.f, 1.f);
 	_camera.SetCameraDirection(0.f, 0.f, -1.f);
 	LockCamera(true);
-	_projectionMatrix = glm::ortho(-p_width / 2, p_width / 2, 
-									-p_height / 2, p_height / 2, 
-									0.1f, 5.f);
-	
+	_projectionMatrix = glm::ortho(-p_width / 2, p_width / 2,
+		-p_height / 2, p_height / 2,
+		0.1f, 5.f);
+
 	for (auto&& [key, shader] : _shaders) {
 		shader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 	}
 }
 
-void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane) 
+void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane)
 {
 	int windowWidth, windowHeight;
 	glfwGetWindowSize(_window, &windowWidth, &windowHeight);
@@ -327,7 +379,7 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane)
 	}
 }
 
-void Renderer::AddLightSource(const Entity& p_object) 
+void Renderer::AddLightSource(const Entity& p_object)
 {
 	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
 	if (lightSource.expired()) {
@@ -348,17 +400,17 @@ double Renderer::ComputeTime()
 {
 	double currentTime = glfwGetTime();
 	double delta = currentTime - _lastTime;
-	
+
 	_deltaTime = static_cast<float>(delta);
 	_fpsDelta += delta;
 	_lastTime = currentTime;
-	
+
 	++_frames;
-	
+
 	if (_fpsDelta >= 1.0) {
 		double fps = static_cast<double>(_frames) / _fpsDelta;
 		std::cout << "Frame Rate: " << fps << " FPS\n";
-		
+
 		_frames = 0;
 		_fpsDelta = 0;
 	}
@@ -366,7 +418,33 @@ double Renderer::ComputeTime()
 	return delta;
 }
 
-void Renderer::ProcessInput() {
+void Renderer::SetBackgroundColor(float p_red, float p_green, float p_blue, float p_alpha)
+{
+	glClearColor(p_red, p_green, p_blue, p_alpha);
+}
+
+void Renderer::SetSkybox(const std::string& p_frontPath,
+	const std::string& p_rightPath,
+	const std::string& p_leftPath,
+	const std::string& p_topPath,
+	const std::string& p_bottomPath,
+	const std::string& p_backPath)
+{
+	auto skyboxComp = _skybox.TryGetComponentOfType<SkyboxComponent>();
+	if (skyboxComp.expired()) {
+		auto&& shader = *GenerateShader("skybox.vert", "skybox.frag");
+		skyboxComp = _skybox.CreateComponentOfType<SkyboxComponent>(std::ref(shader));
+		auto&& [vertices, indices] = CommonMeshes::Cube();
+
+		skyboxComp.lock()->mesh = GenerateMesh(vertices, indices, nullptr);
+	}
+
+	skyboxComp.lock()->texture = GenerateCubemap(p_frontPath, p_rightPath, p_leftPath, p_topPath, p_bottomPath, p_backPath);
+	skyboxComp.lock()->texture->Bind(TextureUnits::Skybox);
+}
+
+void Renderer::ProcessInput()
+{
 
 	glfwPollEvents();
 
@@ -374,7 +452,7 @@ void Renderer::ProcessInput() {
 		return;
 	}
 
-	if(glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+	if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		_focused = false;
 	}
@@ -395,8 +473,9 @@ void Renderer::ProcessInput() {
 	_camera.MoveCamera({ moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown }, _deltaTime);
 }
 
-void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
-	
+void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY)
+{
+
 	if (_cameraLock) {
 		return;
 	}
@@ -407,13 +486,13 @@ void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY) {
 			_prevY = _crtY;
 			_initial = false;
 		}
-		
+
 		else {
 			float offsetX = static_cast<float>(_crtX - _prevX);
-			float offsetY =  static_cast<float>(_prevY - _crtY);
+			float offsetY = static_cast<float>(_prevY - _crtY);
 			_prevX = _crtX;
 			_prevY = _crtY;
-		
+
 			_camera.RotateCamera(offsetX, offsetY);
 		}
 	}

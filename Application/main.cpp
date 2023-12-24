@@ -215,12 +215,16 @@ int main()
 	light3.Scale(0.1f, 0.1f, 0.1f);
 	light3.Translate(-14.f, 0.f, -14.f);
 
+	Entity sun;
+	sun.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.3f, 0.3f, 0.3f));
+
+
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
 	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh(vertices, order, basicMaterial, true));
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -5.f, 0.f);
-	
+
 	renderer.AddObject(cube);
 	renderer.AddObject(light);
 	renderer.AddObject(light2);
@@ -228,6 +232,7 @@ int main()
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
 	renderer.AddObject(backpack);
+	renderer.AddLightSource(sun);
 	renderer.AddLightSource(light);
 	renderer.AddLightSource(light2);
 	renderer.AddLightSource(light3);
@@ -241,6 +246,7 @@ int main()
 
 	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
 
+	renderer.SetSkybox("back.jpg", "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg");
 	renderer.InitializeTime();
 	double time = 0;
 	while (window.IsOpen()) {

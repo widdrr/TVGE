@@ -150,6 +150,8 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera.ixx" />
+    <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="Cubemap.ixx" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="GraphicsComponents.ixx" />
     <ClCompile Include="GraphicsResources.ixx" />
@@ -170,6 +172,10 @@
     <ClCompile Include="Renderer.ixx" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="ShaderProgram.ixx" />
+    <ClCompile Include="SkyboxComponent.ixx" />
+    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Texture2D.ixx" />
+    <ClCompile Include="Textures.ixx" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture.ixx" />
     <ClCompile Include="Utilities.ixx" />

@@ -59,6 +59,7 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
 		return;
 	}
 	
+	SetVariable(UniformVariables::skyBoxMap, TextureUnits::Skybox);
 	SetVariable(UniformVariables::Material::materialAmbientMap, TextureUnits::Ambient);
 	SetVariable(UniformVariables::Material::materialDiffuseMap, TextureUnits::Diffuse);
 	SetVariable(UniformVariables::Material::materialSpecularMap, TextureUnits::Specular);

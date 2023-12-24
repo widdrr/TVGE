@@ -17,8 +17,7 @@ import <vector>;
 import <thread>;
 import <unordered_map>;
 
-export class Renderer 
-{
+export class Renderer {
 	friend class Window;
 
 public:
@@ -37,6 +36,14 @@ public:
 	void InitializeTime();
 	double ComputeTime();
 
+	void SetBackgroundColor(float p_red, float p_green, float p_blue, float p_alpha = 1.f);
+	void SetSkybox(const std::string& p_frontPath,
+		const std::string& p_rightPath,
+		const std::string& p_leftPath,
+		const std::string& p_topPath,
+		const std::string& p_bottomPath,
+		const std::string& p_backPath);
+
 	void AddObject(const Entity& p_object);
 	void AddLightSource(const Entity& p_object);
 
@@ -47,38 +54,50 @@ public:
 
 	/*********************************************************************/
 
-	std::shared_ptr<ShaderProgram> GenerateShader(const std::string& p_vertexShaderPath, 
-												  const std::string& p_fragmentShaderPath,
-												  const std::string& p_geometryShaderPath = "");
-	std::shared_ptr<Texture> GenerateTexture(const std::string& p_texturePath);
+	std::shared_ptr<ShaderProgram> GenerateShader(const std::string& p_vertexShaderPath,
+		const std::string& p_fragmentShaderPath,
+		const std::string& p_geometryShaderPath = "");
+
+	std::shared_ptr<Texture2D> GenerateTexture2D(const std::string& p_texturePath);
+	std::shared_ptr<Cubemap> GenerateCubemap(const std::string& p_frontPath,
+		const std::string& p_rightPath,
+		const std::string& p_leftPath,
+		const std::string& p_topPath,
+		const std::string& p_bottomPath,
+		const std::string& p_backPath);
+
 	std::shared_ptr<Mesh> GenerateMesh(const std::vector<Vertex>& p_vertices,
-									   const std::vector<unsigned int>& p_indices,
-									   const std::shared_ptr<Material>& p_material,
-									   bool p_genNormal = false);
+		const std::vector<unsigned int>& p_indices,
+		const std::shared_ptr<Material>& p_material,
+		bool p_genNormal = false);
 
 	std::shared_ptr<ShaderProgram> DefaultShader();
 
 private:
 	Renderer(GLFWwindow* p_window);
 
+	void DrawSkybox();
 	void ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelComponent& p_model);
-	
+
 	void LockCamera(bool p_lock);
 	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
-	
+
 	/*********************************************************************/
 
 	GLFWwindow* _window;
 	std::shared_ptr<Mesh> GenerateMesh(aiMesh* mesh, const aiScene* scene);
 
 	std::vector<std::weak_ptr<ModelComponent>> _models;
+	Entity _skybox;
 
 	std::vector<std::weak_ptr<LightSourceComponent>> _lightSources;
 	Entity _defaultLight;
 
 	std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> _shaders;
 	std::shared_ptr<ShaderProgram> _defaultShader;
+
 	std::unordered_map<std::string, std::shared_ptr<Texture>> _textures;
+
 
 	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;
