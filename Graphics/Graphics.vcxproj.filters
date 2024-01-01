@@ -131,5 +131,14 @@
     <ClCompile Include="SkyboxComponent.ixx">
       <Filter>Interfaces\Components</Filter>
     </ClCompile>
+    <ClCompile Include="FrameBuffer.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffferBuilder.cpp">
+      <Filter>Implementations\Resources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

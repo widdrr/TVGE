@@ -70,5 +70,14 @@
     <None Include="skybox.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="shadows.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shadows.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shadows.geom">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

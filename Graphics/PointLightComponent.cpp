@@ -9,11 +9,17 @@ PointLightComponent::PointLightComponent(Entity& p_entity,
 	_quadraticAttenuation(p_quadraticAttenuation)
 {}
 
-void PointLightComponent::SetLightVariables(ShaderProgram& p_shader, Camera& p_camera, int p_index)
+glm::vec4 PointLightComponent::GetPosition() const
 {
-	using namespace UniformVariables::Light;
+	return glm::vec4(glm::vec4(_entity.position, 1.f));
+}
 
-	p_shader.SetVariable(InsertArrayIndex(lightPositionArray, p_index), p_camera.GetViewTransformation() * glm::vec4(_entity.position, 1.f));
+void PointLightComponent::SetLightVariables(ShaderProgram& p_shader, int p_index)
+{
+	using namespace UniformVariables;
+	using namespace UniformVariables::Lights;
+
+	p_shader.SetVariable(InsertArrayIndex(lightPositionArray, p_index), GetPosition());
 	
 	p_shader.SetVariable(InsertArrayIndex(lightAmbientColorArray, p_index), _ambientColor);
 	p_shader.SetVariable(InsertArrayIndex(lightDiffuseColorArray, p_index), _diffuseColor);

@@ -42,9 +42,31 @@ Texture2D::Texture2D(const std::string& p_texturePath) :
 	}
 }
 
+Texture2D::Texture2D(unsigned int p_width, unsigned int p_height, unsigned int p_format):
+	Texture(""),
+	_width(p_width),
+	_height(p_height)
+{
+	glGenTextures(1, &_id);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _id);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, p_format, _width, _height, 0, p_format, GL_UNSIGNED_BYTE, nullptr);
+	
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 Texture2D::~Texture2D()
 {
-	stbi_image_free(_textureData);
+	if (_textureData != nullptr) {
+		stbi_image_free(_textureData);
+	}
 }
 
 void Texture2D::Bind(unsigned int p_unit)

@@ -46,6 +46,12 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
 		return;
 	}
 
+	SetVariable(UniformVariables::skyBoxMap, TextureUnits::Skybox);
+	SetVariable(UniformVariables::Shadows::shadowMap, TextureUnits::Shadow);
+	SetVariable(UniformVariables::Materials::materialAmbientMap, TextureUnits::Ambient);
+	SetVariable(UniformVariables::Materials::materialDiffuseMap, TextureUnits::Diffuse);
+	SetVariable(UniformVariables::Materials::materialSpecularMap, TextureUnits::Specular);
+
 	glValidateProgram(_id);
 
 	GLint validateSuccess;
@@ -58,12 +64,6 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
 		_failed = true;
 		return;
 	}
-	
-	SetVariable(UniformVariables::skyBoxMap, TextureUnits::Skybox);
-	SetVariable(UniformVariables::Material::materialAmbientMap, TextureUnits::Ambient);
-	SetVariable(UniformVariables::Material::materialDiffuseMap, TextureUnits::Diffuse);
-	SetVariable(UniformVariables::Material::materialSpecularMap, TextureUnits::Specular);
-
 }
 
 ShaderProgram::~ShaderProgram()

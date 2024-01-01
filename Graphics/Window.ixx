@@ -10,21 +10,20 @@ import :Input;
 import <memory>;
 import <string_view>;
 
-export class Window 
+export class Window
 {
 public:
-	static Window& Initialize(const std::string_view& p_title, 
-							 const unsigned int p_windowHeight, 
-							 const unsigned int p_windowWidth);
+	static Window& Initialize(const std::string_view& p_title,
+							  const unsigned int p_windowHeight,
+							  const unsigned int p_windowWidth);
 	~Window();
 
 	bool IsOpen() const;
 	Renderer& GetRenderer() const;
-	
 
 private:
-	Window(const std::string_view& p_title, 
-		   const unsigned int p_windowWidth, 
+	Window(const std::string_view& p_title,
+		   const unsigned int p_windowWidth,
 		   const unsigned int p_windowHeight);
 
 

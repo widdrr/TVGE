@@ -18,10 +18,9 @@ public:
 	glm::vec3 specular;
 	glm::vec3 emissive;
 	float shininess;
-
 };
 
-export class Material 
+export class Material
 {
 public:
 	Material(ShaderProgram& p_shader);

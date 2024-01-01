@@ -23,6 +23,11 @@ const glm::mat4 Camera::GetViewTransformation() const
 	return glm::lookAt(_position, _position + _front, _up);
 }
 
+const glm::vec3 Camera::GetPosition() const
+{
+	return _position;
+}
+
 void Camera::MoveCamera(Movement p_movement, float p_delta) {
 	
 	float adjustedSpeed = _cameraSpeed * p_delta;

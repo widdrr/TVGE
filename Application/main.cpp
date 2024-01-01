@@ -13,7 +13,7 @@ import <thread>;
 import <chrono>;
 import <memory>;
 
-void RotateAxis2D(Entity& obj, float theta, bool& flag) 
+void RotateAxis2D(Entity& obj, float theta, bool& flag)
 {
 	while (flag) {
 		obj.Rotate(0.f, 1.f, 0.f, theta);
@@ -21,7 +21,7 @@ void RotateAxis2D(Entity& obj, float theta, bool& flag)
 	}
 }
 
-void OrbitParentEntity2D(Entity& obj, float theta, bool& flag) 
+void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 {
 	float totalTheta = 0.f;
 
@@ -41,7 +41,7 @@ void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
 }
 
 
-int main() 
+int main()
 {
 	std::vector<Vertex> vertices = {
 
@@ -172,17 +172,22 @@ int main()
 	auto lightMaterial = std::make_shared<Material>(*defaultShader);
 	lightMaterial->_lightProperties.emissive = glm::vec3(1.f, 1.f, 1.f);
 
-	Entity sphere;
-	auto sphereComp = sphere.CreateComponentOfType<ModelComponent>().lock();
+	Entity monke;
+	auto sphereComp = monke.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereComp, "monke.dae");
-	sphere.Translate(0.f, 0.f, -5.f);
-	sphere.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90.f);
+	monke.Translate(0.f, 0.f, -10.f);
+	monke.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90.f);
 
 	Entity cube;
 	auto diceComp = cube.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*diceComp, "cube.dae");
 
-	cube.Translate(0.f, 0.f, 5.f);
+	Entity Wall1;
+	auto Wall1Comp = cube.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*Wall1Comp, "cube.dae");
+
+	Wall1.Translate(10.f, 0.f, 0.f);
+	Wall1.Scale(1.f, 5.f, 30.f);
 
 	Entity backpack;
 	auto bkpComp = backpack.CreateComponentOfType<ModelComponent>().lock();
@@ -197,7 +202,7 @@ int main()
 	lightComp->_meshes[0]->_material = lightMaterial;
 	light.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
 	light.Scale(0.1f, 0.1f, 0.1f);
-	light.Translate(0.f, 0.f, -1.f);
+	light.Translate(0.f, 0.f, -3.f);
 
 	Entity light2;
 	auto lightComp2 = light2.CreateComponentOfType<ModelComponent>().lock();
@@ -216,7 +221,7 @@ int main()
 	light3.Translate(-14.f, 0.f, -14.f);
 
 	Entity sun;
-	sun.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.3f, 0.3f, 0.3f));
+	sun.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
 
 
 	Entity floor;
@@ -230,12 +235,13 @@ int main()
 	renderer.AddObject(light2);
 	renderer.AddObject(light3);
 	renderer.AddObject(floor);
-	renderer.AddObject(sphere);
+	renderer.AddObject(monke);
 	renderer.AddObject(backpack);
 	renderer.AddLightSource(sun);
 	renderer.AddLightSource(light);
 	renderer.AddLightSource(light2);
 	renderer.AddLightSource(light3);
+	renderer.SetShadowCaster(light);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 

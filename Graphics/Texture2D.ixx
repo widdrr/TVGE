@@ -14,6 +14,7 @@ public:
 
 protected:
 	Texture2D(const std::string& p_texturePath);
+	Texture2D(unsigned int p_width, unsigned int p_height, unsigned int p_format);
 	int _width, _height, _channels;
 	unsigned char* _textureData;
 };

@@ -5,12 +5,11 @@ layout (location = 2) in vec3 inNormal;
 
 out vec3 Normal;
 
-uniform mat4 glModelViewMatrix;
-
-uniform mat3 glModelViewInverseTranspose;
+uniform mat4 glModelMatrix;
+uniform mat4 glViewMatrix;
 
 void main()
 {
-	gl_Position = glModelViewMatrix * vec4(inPosition, 1.f);
-	Normal = glModelViewInverseTranspose * inNormal;
+	gl_Position = glViewMatrix* glModelMatrix * vec4(inPosition, 1.f);
+	Normal = mat3(transpose(inverse(glViewMatrix*glModelMatrix))) * inNormal;
 }

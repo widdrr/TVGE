@@ -25,7 +25,8 @@ public:
 private:
 	static constexpr unsigned int _dumpSize = 1024;
 
-	ShaderProgram(const std::string& p_vertexShaderPath, const std::string& p_fragmentShaderPath,
+	ShaderProgram(const std::string& p_vertexShaderPath,
+				  const std::string& p_fragmentShaderPath,
 				  const std::string& p_geometryShaderPath = "");
 
 	void AddShader(std::string p_shaderText, unsigned int p_shaderType);

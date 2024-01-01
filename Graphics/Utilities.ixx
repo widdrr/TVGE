@@ -3,28 +3,30 @@ export module Graphics.Resources:Utilities;
 import <string_view>;
 import <format>;
 
-export enum VertexAttributes 
+export enum VertexAttributes
 {
 	Position,
 	TextureCoordinates,
 	Normal
 };
 
-export enum TextureUnits 
+export enum TextureUnits
 {
 	Skybox,
+	Shadow,
 	Ambient,
 	Diffuse,
 	Specular
 };
 
-export namespace UniformVariables 
+export namespace UniformVariables
 {
 	constexpr std::string_view projectionMatrix = "glProjectionMatrix";
-	constexpr std::string_view modelViewMatrix = "glModelViewMatrix";
-	constexpr std::string_view modelViewInverseTranspose = "glModelViewInverseTranspose";
-	
-	namespace Material 
+	constexpr std::string_view modelMatrix = "glModelMatrix";
+	constexpr std::string_view viewMatrix = "glViewMatrix";
+
+	constexpr std::string_view cameraPosition = "glCameraPosition";
+	namespace Materials
 	{
 		constexpr std::string_view materialHasTexture = "glMaterial.hasTexture";
 		constexpr std::string_view materialAmbientMap = "glMaterial.ambientMap";
@@ -35,16 +37,16 @@ export namespace UniformVariables
 		constexpr std::string_view materialDiffuseColor = "glMaterial.diffuseColor";
 		constexpr std::string_view materialSpecularColor = "glMaterial.specularColor";
 		constexpr std::string_view materialEmissiveColor = "glMaterial.emissiveColor";
-		
+
 		constexpr std::string_view materialShininess = "glMaterial.shininess";
 	}
 
 	constexpr std::string_view skyBoxMap = "glSkyboxMap";
-	
-	namespace Light 
+
+	namespace Lights
 	{
 		constexpr std::string_view lightPositionArray = "glLights[{}].position";
-		
+
 		constexpr std::string_view lightAmbientColorArray = "glLights[{}].ambientColor";
 		constexpr std::string_view lightDiffuseColorArray = "glLights[{}].diffuseColor";
 		constexpr std::string_view lightSpecularColorArray = "glLights[{}].specularColor";
@@ -54,11 +56,20 @@ export namespace UniformVariables
 		constexpr std::string_view lightAttenuationConstantArray = "glLights[{}].constantAttenuation";
 
 		constexpr std::string_view lightCount = "glLightCount";
+	}
 
-		const std::string InsertArrayIndex(std::string_view variable, int index)
-		{
-			return std::vformat(variable, std::make_format_args(index));
-		}
+	namespace Shadows
+	{
+		constexpr std::string_view hasShadows = "glShadowCasterPresent";
+		constexpr std::string_view shadowCasterPosition = "glShadowCasterPosition";
+		constexpr std::string_view shadowFarPlane = "glShadowFarPlane";
+		constexpr std::string_view shadowMap = "glShadowMap";
+		constexpr std::string_view shadowMatricesArray = "glShadowMatrices[{}]";
+	}
+
+	const std::string InsertArrayIndex(std::string_view variable, int index)
+	{
+		return std::vformat(variable, std::make_format_args(index));
 	}
 }
 

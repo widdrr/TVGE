@@ -153,6 +153,9 @@
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Cubemap.ixx" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
+    <ClCompile Include="FrameBuffer.ixx" />
+    <ClCompile Include="FrameBuffferBuilder.cpp" />
     <ClCompile Include="GraphicsComponents.ixx" />
     <ClCompile Include="GraphicsResources.ixx" />
     <ClCompile Include="Input.cpp" />

@@ -177,6 +177,9 @@ xcopy /y "$(SolutionDir)Libraries\External\bin\assimp-vc143-mt.dll" "$(OutDir)"<
     <None Include="shader.frag" />
     <None Include="shader.vert" />
     <None Include="normal.vert" />
+    <None Include="shadows.frag" />
+    <None Include="shadows.geom" />
+    <None Include="shadows.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
   </ItemGroup>

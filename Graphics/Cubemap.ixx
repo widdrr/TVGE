@@ -19,6 +19,7 @@ protected:
 			const std::string& p_topPath,
 			const std::string& p_bottomPath,
 			const std::string& p_backPath);
+	Cubemap(unsigned int p_width, unsigned int p_height, unsigned int p_format);
 
 	int _width, _height, _channels;
 	unsigned char* _textureData;

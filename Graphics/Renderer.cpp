@@ -16,6 +16,9 @@ import <assimp/postprocess.h>;
 import <iostream>;
 import <fstream>;
 
+unsigned int Renderer::_shadowWidth = 1024;
+unsigned int Renderer::_shadowHeight = 1024;
+
 Renderer::Renderer(GLFWwindow* p_window) :
 	_window(p_window),
 	_camera()
@@ -35,6 +38,12 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	//loading the default shader
 	_defaultShader = GenerateShader("shader.vert", "shader.frag");
 	_camera.SetCameraDirection(0, 0, -1);
+
+	//initializing shadow framebuffer and shader
+	_shadowsShader = GenerateShader("shadows.vert", "shadows.frag", "shadows.geom");
+
+	auto shadowMap = std::shared_ptr<Cubemap>(new Cubemap(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
+	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(shadowMap).NoColorBuffer().Build();
 }
 
 Renderer::~Renderer()
@@ -51,7 +60,12 @@ void Renderer::RenderAndDisplayScene()
 
 void Renderer::RenderFrame()
 {
+	if (!_shadowCaster.expired()) {
+		RenderShadows(_shadowCaster.lock());
+	}
+
 	auto viewMatrix = _camera.GetViewTransformation();
+
 	for (auto&& model : _models) {
 
 		//TODO: expired components removal;
@@ -68,11 +82,15 @@ void Renderer::RenderFrame()
 			auto& shader = mesh->_material->_shader;
 
 			auto modelMatrix = component->GetModelTransformation();
-			auto modelViewMatrix = viewMatrix * modelMatrix;
-			shader.SetVariable(UniformVariables::modelViewMatrix, modelViewMatrix);
+
+			SetShadowVariables(shader);
+
+			shader.SetVariable(UniformVariables::modelMatrix, modelMatrix);
+			shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
+			shader.SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
 
 			//the model matrix to apply to normal vectors to correctly transform to view space
-			shader.SetVariable(UniformVariables::modelViewInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelViewMatrix))));
+			//shader.SetVariable(UniformVariables::modelInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelMatrix))));
 
 			unsigned int deadLights = 0;
 			for (unsigned int i = 0; i < _lightSources.size(); ++i) {
@@ -80,9 +98,9 @@ void Renderer::RenderFrame()
 					++deadLights;
 					continue;
 				}
-				_lightSources[i].lock()->SetLightVariables(shader, _camera, i - deadLights);
+				_lightSources[i].lock()->SetLightVariables(shader, i - deadLights);
 			}
-			shader.SetVariable(UniformVariables::Light::lightCount, static_cast<int>(_lightSources.size() - deadLights));
+			shader.SetVariable(UniformVariables::Lights::lightCount, static_cast<int>(_lightSources.size() - deadLights));
 
 			mesh->_material->SetMaterialVariables();
 
@@ -99,10 +117,73 @@ void Renderer::RenderFrame()
 	DrawSkybox();
 }
 
+void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
+{
+	using namespace UniformVariables::Shadows;
+
+	glViewport(0, 0, _shadowWidth, _shadowHeight);
+	_shadowBuffer->Bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_CULL_FACE);
+
+	auto lightPosition = glm::vec3(p_caster->GetPosition());
+	
+	_shadowsShader->SetVariable(shadowCasterPosition, lightPosition);
+	_shadowsShader->SetVariable(shadowFarPlane, 100.f);
+
+	auto shadowProjection = glm::perspective(glm::radians(90.0f), static_cast<float>(_shadowWidth / _shadowHeight), 1.f, 100.f);
+	std::vector<glm::mat4> shadowMatrices;
+	shadowMatrices.push_back(shadowProjection *
+								glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowMatrices.push_back(shadowProjection *
+								glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowMatrices.push_back(shadowProjection *
+								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+	shadowMatrices.push_back(shadowProjection *
+								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+	shadowMatrices.push_back(shadowProjection *
+								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowMatrices.push_back(shadowProjection *
+								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+
+	for (int i = 0; i < 6; ++i) {
+		_shadowsShader->SetVariable(UniformVariables::InsertArrayIndex(shadowMatricesArray, i), shadowMatrices[i]);
+	}
+
+	glUseProgram(_shadowsShader->_id);
+
+	for (auto&& model : _models) {
+
+		if (model.expired()) {
+			continue;
+		}
+		auto&& component = model.lock();
+
+		for (auto&& mesh : component->_meshes) {
+			glBindVertexArray(mesh->_vao);
+
+			_shadowsShader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
+
+			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+
+		}
+	}
+	glUseProgram(0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_CULL_FACE);
+
+	int width, height;
+	glfwGetWindowSize(_window, &width, &height);
+	glViewport(0, 0, width, height);
+}
+
 void Renderer::RenderFrame(ShaderProgram& p_shader)
 {
+	//TODO: fix this one
 	glUseProgram(p_shader._id);
-	auto viewMatrix = _camera.GetViewTransformation();
+	p_shader.SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
+	p_shader.SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
 
 	unsigned int deadLights = 0;
 	for (unsigned int i = 0; i < _lightSources.size(); ++i) {
@@ -110,10 +191,12 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 			++deadLights;
 			continue;
 		}
-		_lightSources[i].lock()->SetLightVariables(p_shader, _camera, i - deadLights);
+		_lightSources[i].lock()->SetLightVariables(p_shader, i - deadLights);
 	}
 
-	p_shader.SetVariable(UniformVariables::Light::lightCount, static_cast<int>(_lightSources.size() - deadLights));
+	SetShadowVariables(p_shader);
+
+	p_shader.SetVariable(UniformVariables::Lights::lightCount, static_cast<int>(_lightSources.size() - deadLights));
 
 	for (auto&& model : _models) {
 
@@ -126,12 +209,8 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 		for (auto&& mesh : component->_meshes) {
 			glBindVertexArray(mesh->_vao);
 
-			auto modelMatrix = component->GetModelTransformation();
-			auto modelViewMatrix = viewMatrix * modelMatrix;
-			p_shader.SetVariable(UniformVariables::modelViewMatrix, modelViewMatrix);
-
-			//the model matrix to apply to normal vectors to correctly transform to view space
-			p_shader.SetVariable(UniformVariables::modelViewInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelViewMatrix))));
+			
+			p_shader.SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 
 			//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
 			//to permit customizing this
@@ -150,8 +229,8 @@ void Renderer::DisplayScene()
 }
 
 std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath,
-	const std::string& p_fragmentShaderPath,
-	const std::string& p_geometryShaderPath)
+														const std::string& p_fragmentShaderPath,
+														const std::string& p_geometryShaderPath)
 {
 	const std::string concatPath = p_vertexShaderPath + p_fragmentShaderPath + p_geometryShaderPath;
 	if (_shaders.contains(concatPath)) {
@@ -197,11 +276,11 @@ std::shared_ptr<Cubemap> Renderer::GenerateCubemap(const std::string& p_frontPat
 	}
 
 	auto thisTexture = std::shared_ptr<Cubemap>(new Cubemap(p_frontPath,
-		p_rightPath,
-		p_leftPath,
-		p_topPath,
-		p_bottomPath,
-		p_backPath));
+															p_rightPath,
+															p_leftPath,
+															p_topPath,
+															p_bottomPath,
+															p_backPath));
 
 	if (thisTexture->_textureData == nullptr) {
 		std::cerr << "Texture creation failed, nullptr is returned\n";
@@ -248,20 +327,34 @@ void Renderer::DrawSkybox()
 	auto skyboxComp = _skybox.TryGetComponentOfType<SkyboxComponent>();
 	if (!skyboxComp.expired()) {
 		glCullFace(GL_FRONT);
-		
+
 		auto&& skybox = skyboxComp.lock();
 
 		glBindVertexArray(skybox->mesh->_vao);
 		glUseProgram(skybox->shader._id);
-		
+
 		auto viewMatrix = glm::mat4(glm::mat3(_camera.GetViewTransformation()));
-		skybox->shader.SetVariable(UniformVariables::modelViewMatrix, viewMatrix);
-		
+		skybox->shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
+
 		glDrawElements(GL_TRIANGLES, skybox->mesh->_indices.size(), GL_UNSIGNED_INT, 0);
-		
+
 		glBindVertexArray(0);
 		glUseProgram(0);
 		glCullFace(GL_BACK);
+	}
+}
+
+void Renderer::SetShadowVariables(ShaderProgram& p_shader)
+{
+	p_shader.SetVariable(UniformVariables::Shadows::hasShadows, false);
+	if (!_shadowCaster.expired()) {
+		using namespace UniformVariables::Shadows;
+		auto _shadow = _shadowCaster.lock();
+		p_shader.SetVariable(hasShadows, true);
+		p_shader.SetVariable(shadowCasterPosition, glm::vec3(_shadow->GetPosition()));
+		p_shader.SetVariable(shadowFarPlane, 100.f);
+
+		_shadowBuffer->_depthTexture->Bind(TextureUnits::Shadow, GL_TEXTURE_CUBE_MAP);
 	}
 }
 
@@ -358,8 +451,8 @@ void Renderer::Set2DMode(float p_width, float p_height)
 	_camera.SetCameraDirection(0.f, 0.f, -1.f);
 	LockCamera(true);
 	_projectionMatrix = glm::ortho(-p_width / 2, p_width / 2,
-		-p_height / 2, p_height / 2,
-		0.1f, 5.f);
+								   -p_height / 2, p_height / 2,
+								   0.1f, 5.f);
 
 	for (auto&& [key, shader] : _shaders) {
 		shader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
@@ -388,6 +481,17 @@ void Renderer::AddLightSource(const Entity& p_object)
 	}
 
 	_lightSources.push_back(lightSource);
+}
+
+void Renderer::SetShadowCaster(const Entity& p_object)
+{
+	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
+	if (lightSource.expired()) {
+		std::cerr << "Object does not contain a LightSourceComponent\n";
+		return;
+	}
+
+	_shadowCaster = lightSource;
 }
 
 void Renderer::InitializeTime()
@@ -424,11 +528,11 @@ void Renderer::SetBackgroundColor(float p_red, float p_green, float p_blue, floa
 }
 
 void Renderer::SetSkybox(const std::string& p_frontPath,
-	const std::string& p_rightPath,
-	const std::string& p_leftPath,
-	const std::string& p_topPath,
-	const std::string& p_bottomPath,
-	const std::string& p_backPath)
+						 const std::string& p_rightPath,
+						 const std::string& p_leftPath,
+						 const std::string& p_topPath,
+						 const std::string& p_bottomPath,
+						 const std::string& p_backPath)
 {
 	auto skyboxComp = _skybox.TryGetComponentOfType<SkyboxComponent>();
 	if (skyboxComp.expired()) {
