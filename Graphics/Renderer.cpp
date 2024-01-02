@@ -124,7 +124,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	glViewport(0, 0, _shadowWidth, _shadowHeight);
 	_shadowBuffer->Bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 
 	auto lightPosition = glm::vec3(p_caster->GetPosition());
 	
@@ -171,7 +171,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	}
 	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	int width, height;
 	glfwGetWindowSize(_window, &width, &height);
@@ -298,11 +298,15 @@ std::shared_ptr<Mesh> Renderer::GenerateMesh(const std::vector<Vertex>& p_vertic
 }
 
 //TODO: System to reuse models
-void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path)
+void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path, const bool p_flipUVs)
 {
 	Assimp::Importer importer;
 	//TODO: look into preprocess options
-	const aiScene* scene = importer.ReadFile(p_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+	unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals;
+	if (p_flipUVs) {
+		flags = flags | aiProcess_FlipUVs;
+	}
+	const aiScene* scene = importer.ReadFile(p_path, flags);
 
 	if (scene == nullptr) {
 		std::cerr << "Error loading model: " << importer.GetErrorString() << "\n";
@@ -402,12 +406,16 @@ std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_sc
 
 	assimpMaterial->Get(AI_MATKEY_COLOR_AMBIENT, output);
 	material->_lightProperties.ambient = glm::vec3(output.r, output.g, output.b);
+
 	assimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, output);
 	material->_lightProperties.diffuse = glm::vec3(output.r, output.g, output.b);
+
 	assimpMaterial->Get(AI_MATKEY_COLOR_SPECULAR, output);
 	material->_lightProperties.specular = glm::vec3(output.r, output.g, output.b);
-
 	assimpMaterial->Get(AI_MATKEY_SHININESS, material->_lightProperties.shininess);
+
+	assimpMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, output);
+	material->_lightProperties.emissive = glm::vec3(output.r, output.g, output.b);
 
 	aiString texture_path;
 	if (assimpMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0) {

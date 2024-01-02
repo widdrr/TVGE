@@ -92,14 +92,15 @@ vec3 ComputeSpecularColor(LightSource light, vec3 normal, vec3 lightDirection, v
     return color;
 }
 
-float ComputeShadow(vec3 fragmentPosition)
+float ComputeShadow(vec3 fragmentPosition, vec3 normal)
 {
     if(!glShadowCasterPresent){
         return 0;
     }
 
-    vec3 relativePosition = fragmentPosition - glShadowCasterPosition; 
-    float bias = 0.05;
+    vec3 relativePosition = fragmentPosition - glShadowCasterPosition;
+    vec3 casterDirection = normalize(glShadowCasterPosition - FragmentPosition);
+    float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
 
     //the reference value for depth comparison is the distance from the shadow caster to the fragmentcolor
     //with a shadow bias added to prevent shadow acne, normalized by dividing by the far plane
@@ -142,7 +143,7 @@ void main()
 
         specularColor += ComputeSpecularColor(glLights[i], normalizedNormal, lightDirection, cameraDirection) * attenuation;
 
-        shadow = ComputeShadow(FragmentPosition);
+        shadow = ComputeShadow(FragmentPosition, normalizedNormal);
     }
 
     vec4 shadedColor = vec4(((glMaterial.emissiveColor + ambientColor + (1.f - shadow) * (diffuseColor + specularColor))), 1.f);

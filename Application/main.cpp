@@ -162,107 +162,67 @@ int main()
 	basicMaterial->_lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
 	basicMaterial->_lightProperties.shininess = 10.f;
 
-	auto emerald = std::make_shared<Material>(*defaultShader);
-	emerald->_lightProperties.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
-	emerald->_lightProperties.diffuse = glm::vec3(0.07568f, .61424f, 0.07568f);
-	emerald->_lightProperties.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	emerald->_lightProperties.shininess = 0.6f * 128.f;
-
-
-	auto lightMaterial = std::make_shared<Material>(*defaultShader);
-	lightMaterial->_lightProperties.emissive = glm::vec3(1.f, 1.f, 1.f);
-
-	Entity monke;
-	auto sphereComp = monke.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*sphereComp, "monke.dae");
-	monke.Translate(0.f, 0.f, -10.f);
-	monke.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90.f);
-
-	Entity cube;
-	auto diceComp = cube.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*diceComp, "cube.dae");
-
-	Entity Wall1;
-	auto Wall1Comp = cube.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*Wall1Comp, "cube.dae");
-
-	Wall1.Translate(10.f, 0.f, 0.f);
-	Wall1.Scale(1.f, 5.f, 30.f);
-
-	Entity backpack;
-	auto bkpComp = backpack.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*bkpComp, "backpack.obj");
-
-	backpack.Translate(10.f, 0.f, 0.f);
-	backpack.Rotate(glm::vec3(0.f, 1.f, 0.f), -90.f);
-
-	Entity light;
-	auto lightComp = light.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*lightComp, "sphere.dae");
-	lightComp->_meshes[0]->_material = lightMaterial;
-	light.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
-	light.Scale(0.1f, 0.1f, 0.1f);
-	light.Translate(0.f, 0.f, -3.f);
-
-	Entity light2;
-	auto lightComp2 = light2.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*lightComp2, "sphere.dae");
-	lightComp2->_meshes[0]->_material = lightMaterial;
-	light2.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
-	light2.Scale(0.1f, 0.1f, 0.1f);
-	light2.Translate(14.f, 0.f, 14.f);
-
-	Entity light3;
-	auto lightComp3 = light3.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*lightComp3, "sphere.dae");
-	lightComp3->_meshes[0]->_material = lightMaterial;
-	light3.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.f, 1.f, 1.f));
-	light3.Scale(0.1f, 0.1f, 0.1f);
-	light3.Translate(-14.f, 0.f, -14.f);
-
 	Entity sun;
-	sun.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
-
+	sun.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.f, 0.f, 0.f));
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
 	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh(vertices, order, basicMaterial, true));
 	floor.Scale(100.f, 0.1f, 100.f);
-	floor.Translate(0.f, -5.f, 0.f);
+	floor.Translate(0.f, -8.f, 0.f);
 
-	renderer.AddObject(cube);
-	renderer.AddObject(light);
-	renderer.AddObject(light2);
-	renderer.AddObject(light3);
+	Entity tree;
+	auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*treeComp, "tree.obj", false);
+	tree.Scale(0.1f, 0.1f, 0.1f);
+	tree.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
+	tree.Translate(0.f, -9.f, 0.f);
+
+	Entity tree2;
+	auto treeComp2 = tree2.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*treeComp2, "tree.obj", false);
+	tree2.Scale(0.1f, 0.1f, 0.1f);
+	tree2.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
+	tree2.Translate(50.f, -9.f, 0.f);
+
+	Entity tree3;
+	auto treeComp3 = tree3.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*treeComp3, "tree.obj", false);
+	tree3.Scale(0.1f, 0.1f, 0.1f);
+	tree3.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
+	tree3.Translate(0.f, -10.f, 50.f);
+
+	Entity fire;
+	auto fireModelComp = fire.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*fireModelComp, "fireme.obj");
+	auto flameLightComp = fire.CreateComponentOfType<PointLightComponent>(glm::vec3(0.f, 0.f, 0.f),
+																		  glm::vec3(1.000000, 0.372789, 0.021186),
+																		  glm::vec3(1.000000, 0.372789, 0.021186),
+																		  glm::vec3(0.f, 3.f, 0.f),
+																		  0, 0, 1).lock();
+
+	fire.Translate(0.f, -8.f, 0.5);
+
 	renderer.AddObject(floor);
-	renderer.AddObject(monke);
-	renderer.AddObject(backpack);
+	renderer.AddObject(tree);
+	renderer.AddObject(tree2);
+	renderer.AddObject(tree3);
+	renderer.AddObject(fire);
 	renderer.AddLightSource(sun);
-	renderer.AddLightSource(light);
-	renderer.AddLightSource(light2);
-	renderer.AddLightSource(light3);
-	renderer.SetShadowCaster(light);
+	renderer.AddLightSource(fire);
+	renderer.SetShadowCaster(fire);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
-	Simulator simulator;
-
-	auto rb = cube.CreateComponentOfType<BodyComponent>(1).lock();
-	simulator.AddObject(cube);
 
 	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
 
 	renderer.SetSkybox("back.jpg", "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg");
+
 	renderer.InitializeTime();
-	double time = 0;
 	while (window.IsOpen()) {
-		double delta = renderer.ComputeTime();
-		time += delta;
-		if (time < 5) {
-			rb->AddTorque(glm::vec3(0.f, 0.2f, 0.f));
-		}
+		renderer.ComputeTime();
 		renderer.ProcessInput();
-		simulator.SimulateStep(delta);
 		renderer.RenderFrame();
 		//renderer.RenderFrame(*normals);
 		renderer.DisplayScene();

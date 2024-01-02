@@ -33,7 +33,8 @@ public:
 						const glm::vec3& p_ambient,
 						const glm::vec3& p_diffuse,
 						const glm::vec3& p_specular,
-						const float p_quadraticAttenuation = 0.007f,
+						const glm::vec3& p_positionOffset = glm::vec3(0.f, 0.f, 0.f),
+						const float p_quadraticAttenuation = 0.0019f,
 						const float p_linearAttenuation = 0.022f,
 						const float p_constantAttenuation = 1.f);
 
@@ -44,6 +45,7 @@ private:
 	float _constantAttenuation;
 	float _linearAttenuation;
 	float _quadraticAttenuation;
+	glm::vec3 _offset;
 };
 
 export class DirectionalLightComponent : public LightSourceComponent
