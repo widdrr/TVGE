@@ -15,5 +15,5 @@ public:
 
 	glm::mat4 GetModelTransformation() const;
 	
-	std::vector<std::shared_ptr<Mesh>> _meshes;
+	std::vector<std::weak_ptr<Mesh>> _meshes;
 };

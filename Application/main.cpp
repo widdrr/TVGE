@@ -167,30 +167,30 @@ int main()
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
-	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh(vertices, order, basicMaterial, true));
+	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
 	Entity tree;
 	auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*treeComp, "tree.obj", false);
-	tree.Scale(0.1f, 0.1f, 0.1f);
+	tree.Scale(0.03f, 0.03f, 0.03f);
 	tree.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-	tree.Translate(0.f, -9.f, 0.f);
+	tree.Translate(0.f, -8.f, 0.f);
 
 	Entity tree2;
 	auto treeComp2 = tree2.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*treeComp2, "tree.obj", false);
-	tree2.Scale(0.1f, 0.1f, 0.1f);
+	tree2.Scale(0.05f, 0.05f, 0.05f);
 	tree2.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-	tree2.Translate(50.f, -9.f, 0.f);
+	tree2.Translate(10.f, -8.f, 20.f);
 
 	Entity tree3;
 	auto treeComp3 = tree3.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*treeComp3, "tree.obj", false);
-	tree3.Scale(0.1f, 0.1f, 0.1f);
+	tree3.Scale(0.04f, 0.04f, 0.04f);
 	tree3.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-	tree3.Translate(0.f, -10.f, 50.f);
+	tree3.Translate(-10.f, -8.f, 10.f);
 
 	Entity fire;
 	auto fireModelComp = fire.CreateComponentOfType<ModelComponent>().lock();

@@ -69,9 +69,10 @@ public:
 											 const std::string& p_bottomPath,
 											 const std::string& p_backPath);
 
-	std::shared_ptr<Mesh> GenerateMesh(const std::vector<Vertex>& p_vertices,
-									   const std::vector<unsigned int>& p_indices,
-									   const std::shared_ptr<Material>& p_material,
+	std::shared_ptr<Mesh> GenerateMesh(const std::string& p_name,
+									   const std::vector<Vertex>& p_vertices = {},
+									   const std::vector<unsigned int>& p_indices = {},
+									   const std::shared_ptr<Material>& p_material = nullptr,
 									   bool p_genNormal = false);
 
 	std::shared_ptr<ShaderProgram> DefaultShader();
@@ -81,7 +82,7 @@ private:
 
 	void DrawSkybox();
 	void SetShadowVariables(ShaderProgram& p_shader);
-	void ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelComponent& p_model);
+	void ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, const std::string& p_path, ModelComponent& p_model);
 
 	void LockCamera(bool p_lock);
 	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
@@ -89,7 +90,7 @@ private:
 	/*********************************************************************/
 
 	GLFWwindow* _window;
-	std::shared_ptr<Mesh> GenerateMesh(aiMesh* mesh, const aiScene* scene);
+	std::shared_ptr<Mesh> GenerateMesh(aiMesh* mesh, const aiScene* scene, const std::string& p_name);
 
 	std::vector<std::weak_ptr<ModelComponent>> _models;
 	Entity _skybox;
@@ -101,6 +102,7 @@ private:
 	std::shared_ptr<ShaderProgram> _defaultShader;
 
 	std::unordered_map<std::string, std::shared_ptr<Texture>> _textures;
+	std::unordered_map<std::string, std::shared_ptr<Mesh>> _meshes;
 
 	std::weak_ptr<LightSourceComponent> _shadowCaster;
 	std::shared_ptr<ShaderProgram> _shadowsShader;

@@ -74,7 +74,13 @@ void Renderer::RenderFrame()
 		}
 		auto&& component = model.lock();
 
-		for (auto&& mesh : component->_meshes) {
+		for (auto&& weakMesh : component->_meshes) {
+
+			if (weakMesh.expired()) {
+				continue;
+			}
+
+			auto mesh = weakMesh.lock();
 			glBindVertexArray(mesh->_vao);
 
 			//If there is a shader associated we use it
@@ -127,24 +133,24 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	glCullFace(GL_FRONT);
 
 	auto lightPosition = glm::vec3(p_caster->GetPosition());
-	
+
 	_shadowsShader->SetVariable(shadowCasterPosition, lightPosition);
 	_shadowsShader->SetVariable(shadowFarPlane, 100.f);
 
 	auto shadowProjection = glm::perspective(glm::radians(90.0f), static_cast<float>(_shadowWidth / _shadowHeight), 1.f, 100.f);
 	std::vector<glm::mat4> shadowMatrices;
 	shadowMatrices.push_back(shadowProjection *
-								glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+							 glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
 	shadowMatrices.push_back(shadowProjection *
-								glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+							 glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
 	shadowMatrices.push_back(shadowProjection *
-								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
 	shadowMatrices.push_back(shadowProjection *
-								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
 	shadowMatrices.push_back(shadowProjection *
-								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
 	shadowMatrices.push_back(shadowProjection *
-								glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 
 	for (int i = 0; i < 6; ++i) {
 		_shadowsShader->SetVariable(UniformVariables::InsertArrayIndex(shadowMatricesArray, i), shadowMatrices[i]);
@@ -159,7 +165,13 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 		}
 		auto&& component = model.lock();
 
-		for (auto&& mesh : component->_meshes) {
+		for (auto&& weakMesh : component->_meshes) {
+
+			if (weakMesh.expired()) {
+				continue;
+			}
+
+			auto mesh = weakMesh.lock();
 			glBindVertexArray(mesh->_vao);
 
 			_shadowsShader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
@@ -206,10 +218,16 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 		}
 		auto&& component = model.lock();
 
-		for (auto&& mesh : component->_meshes) {
+		for (auto&& weakMesh : component->_meshes) {
+
+			if (weakMesh.expired()) {
+				continue;
+			}
+
+			auto mesh = weakMesh.lock();
 			glBindVertexArray(mesh->_vao);
 
-			
+
 			p_shader.SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 
 			//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
@@ -292,9 +310,19 @@ std::shared_ptr<Cubemap> Renderer::GenerateCubemap(const std::string& p_frontPat
 }
 
 //TODO: Cache meshes
-std::shared_ptr<Mesh> Renderer::GenerateMesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool p_genNormal)
+std::shared_ptr<Mesh> Renderer::GenerateMesh(const std::string& p_name,
+											 const std::vector<Vertex>& p_vertices,
+											 const std::vector<unsigned int>& p_indices,
+											 const std::shared_ptr<Material>& p_material,
+											 bool p_genNormal)
 {
-	return std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_material, p_genNormal));
+	if (_meshes.contains(p_name)) {
+		return _meshes[p_name];
+	}
+	
+	_meshes[p_name] = std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_material, p_genNormal));
+
+	return _meshes[p_name];
 }
 
 //TODO: System to reuse models
@@ -318,7 +346,7 @@ void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path, con
 		return;
 	}
 
-	ProcessAssimpNode(scene->mRootNode, scene, p_model);
+	ProcessAssimpNode(scene->mRootNode, scene, p_path, p_model);
 }
 
 std::shared_ptr<ShaderProgram> Renderer::DefaultShader()
@@ -362,20 +390,25 @@ void Renderer::SetShadowVariables(ShaderProgram& p_shader)
 	}
 }
 
-void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, ModelComponent& p_model)
+void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, const std::string& p_path, ModelComponent& p_model)
 {
 	for (unsigned int i = 0; i < p_node->mNumMeshes; ++i) {
 		auto mesh = p_scene->mMeshes[p_node->mMeshes[i]];
-		p_model._meshes.push_back(GenerateMesh(mesh, p_scene));
+		const std::string meshName = std::format("{}/{}/{}", p_path, p_node->mName.C_Str(), i);
+		p_model._meshes.push_back(GenerateMesh(mesh, p_scene, meshName));
 	}
 
 	for (unsigned int i = 0; i < p_node->mNumChildren; ++i) {
-		ProcessAssimpNode(p_node->mChildren[i], p_scene, p_model);
+		ProcessAssimpNode(p_node->mChildren[i], p_scene, p_path, p_model);
 	}
 }
 
-std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_scene)
+std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_scene, const std::string& p_name)
 {
+	if (_meshes.contains(p_name)) {
+		return _meshes[p_name];
+	}
+
 	std::vector<Vertex> vertices;
 
 	bool hasTextCoords = p_mesh->HasTextureCoords(0);
@@ -433,7 +466,7 @@ std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_sc
 		material->_specularMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
-	return GenerateMesh(vertices, indices, material);
+	return GenerateMesh(p_name, vertices, indices, material);
 }
 
 void Renderer::LockCamera(bool p_lock)
@@ -548,7 +581,7 @@ void Renderer::SetSkybox(const std::string& p_frontPath,
 		skyboxComp = _skybox.CreateComponentOfType<SkyboxComponent>(std::ref(shader));
 		auto&& [vertices, indices] = CommonMeshes::Cube();
 
-		skyboxComp.lock()->mesh = GenerateMesh(vertices, indices, nullptr);
+		skyboxComp.lock()->mesh = GenerateMesh("skybox", vertices, indices, nullptr);
 	}
 
 	skyboxComp.lock()->texture = GenerateCubemap(p_frontPath, p_rightPath, p_leftPath, p_topPath, p_bottomPath, p_backPath);
