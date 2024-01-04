@@ -16,8 +16,8 @@ import <assimp/postprocess.h>;
 import <iostream>;
 import <fstream>;
 
-unsigned int Renderer::_shadowWidth = 1024;
-unsigned int Renderer::_shadowHeight = 1024;
+unsigned int Renderer::_shadowWidth = 2048;
+unsigned int Renderer::_shadowHeight = 2048;
 
 Renderer::Renderer(GLFWwindow* p_window) :
 	_window(p_window),
@@ -178,7 +178,6 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 
 			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
-
 		}
 	}
 	glUseProgram(0);
@@ -226,7 +225,6 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 
 			auto mesh = weakMesh.lock();
 			glBindVertexArray(mesh->_vao);
-
 
 			p_shader.SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 
@@ -309,23 +307,21 @@ std::shared_ptr<Cubemap> Renderer::GenerateCubemap(const std::string& p_frontPat
 	return thisTexture;
 }
 
-//TODO: Cache meshes
 std::shared_ptr<Mesh> Renderer::GenerateMesh(const std::string& p_name,
 											 const std::vector<Vertex>& p_vertices,
-											 const std::vector<unsigned int>& p_indices,
+											 const std::vector<unsigned int>& p_indices, 
 											 const std::shared_ptr<Material>& p_material,
 											 bool p_genNormal)
 {
 	if (_meshes.contains(p_name)) {
 		return _meshes[p_name];
 	}
-	
+
 	_meshes[p_name] = std::shared_ptr<Mesh>(new Mesh(p_vertices, p_indices, p_material, p_genNormal));
 
 	return _meshes[p_name];
 }
 
-//TODO: System to reuse models
 void Renderer::LoadModel(ModelComponent& p_model, const std::string& p_path, const bool p_flipUVs)
 {
 	Assimp::Importer importer;

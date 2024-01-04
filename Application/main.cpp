@@ -162,8 +162,8 @@ int main()
 	basicMaterial->_lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
 	basicMaterial->_lightProperties.shininess = 10.f;
 
-	Entity sun;
-	sun.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.f, 0.f, 0.f));
+	Entity moon;
+	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.f, 0.f, 0.f));
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
@@ -208,7 +208,7 @@ int main()
 	renderer.AddObject(tree2);
 	renderer.AddObject(tree3);
 	renderer.AddObject(fire);
-	renderer.AddLightSource(sun);
+	renderer.AddLightSource(moon);
 	renderer.AddLightSource(fire);
 	renderer.SetShadowCaster(fire);
 
@@ -217,7 +217,7 @@ int main()
 
 	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
 
-	renderer.SetSkybox("back.jpg", "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg");
+	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
 
 	renderer.InitializeTime();
 	while (window.IsOpen()) {
