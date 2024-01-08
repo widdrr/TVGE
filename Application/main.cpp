@@ -12,6 +12,7 @@ import <iostream>;
 import <thread>;
 import <chrono>;
 import <memory>;
+import <random>;
 
 void RotateAxis2D(Entity& obj, float theta, bool& flag)
 {
@@ -162,35 +163,48 @@ int main()
 	basicMaterial->_lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
 	basicMaterial->_lightProperties.shininess = 10.f;
 
+	auto grassMaterial = std::make_shared<Material>(*defaultShader);
+	grassMaterial->_diffuseMap = renderer.GenerateTexture2D("grass-texture-background.jpg", true);
+	grassMaterial->_lightProperties.shininess = 0.f;
+
 	Entity moon;
-	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.f, 0.f, 0.f));
+	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.01f, 1.01f, 1.01f), glm::vec3(0.f, 0.f, 0.f));
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
-	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
+	for (auto&& vertex : vertices) {
+		vertex._textureCoordinates *= 100;
+	}
+
+	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, grassMaterial, true));
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
-	Entity tree;
-	auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*treeComp, "tree.obj", false);
-	tree.Scale(0.03f, 0.03f, 0.03f);
-	tree.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-	tree.Translate(0.f, -8.f, 0.f);
+	std::random_device rd;  // Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution xDistribution(-4.f, 5.f);
+	std::uniform_real_distribution zDistribution(-5.5f, 4.5f);
+	std::uniform_real_distribution scaleDistribution(0.03, 0.05);
 
-	Entity tree2;
-	auto treeComp2 = tree2.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*treeComp2, "tree.obj", false);
-	tree2.Scale(0.05f, 0.05f, 0.05f);
-	tree2.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-	tree2.Translate(10.f, -8.f, 20.f);
+	std::vector<Entity> trees(20);
+	for (auto&& tree : trees) {
+		auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
 
-	Entity tree3;
-	auto treeComp3 = tree3.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*treeComp3, "tree.obj", false);
-	tree3.Scale(0.04f, 0.04f, 0.04f);
-	tree3.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-	tree3.Translate(-10.f, -8.f, 10.f);
+		float scale = scaleDistribution(gen);
+
+		tree.Scale(scale, scale, scale);
+		tree.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
+
+		float x, z;
+		do {
+			x = xDistribution(gen) * 10;
+			z = zDistribution(gen) * 10;
+		} while (std::sqrtf((x - 10) * (x - 10) + (z - 10) * (z - 10)) <= 20.f);
+
+		tree.Translate(x, -9.f, z);
+		renderer.LoadModel(*treeComp, "tree.obj", false);
+		renderer.AddObject(tree);
+	}
 
 	Entity fire;
 	auto fireModelComp = fire.CreateComponentOfType<ModelComponent>().lock();
@@ -198,16 +212,37 @@ int main()
 	auto flameLightComp = fire.CreateComponentOfType<PointLightComponent>(glm::vec3(0.f, 0.f, 0.f),
 																		  glm::vec3(1.000000, 0.372789, 0.021186),
 																		  glm::vec3(1.000000, 0.372789, 0.021186),
-																		  glm::vec3(0.f, 3.f, 0.f),
-																		  0, 0, 1).lock();
+																		  glm::vec3(0.f, 4.f, 0.f),
+																		  0.017f, 0.017f, 1).lock();
 
 	fire.Translate(0.f, -8.f, 0.5);
 
+	Entity tent;
+	auto tentModelComp = tent.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*tentModelComp, "tent_low_uvfix.fbx");
+	tent.Scale(0.04f, 0.04f, 0.04f);
+	tent.Rotate(glm::vec3(0.f, 1.f, 0.f), -126.f);
+	tent.Translate(8.f, -6.45f, 6.f);
+
+	Entity log1;
+	auto log1ModelComp = log1.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*log1ModelComp, "log.dae", false);
+	log1.Scale(0.03f, 0.03f, 0.03f);
+	log1.Translate(-7.f, -8.f, 7.f);
+	log1.Rotate(glm::vec3(0.f, 1.f, 0.f), -45.f);
+
+	Entity log2;
+	auto log2ModelComp = log2.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*log2ModelComp, "log.dae", false);
+	log2.Scale(0.03f, 0.03f, 0.03f);
+	log2.Translate(-1.f, -8.f, -6.f);
+	log2.Rotate(glm::vec3(0.f, 1.f, 0.f), 0.f);
+
 	renderer.AddObject(floor);
-	renderer.AddObject(tree);
-	renderer.AddObject(tree2);
-	renderer.AddObject(tree3);
 	renderer.AddObject(fire);
+	renderer.AddObject(tent);
+	renderer.AddObject(log1);
+	renderer.AddObject(log2);
 	renderer.AddLightSource(moon);
 	renderer.AddLightSource(fire);
 	renderer.SetShadowCaster(fire);

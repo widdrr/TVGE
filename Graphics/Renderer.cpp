@@ -266,13 +266,13 @@ std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_ver
 	return thisShader;
 }
 
-std::shared_ptr<Texture2D> Renderer::GenerateTexture2D(const std::string& p_texturePath)
+std::shared_ptr<Texture2D> Renderer::GenerateTexture2D(const std::string& p_texturePath, const bool p_repeat)
 {
 	if (_textures.contains(p_texturePath)) {
 		return dynamic_pointer_cast<Texture2D>(_textures[p_texturePath]);
 	}
 
-	auto thisTexture = std::shared_ptr<Texture2D>(new Texture2D(p_texturePath));
+	auto thisTexture = std::shared_ptr<Texture2D>(new Texture2D(p_texturePath, p_repeat));
 
 	if (thisTexture->_textureData == nullptr) {
 		std::cerr << "Texture creation failed, nullptr is returned\n";

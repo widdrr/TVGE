@@ -10,6 +10,7 @@ import <chrono>;
 import <unordered_map>;
 import <format>;
 import <string_view>;
+import <random>;
 
 //External headers
 import <glm/vec2.hpp>;

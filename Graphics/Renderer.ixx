@@ -61,7 +61,7 @@ public:
 												  const std::string& p_fragmentShaderPath,
 												  const std::string& p_geometryShaderPath = "");
 
-	std::shared_ptr<Texture2D> GenerateTexture2D(const std::string& p_texturePath);
+	std::shared_ptr<Texture2D> GenerateTexture2D(const std::string& p_texturePath, const bool p_repeat = true);
 	std::shared_ptr<Cubemap> GenerateCubemap(const std::string& p_frontPath,
 											 const std::string& p_rightPath,
 											 const std::string& p_leftPath,
