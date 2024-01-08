@@ -209,11 +209,12 @@ int main()
 	Entity fire;
 	auto fireModelComp = fire.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*fireModelComp, "fireme.obj");
-	auto flameLightComp = fire.CreateComponentOfType<PointLightComponent>(glm::vec3(0.f, 0.f, 0.f),
-																		  glm::vec3(1.000000, 0.372789, 0.021186),
-																		  glm::vec3(1.000000, 0.372789, 0.021186),
-																		  glm::vec3(0.f, 4.f, 0.f),
-																		  0.010f, 0.010f, 1).lock();
+	auto flameLightComp = fire.CreateComponentOfType<PointLightComponent>(
+		glm::vec3(0.f, 0.f, 0.f),
+		glm::vec3(1.000000, 0.372789, 0.021186),
+		glm::vec3(1.000000, 0.372789, 0.021186),
+		glm::vec3(0.f, 4.f, 0.f),
+		0.010f, 0.010f, 1).lock();
 
 	fire.Translate(0.f, -8.f, 0.5);
 
@@ -248,7 +249,6 @@ int main()
 	renderer.SetShadowCaster(fire);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
-
 
 	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
 
