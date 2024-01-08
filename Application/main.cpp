@@ -168,7 +168,7 @@ int main()
 	grassMaterial->_lightProperties.shininess = 0.f;
 
 	Entity moon;
-	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.01f, 1.01f, 1.01f), glm::vec3(0.f, 0.f, 0.f));
+	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.f, 0.f, 0.f));
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
@@ -182,11 +182,11 @@ int main()
 
 	std::random_device rd;  // Will be used to obtain a seed for the random number engine
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution xDistribution(-4.f, 5.f);
-	std::uniform_real_distribution zDistribution(-5.5f, 4.5f);
+	std::uniform_real_distribution angleDistribution(0.f, 2 * PI);
+	std::uniform_real_distribution distanceDistribution(15.f, 30.f);
 	std::uniform_real_distribution scaleDistribution(0.03, 0.05);
 
-	std::vector<Entity> trees(20);
+	std::vector<Entity> trees(50);
 	for (auto&& tree : trees) {
 		auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
 
@@ -195,11 +195,11 @@ int main()
 		tree.Scale(scale, scale, scale);
 		tree.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
 
-		float x, z;
-		do {
-			x = xDistribution(gen) * 10;
-			z = zDistribution(gen) * 10;
-		} while (std::sqrtf((x - 10) * (x - 10) + (z - 10) * (z - 10)) <= 20.f);
+		float angle = angleDistribution(gen);
+		float distance = distanceDistribution(gen);
+
+		float x = 10 + distance * std::cosf(angle);
+		float z = 10 + distance * std::sinf(angle);
 
 		tree.Translate(x, -9.f, z);
 		renderer.LoadModel(*treeComp, "tree.obj", false);
@@ -213,7 +213,7 @@ int main()
 																		  glm::vec3(1.000000, 0.372789, 0.021186),
 																		  glm::vec3(1.000000, 0.372789, 0.021186),
 																		  glm::vec3(0.f, 4.f, 0.f),
-																		  0.017f, 0.017f, 1).lock();
+																		  0.010f, 0.010f, 1).lock();
 
 	fire.Translate(0.f, -8.f, 0.5);
 

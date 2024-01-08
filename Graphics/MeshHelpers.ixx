@@ -9,7 +9,7 @@ import <glm/vec4.hpp>;
 import <vector>;
 import <memory>;
 
-constexpr float PI = 3.141529f;
+export constexpr float PI = 3.141529f;
 
 export namespace Common2DMeshes 
 {
