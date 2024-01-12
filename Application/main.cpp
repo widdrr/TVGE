@@ -180,7 +180,7 @@ int main()
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
-	std::random_device rd;  // Will be used to obtain a seed for the random number engine
+	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution angleDistribution(0.f, 2 * PI);
 	std::uniform_real_distribution distanceDistribution(15.f, 30.f);
