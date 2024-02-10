@@ -22,6 +22,12 @@ public:
 	bool IsFocused() const;
 	void Focus();
 	void Unfocus();
+	
+	void InitializeTime();
+	void ComputeDeltaTime();
+	void ComputeFPS();
+	double GetDeltaTime() const;
+	
 	Renderer& GetRenderer() const;
 	Input& GetInput() const;
 
@@ -40,4 +46,6 @@ private:
 	unsigned int _windowHeight;
 	unsigned int _windowWidth;
 	bool _focused;
+	double _deltaTime, _lastTime, _fpsDelta;
+	unsigned int _frames;
 };

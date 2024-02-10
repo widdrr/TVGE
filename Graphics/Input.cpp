@@ -26,6 +26,10 @@ void Input::ProcessInput()
 			}
 		}
 	}
+
+	for (auto&& callback : _genericCallbacks) {
+		callback();
+	}
 }
 
 void Input::AddKeyEvent(Keys p_key, Callback p_callback)
@@ -46,6 +50,11 @@ void Input::AddMouseButtonEvent(MouseButtons p_mouseButton, Callback p_callback)
 	else {
 		_clickCallbacks[p_mouseButton] = { p_callback };
 	}
+}
+
+void Input::AddGenericEvent(Callback p_callback)
+{
+	_genericCallbacks.push_back(p_callback);
 }
 
 void Input::AddCursorPositionEvent(CursorPositionCallback p_callback)
@@ -74,6 +83,7 @@ Input::Input(GLFWwindow* p_window) :
 	_window(p_window),
 	_keyCallbacks(),
 	_clickCallbacks(),
-	_cursorPositionCallbacks()
+	_cursorPositionCallbacks(),
+	_genericCallbacks()
 {
 }

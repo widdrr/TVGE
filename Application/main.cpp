@@ -226,14 +226,14 @@ int main()
 
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
 
-	renderer.InitializeTime();
-
 	auto& camera = renderer.GetMainCamera();
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
 	input.AddKeyEvent(Keys::ESCAPE, [&]() {window.Unfocus(); });
 	input.AddMouseButtonEvent(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
+	Camera::Movement movement{};
+
 	input.AddCursorPositionEvent([&](double p_crtX, double p_crtY) {
 		if (window.IsFocused()) {
 
@@ -251,9 +251,22 @@ int main()
 				camera.RotateCamera(offsetX, offsetY);
 			}
 		}});
+	input.AddGenericEvent([&]() {
+		movement.moveForward = input.IsKeyPressed(W);
+		movement.moveBackward = input.IsKeyPressed(S);
+		movement.moveLeft = input.IsKeyPressed(A);
+		movement.moveRight = input.IsKeyPressed(D);
+		movement.moveUp = input.IsKeyPressed(SPACE);
+		movement.moveDown = input.IsKeyPressed(LEFT_SHIFT);
 
+		auto delta = window.GetDeltaTime();
+		camera.MoveCamera(movement, delta);
+						  });
+
+	window.InitializeTime();
 	while (window.IsOpen()) {
-		renderer.ComputeTime();
+		window.ComputeDeltaTime();
+		window.ComputeFPS();
 		input.ProcessInput();
 		renderer.RenderFrame();
 		//renderer.RenderFrame(*normals);

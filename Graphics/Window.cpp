@@ -58,10 +58,47 @@ void Window::Unfocus()
 	_focused = false;
 }
 
+void Window::InitializeTime()
+{
+	_lastTime = glfwGetTime();
+	_frames = 0;
+}
+
+void Window::ComputeDeltaTime()
+{
+	double currentTime = glfwGetTime();
+	_deltaTime = currentTime - _lastTime;
+
+	_lastTime = currentTime;
+}
+
+void Window::ComputeFPS()
+{
+	_fpsDelta += _deltaTime;
+	++_frames;
+
+	if (_fpsDelta >= 1.0) {
+		double fps = static_cast<double>(_frames) / _fpsDelta;
+		std::cout << "Frame Rate: " << fps << " FPS\n";
+
+		_frames = 0;
+		_fpsDelta = 0;
+	}
+}
+
+double Window::GetDeltaTime() const
+{
+	return _deltaTime;
+}
+
 Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth, const unsigned int p_windowHeight)
 	:
 	_windowWidth(p_windowWidth),
-	_windowHeight(p_windowHeight)
+	_windowHeight(p_windowHeight),
+	_lastTime(),
+	_deltaTime(),
+	_frames(),
+	_fpsDelta()
 {
 
 #ifdef _WIN32

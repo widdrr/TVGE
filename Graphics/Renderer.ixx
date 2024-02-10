@@ -33,12 +33,6 @@ public:
 	void DisplayScene();
 
 	Camera& GetMainCamera();
-	//TODO: move Input code to the Input class
-	void ProcessInput();
-
-	//TODO: move this to Window
-	void InitializeTime();
-	double ComputeTime();
 
 	void SetBackgroundColor(float p_red, float p_green, float p_blue, float p_alpha = 1.f);
 	void SetSkybox(const std::string& p_frontPath,
@@ -87,7 +81,6 @@ private:
 	void ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, const std::string& p_path, ModelComponent& p_model);
 
 	void LockCamera(bool p_lock);
-	void MouseCallback(GLFWwindow* _window, double _crtX, double _crtY);
 
 	/*********************************************************************/
 
@@ -121,9 +114,5 @@ private:
 	float _deltaTime;
 	double _fpsDelta;
 	unsigned int _frames;
-	double _prevX, _prevY;
-	bool _focused;
-	bool _initial;
 	bool _cameraLock;
-
 };

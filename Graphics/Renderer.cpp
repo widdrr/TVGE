@@ -536,34 +536,6 @@ void Renderer::SetShadowCaster(const Entity& p_object)
 	_shadowCaster = lightSource;
 }
 
-void Renderer::InitializeTime()
-{
-	_lastTime = glfwGetTime();
-	_frames = 0;
-}
-
-double Renderer::ComputeTime()
-{
-	double currentTime = glfwGetTime();
-	double delta = currentTime - _lastTime;
-
-	_deltaTime = static_cast<float>(delta);
-	_fpsDelta += delta;
-	_lastTime = currentTime;
-
-	++_frames;
-
-	if (_fpsDelta >= 1.0) {
-		double fps = static_cast<double>(_frames) / _fpsDelta;
-		std::cout << "Frame Rate: " << fps << " FPS\n";
-
-		_frames = 0;
-		_fpsDelta = 0;
-	}
-
-	return delta;
-}
-
 void Renderer::SetBackgroundColor(float p_red, float p_green, float p_blue, float p_alpha)
 {
 	glClearColor(p_red, p_green, p_blue, p_alpha);
@@ -587,34 +559,4 @@ void Renderer::SetSkybox(const std::string& p_frontPath,
 
 	skyboxComp.lock()->texture = GenerateCubemap(p_frontPath, p_rightPath, p_leftPath, p_topPath, p_bottomPath, p_backPath);
 	skyboxComp.lock()->texture->Bind(TextureUnits::Skybox);
-}
-
-void Renderer::ProcessInput()
-{
-
-	glfwPollEvents();
-
-	if (_cameraLock) {
-		return;
-	}
-
-	if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		_focused = false;
-	}
-
-	if (!_focused && glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		_focused = true;
-		_initial = true;
-	}
-
-	bool moveForward = (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS);
-	bool moveBackward = (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS);
-	bool moveLeft = (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS);
-	bool moveRight = (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS);
-	bool moveUp = (glfwGetKey(_window, GLFW_KEY_SPACE) == GLFW_PRESS);
-	bool moveDown = (glfwGetKey(_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-
-	_mainCamera.MoveCamera({ moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown }, _deltaTime);
 }
