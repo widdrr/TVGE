@@ -1,4 +1,11 @@
+module;
+
+#include <GL/glfw3.h>
+
 export module Graphics:Input;
+
+import <unordered_map>;
+import <functional>;
 
 export enum Keys {
     SPACE = 32,
@@ -124,13 +131,35 @@ export enum Keys {
     LAST = 349 // GLFW_KEY_MENU
 };
 
+export enum MouseButtons
+{
+    LEFT_CLICK = 0,
+    RIGHT_CLICK = 1,
+    MIDDLE_CLICK = 2,
+};
+
+//TODO: sophisticated callback based system
 export class Input 
 {
+    using Callback = std::function<void()>;
+    using CursorPositionCallback = std::function<void(double p_x, double p_y)>;
 	friend class Window;
 public:
-
+    void ProcessInput();
+    void AddKeyEvent(Keys p_key, Callback p_callback);
+    void AddMouseButtonEvent(MouseButtons p_mouseButton, Callback p_callback);
+    void AddCursorPositionEvent(CursorPositionCallback p_callback);
+    bool IsKeyPressed(Keys p_key);
+    bool IsMouseButtonPressed(MouseButtons p_mouseButton);
+    std::pair<double, double> GetCursorPosition() const;
 
 private:
-	Input();
+	Input(GLFWwindow* p_window);
+
+
+    std::unordered_map<Keys, std::vector<Callback>> _keyCallbacks;
+    std::unordered_map<MouseButtons, std::vector<Callback>> _clickCallbacks;
+    std::vector<CursorPositionCallback> _cursorPositionCallbacks;
+    GLFWwindow* _window;
 };
 

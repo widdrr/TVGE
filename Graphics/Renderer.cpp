@@ -21,7 +21,7 @@ unsigned int Renderer::_shadowHeight = 2048;
 
 Renderer::Renderer(GLFWwindow* p_window) :
 	_window(p_window),
-	_camera()
+	_mainCamera()
 {
 	//VSync 1 = set to Refresh Rate 0 = Unbound
 	glfwSwapInterval(1);
@@ -37,7 +37,7 @@ Renderer::Renderer(GLFWwindow* p_window) :
 
 	//loading the default shader
 	_defaultShader = GenerateShader("shader.vert", "shader.frag");
-	_camera.SetCameraDirection(0, 0, -1);
+	_mainCamera.SetCameraDirection(0, 0, -1);
 
 	//initializing shadow framebuffer and shader
 	_shadowsShader = GenerateShader("shadows.vert", "shadows.frag", "shadows.geom");
@@ -64,7 +64,7 @@ void Renderer::RenderFrame()
 		RenderShadows(_shadowCaster.lock());
 	}
 
-	auto viewMatrix = _camera.GetViewTransformation();
+	auto viewMatrix = _mainCamera.GetViewTransformation();
 
 	for (auto&& model : _models) {
 
@@ -93,7 +93,7 @@ void Renderer::RenderFrame()
 
 			shader.SetVariable(UniformVariables::modelMatrix, modelMatrix);
 			shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
-			shader.SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
+			shader.SetVariable(UniformVariables::cameraPosition, _mainCamera.GetPosition());
 
 			//the model matrix to apply to normal vectors to correctly transform to view space
 			//shader.SetVariable(UniformVariables::modelInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelMatrix))));
@@ -193,8 +193,8 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 {
 	//TODO: fix this one
 	glUseProgram(p_shader._id);
-	p_shader.SetVariable(UniformVariables::viewMatrix, _camera.GetViewTransformation());
-	p_shader.SetVariable(UniformVariables::cameraPosition, _camera.GetPosition());
+	p_shader.SetVariable(UniformVariables::viewMatrix, _mainCamera.GetViewTransformation());
+	p_shader.SetVariable(UniformVariables::cameraPosition, _mainCamera.GetPosition());
 
 	unsigned int deadLights = 0;
 	for (unsigned int i = 0; i < _lightSources.size(); ++i) {
@@ -242,6 +242,11 @@ void Renderer::DisplayScene()
 {
 	glfwSwapBuffers(_window);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+Camera& Renderer::GetMainCamera()
+{
+	return _mainCamera;
 }
 
 std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath,
@@ -361,7 +366,7 @@ void Renderer::DrawSkybox()
 		glBindVertexArray(skybox->mesh->_vao);
 		glUseProgram(skybox->shader._id);
 
-		auto viewMatrix = glm::mat4(glm::mat3(_camera.GetViewTransformation()));
+		auto viewMatrix = glm::mat4(glm::mat3(_mainCamera.GetViewTransformation()));
 		skybox->shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
 
 		glDrawElements(GL_TRIANGLES, skybox->mesh->_indices.size(), GL_UNSIGNED_INT, 0);
@@ -484,8 +489,8 @@ void Renderer::AddObject(const Entity& p_object)
 
 void Renderer::Set2DMode(float p_width, float p_height)
 {
-	_camera.SetCameraPosition(0.f, 0.f, 1.f);
-	_camera.SetCameraDirection(0.f, 0.f, -1.f);
+	_mainCamera.SetCameraPosition(0.f, 0.f, 1.f);
+	_mainCamera.SetCameraDirection(0.f, 0.f, -1.f);
 	LockCamera(true);
 	_projectionMatrix = glm::ortho(-p_width / 2, p_width / 2,
 								   -p_height / 2, p_height / 2,
@@ -611,30 +616,5 @@ void Renderer::ProcessInput()
 	bool moveUp = (glfwGetKey(_window, GLFW_KEY_SPACE) == GLFW_PRESS);
 	bool moveDown = (glfwGetKey(_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 
-	_camera.MoveCamera({ moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown }, _deltaTime);
-}
-
-void Renderer::MouseCallback(GLFWwindow* _window, double _crtX, double _crtY)
-{
-
-	if (_cameraLock) {
-		return;
-	}
-
-	if (_focused) {
-		if (_initial) {
-			_prevX = _crtX;
-			_prevY = _crtY;
-			_initial = false;
-		}
-
-		else {
-			float offsetX = static_cast<float>(_crtX - _prevX);
-			float offsetY = static_cast<float>(_prevY - _crtY);
-			_prevX = _crtX;
-			_prevY = _crtY;
-
-			_camera.RotateCamera(offsetX, offsetY);
-		}
-	}
+	_mainCamera.MoveCamera({ moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown }, _deltaTime);
 }

@@ -63,8 +63,10 @@ Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int
 	glVertexAttribPointer(VertexAttributes::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(VertexAttributes::Normal);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//deactivating VAO
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 Mesh::~Mesh()

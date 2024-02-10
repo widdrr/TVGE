@@ -1,6 +1,8 @@
-module Graphics.Resources.Textures:Texture;
+module;
 
 #include <gl/glew.h>
+
+module Graphics.Resources.Textures:Texture;
 
 Texture::Texture(const std::string& p_texturePath) :
 	_texturePath(p_texturePath),

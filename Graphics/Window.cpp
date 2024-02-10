@@ -25,9 +25,37 @@ Renderer& Window::GetRenderer() const
 	return *_renderer;
 }
 
+Input& Window::GetInput() const
+{
+	return *_input;
+}
+
 bool Window::IsOpen() const
 {
 	return !glfwWindowShouldClose(_window);
+}
+
+bool Window::IsFocused() const
+{
+	return _focused;
+}
+
+void Window::Focus()
+{
+	if (IsFocused()) {
+		return;
+	}
+	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	_focused = true;
+}
+
+void Window::Unfocus()
+{
+	if (!IsFocused()) {
+		return;
+	}
+	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	_focused = false;
 }
 
 Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth, const unsigned int p_windowHeight)
@@ -74,14 +102,17 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 			_instance->_renderer->RenderFrame();
 		}
 	);
-
+	
 	glfwSetCursorPosCallback(_window,
-	[](GLFWwindow* _window, double _crtX, double _crtY) {
-		_instance->_renderer->MouseCallback(_window, _crtX, _crtY);
-	}
+							 [](GLFWwindow* _window, double p_x, double p_y) {
+								 for (auto&& callback : _instance->_input->_cursorPositionCallbacks) {
+									 callback(p_x, p_y);
+								 }
+							 }
 	);
 
 	_renderer = std::unique_ptr<Renderer>(new Renderer(_window));
+	_input = std::unique_ptr<Input>(new Input(_window));
 }
 
 Window::~Window()

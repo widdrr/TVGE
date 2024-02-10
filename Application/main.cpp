@@ -13,35 +13,6 @@ import <thread>;
 import <chrono>;
 import <memory>;
 import <random>;
-
-void RotateAxis2D(Entity& obj, float theta, bool& flag)
-{
-	while (flag) {
-		obj.Rotate(0.f, 1.f, 0.f, theta);
-		std::this_thread::sleep_for(std::chrono::milliseconds(8));
-	}
-}
-
-void OrbitParentEntity2D(Entity& obj, float theta, bool& flag)
-{
-	float totalTheta = 0.f;
-
-	while (flag) {
-		auto previousTheta = totalTheta;
-		totalTheta += theta;
-		totalTheta = fmodf(totalTheta + 360, 360.f);
-
-		float zDist = glm::length(obj.position) * (cosf(glm::radians(totalTheta)) - cosf(glm::radians(previousTheta)));
-		float xDist = glm::length(obj.position) * (sinf(glm::radians(totalTheta)) - sinf(glm::radians(previousTheta)));
-
-		obj.Translate(xDist, 0.f, zDist);
-		obj.Rotate(0.f, 1.f, 0.f, theta);
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(8));
-	}
-}
-
-
 int main()
 {
 	std::vector<Vertex> vertices = {
@@ -154,6 +125,7 @@ int main()
 	auto& window = Window::Initialize("TVGE v0.13A", 800, 600);
 
 	auto& renderer = window.GetRenderer();
+	auto& input = window.GetInput();
 
 	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
 
@@ -186,7 +158,7 @@ int main()
 	std::uniform_real_distribution distanceDistribution(15.f, 30.f);
 	std::uniform_real_distribution scaleDistribution(0.03, 0.05);
 
-	std::vector<Entity> trees(50);
+	std::vector<Entity> trees(3);
 	for (auto&& tree : trees) {
 		auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
 
@@ -255,9 +227,34 @@ int main()
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
 
 	renderer.InitializeTime();
+
+	auto& camera = renderer.GetMainCamera();
+
+	bool initialFocus = true;
+	double prevX = 0, prevY = 0;
+	input.AddKeyEvent(Keys::ESCAPE, [&]() {window.Unfocus(); });
+	input.AddMouseButtonEvent(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
+	input.AddCursorPositionEvent([&](double p_crtX, double p_crtY) {
+		if (window.IsFocused()) {
+
+			if (initialFocus) {
+				prevX = p_crtX;
+				prevY = p_crtY;
+				initialFocus = false;
+			}
+			else {
+				float offsetX = static_cast<float>(p_crtX - prevX);
+				float offsetY = static_cast<float>(prevY - p_crtY);
+				prevX = p_crtX;
+				prevY = p_crtY;
+
+				camera.RotateCamera(offsetX, offsetY);
+			}
+		}});
+
 	while (window.IsOpen()) {
 		renderer.ComputeTime();
-		renderer.ProcessInput();
+		input.ProcessInput();
 		renderer.RenderFrame();
 		//renderer.RenderFrame(*normals);
 		renderer.DisplayScene();

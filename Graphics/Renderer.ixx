@@ -31,6 +31,8 @@ public:
 	void RenderFrame(ShaderProgram& p_shader);
 
 	void DisplayScene();
+
+	Camera& GetMainCamera();
 	//TODO: move Input code to the Input class
 	void ProcessInput();
 
@@ -113,7 +115,7 @@ private:
 	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;
 	//TODO: multicamera?
-	Camera _camera;
+	Camera _mainCamera;
 
 	double _lastTime;
 	float _deltaTime;

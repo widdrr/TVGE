@@ -19,7 +19,11 @@ public:
 	~Window();
 
 	bool IsOpen() const;
+	bool IsFocused() const;
+	void Focus();
+	void Unfocus();
 	Renderer& GetRenderer() const;
+	Input& GetInput() const;
 
 private:
 	Window(const std::string_view& p_title,
@@ -35,4 +39,5 @@ private:
 
 	unsigned int _windowHeight;
 	unsigned int _windowWidth;
+	bool _focused;
 };
