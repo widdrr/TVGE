@@ -84,6 +84,8 @@ Input::Input(GLFWwindow* p_window) :
 	_keyCallbacks(),
 	_clickCallbacks(),
 	_cursorPositionCallbacks(),
-	_genericCallbacks()
+	_genericCallbacks(),
+	_previousClickStates(),
+	_previousKeyStates()
 {
 }

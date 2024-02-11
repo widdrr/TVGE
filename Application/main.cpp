@@ -6,13 +6,18 @@ import MeshHelpers;
 import Physics;
 import Physics.Components;
 
-import <glm/vec3.hpp>;
-
 import <iostream>;
 import <thread>;
 import <chrono>;
 import <memory>;
 import <random>;
+
+//for some ungodly reason, main does not compile without this
+static void DontDeleteThis(Entity& obj)
+{
+	obj.Translate(0, 0, 0);
+}
+
 int main()
 {
 	std::vector<Vertex> vertices = {
@@ -231,6 +236,7 @@ int main()
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
 	input.AddKeyEvent(Keys::ESCAPE, [&]() {window.Unfocus(); });
+
 	input.AddMouseButtonEvent(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
 	Camera::Movement movement{};
 
@@ -251,6 +257,7 @@ int main()
 				camera.RotateCamera(offsetX, offsetY);
 			}
 		}});
+
 	input.AddGenericEvent([&]() {
 		movement.moveForward = input.IsKeyPressed(W);
 		movement.moveBackward = input.IsKeyPressed(S);
@@ -262,6 +269,19 @@ int main()
 		auto delta = window.GetDeltaTime();
 		camera.MoveCamera(movement, delta);
 						  });
+	bool showNormals = false;
+	bool previous = false;
+	input.AddGenericEvent([&]() {
+		if (input.IsKeyPressed(Keys::N)) {
+			if (!previous) {
+				showNormals = !showNormals;
+			}
+			previous = true;
+		}
+		else {
+			previous = false;
+		}
+						  });
 
 	window.InitializeTime();
 	while (window.IsOpen()) {
@@ -269,7 +289,9 @@ int main()
 		window.ComputeFPS();
 		input.ProcessInput();
 		renderer.RenderFrame();
-		//renderer.RenderFrame(*normals);
+		if (showNormals) {
+			renderer.RenderFrame(*normals);
+		}
 		renderer.DisplayScene();
 	}
 }

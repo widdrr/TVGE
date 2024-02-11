@@ -1,12 +1,7 @@
-module;
-
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-
 export module Graphics.Resources:Vertex;
 
-//import <glm/vec2.hpp>;
-//import <glm/vec3.hpp>;
+import <glm/vec2.hpp>;
+import <glm/vec3.hpp>;
 
 export struct Vertex {
 public:
@@ -14,7 +9,8 @@ public:
 		float p_textS = 0.f, float p_textT = 0.f,
 		float p_normX = 0.f, float p_normY = 0.f, float p_normZ = 0.f);
 
+	//DO NOT CHANGE THIS ORDER
 	glm::vec3 _position;
-	glm::vec3 _normal;
 	glm::vec2 _textureCoordinates;
+	glm::vec3 _normal;
 };

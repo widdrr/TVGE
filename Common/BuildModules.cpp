@@ -13,8 +13,8 @@ import <string_view>;
 import <random>;
 
 //External headers
-import <glm/vec3.hpp>;
 import <glm/vec2.hpp>;
+import <glm/vec3.hpp>;
 import <glm/vec4.hpp>;
 import <glm/mat4x4.hpp>;
 import <glm/geometric.hpp>;
