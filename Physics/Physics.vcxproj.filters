@@ -9,9 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Physics.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsComponents.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
@@ -25,6 +22,24 @@
       <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="Simulator.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderComponent.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionHandler.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxColliderComponent.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderComponent.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxColliderComponent.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
   </ItemGroup>

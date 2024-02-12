@@ -15,6 +15,5 @@ public:
 	void AddObject(const Entity& p_object);
 
 private:
-
 	std::vector<std::weak_ptr<BodyComponent>> _bodies;
 };

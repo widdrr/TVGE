@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -147,6 +147,11 @@
   <ItemGroup>
     <ClCompile Include="BodyComponent.cpp" />
     <ClCompile Include="BodyComponent.ixx" />
+    <ClCompile Include="BoxColliderComponent.cpp" />
+    <ClCompile Include="BoxColliderComponent.ixx" />
+    <ClCompile Include="ColliderComponent.cpp" />
+    <ClCompile Include="ColliderComponent.ixx" />
+    <ClCompile Include="CollisionHandler.ixx" />
     <ClCompile Include="Physics.ixx" />
     <ClCompile Include="PhysicsComponents.ixx" />
     <ClCompile Include="Simulator.cpp" />
