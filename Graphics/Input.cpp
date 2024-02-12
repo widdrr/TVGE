@@ -44,7 +44,7 @@ void Input::ProcessInput()
 	}
 }
 
-void Input::AddKeyEvent(Keys p_key, Callback p_callback)
+void Input::AddKeyPressEventHandler(Keys p_key, Callback p_callback)
 {
 	if (_keyCallbacks.contains(p_key)) {
 		_keyCallbacks[p_key].push_back(p_callback);
@@ -54,7 +54,7 @@ void Input::AddKeyEvent(Keys p_key, Callback p_callback)
 	}
 }
 
-void Input::AddMouseButtonEvent(MouseButtons p_mouseButton, Callback p_callback)
+void Input::AddMouseButtonPressEventHandler(MouseButtons p_mouseButton, Callback p_callback)
 {
 	if (_clickCallbacks.contains(p_mouseButton)) {
 		_clickCallbacks[p_mouseButton].push_back(p_callback);
@@ -64,12 +64,12 @@ void Input::AddMouseButtonEvent(MouseButtons p_mouseButton, Callback p_callback)
 	}
 }
 
-void Input::AddGenericEvent(Callback p_callback)
+void Input::AddGenericInputBehaviour(Callback p_callback)
 {
 	_genericCallbacks.push_back(p_callback);
 }
 
-void Input::AddCursorPositionEvent(CursorPositionCallback p_callback)
+void Input::AddCursorPositionEventHandler(CursorPositionCallback p_callback)
 {
 	_cursorPositionCallbacks.push_back(p_callback);
 }

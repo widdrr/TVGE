@@ -134,8 +134,6 @@ int main()
 
 	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
 	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
-	auto wireframe = renderer.GenerateShader("wireframe.vert", "wireframe.frag");
-
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -236,12 +234,12 @@ int main()
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
-	input.AddKeyEvent(Keys::ESCAPE, [&]() {window.Unfocus(); });
+	input.AddKeyPressEventHandler(Keys::ESCAPE, [&]() {window.Unfocus(); });
 
-	input.AddMouseButtonEvent(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
+	input.AddMouseButtonPressEventHandler(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
 	Camera::Movement movement{};
 
-	input.AddCursorPositionEvent([&](double p_crtX, double p_crtY) {
+	input.AddCursorPositionEventHandler([&](double p_crtX, double p_crtY) {
 		if (window.IsFocused()) {
 
 			if (initialFocus) {
@@ -259,7 +257,7 @@ int main()
 			}
 		}});
 
-	input.AddGenericEvent([&]() {
+	input.AddGenericInputBehaviour([&]() {
 		movement.moveForward = input.IsKeyPressed(W);
 		movement.moveBackward = input.IsKeyPressed(S);
 		movement.moveLeft = input.IsKeyPressed(A);
@@ -271,9 +269,9 @@ int main()
 		camera.MoveCamera(movement, delta);
 						  });
 	bool showNormals = false;
-	input.AddKeyEvent(Keys::N, [&]() {showNormals = !showNormals; });
+	input.AddKeyPressEventHandler(Keys::N, [&]() {showNormals = !showNormals; });
 	bool renderWireframe = false;
-	input.AddKeyEvent(Keys::M, [&]() {renderWireframe = !renderWireframe; });
+	input.AddKeyPressEventHandler(Keys::M, [&]() {renderWireframe = !renderWireframe; });
 
 	window.InitializeTime();
 	while (window.IsOpen()) {
@@ -284,7 +282,7 @@ int main()
 			renderer.RenderFrame();
 		}
 		else {
-			renderer.RenderWireframe(*wireframe);
+			renderer.RenderWireframe();
 		}
 		if (showNormals) {
 			renderer.RenderFrame(*normals);

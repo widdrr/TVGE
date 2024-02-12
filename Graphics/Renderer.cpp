@@ -41,6 +41,7 @@ Renderer::Renderer(GLFWwindow* p_window) :
 
 	//initializing shadow framebuffer and shader
 	_shadowsShader = GenerateShader("shadows.vert", "shadows.frag", "shadows.geom");
+	_wireframeShader = GenerateShader("wireframe.vert", "wireframe.frag");
 
 	auto shadowMap = std::shared_ptr<Cubemap>(new Cubemap(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
 	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(shadowMap).NoColorBuffer().Build();
@@ -238,10 +239,10 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 	glUseProgram(0);
 }
 
-void Renderer::RenderWireframe(ShaderProgram& p_shader)
+void Renderer::RenderWireframe()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	RenderFrame(p_shader);
+	RenderFrame(*_wireframeShader);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 

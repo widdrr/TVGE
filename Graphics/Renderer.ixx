@@ -29,7 +29,7 @@ public:
 	void RenderFrame();
 	void RenderShadows(std::shared_ptr<LightSourceComponent> p_caster);
 	void RenderFrame(ShaderProgram& p_shader);
-	void RenderWireframe(ShaderProgram& p_shader);
+	void RenderWireframe();
 
 	void DisplayScene();
 
@@ -96,6 +96,7 @@ private:
 
 	std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> _shaders;
 	std::shared_ptr<ShaderProgram> _defaultShader;
+	std::shared_ptr<ShaderProgram> _wireframeShader;
 
 	std::unordered_map<std::string, std::shared_ptr<Texture>> _textures;
 	std::unordered_map<std::string, std::shared_ptr<Mesh>> _meshes;

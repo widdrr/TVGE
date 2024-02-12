@@ -141,15 +141,15 @@ export enum MouseButtons
 export class Input 
 {
     using Callback = std::function<void()>;
-    using CursorPositionCallback = std::function<void(double p_x, double p_y)>;
+    using CursorPositionCallback = std::function<void(double, double)>;
 	friend class Window;
 
 public:
     void ProcessInput();
-    void AddKeyEvent(Keys p_key, Callback p_callback);
-    void AddMouseButtonEvent(MouseButtons p_mouseButton, Callback p_callback);
-    void AddGenericEvent(Callback p_callback);
-    void AddCursorPositionEvent(CursorPositionCallback p_callback);
+    void AddKeyPressEventHandler(Keys p_key, Callback p_callback);
+    void AddMouseButtonPressEventHandler(MouseButtons p_mouseButton, Callback p_callback);
+    void AddGenericInputBehaviour(Callback p_callback);
+    void AddCursorPositionEventHandler(CursorPositionCallback p_callback);
     bool IsKeyPressed(Keys p_key);
     bool IsMouseButtonPressed(MouseButtons p_mouseButton);
     std::pair<double, double> GetCursorPosition() const;
