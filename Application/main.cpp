@@ -133,6 +133,9 @@ int main()
 	auto& input = window.GetInput();
 
 	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
+	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
+	auto wireframe = renderer.GenerateShader("wireframe.vert", "wireframe.frag");
+
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -227,8 +230,6 @@ int main()
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
-	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
-
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
 
 	auto& camera = renderer.GetMainCamera();
@@ -270,25 +271,21 @@ int main()
 		camera.MoveCamera(movement, delta);
 						  });
 	bool showNormals = false;
-	bool previous = false;
-	input.AddGenericEvent([&]() {
-		if (input.IsKeyPressed(Keys::N)) {
-			if (!previous) {
-				showNormals = !showNormals;
-			}
-			previous = true;
-		}
-		else {
-			previous = false;
-		}
-						  });
+	input.AddKeyEvent(Keys::N, [&]() {showNormals = !showNormals; });
+	bool renderWireframe = false;
+	input.AddKeyEvent(Keys::M, [&]() {renderWireframe = !renderWireframe; });
 
 	window.InitializeTime();
 	while (window.IsOpen()) {
 		window.ComputeDeltaTime();
 		window.ComputeFPS();
 		input.ProcessInput();
-		renderer.RenderFrame();
+		if (!renderWireframe) {
+			renderer.RenderFrame();
+		}
+		else {
+			renderer.RenderWireframe(*wireframe);
+		}
 		if (showNormals) {
 			renderer.RenderFrame(*normals);
 		}

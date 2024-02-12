@@ -158,9 +158,9 @@ private:
 	Input(GLFWwindow* p_window);
 
     std::unordered_map<Keys, std::vector<Callback>> _keyCallbacks;
-    std::unordered_map<Keys, bool> _previousKeyStates;
+    std::unordered_map<Keys, bool> _previousKeyPressed;
     std::unordered_map<MouseButtons, std::vector<Callback>> _clickCallbacks;
-    std::unordered_map<MouseButtons, bool> _previousClickStates;
+    std::unordered_map<MouseButtons, bool> _previousClickPressed;
     std::vector<CursorPositionCallback> _cursorPositionCallbacks;
     std::vector<Callback> _genericCallbacks;
     GLFWwindow* _window;

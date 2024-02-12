@@ -29,6 +29,7 @@ public:
 	void RenderFrame();
 	void RenderShadows(std::shared_ptr<LightSourceComponent> p_caster);
 	void RenderFrame(ShaderProgram& p_shader);
+	void RenderWireframe(ShaderProgram& p_shader);
 
 	void DisplayScene();
 

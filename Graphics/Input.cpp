@@ -13,17 +13,29 @@ void Input::ProcessInput()
 
 	for (auto&& [key, callbacks] : _keyCallbacks) {
 		if (IsKeyPressed(key)) {
-			for (auto&& callback : callbacks) {
-				callback();
+			if (!_previousKeyPressed[key]) {
+				for (auto&& callback : callbacks) {
+					callback();
+				}
 			}
+			_previousKeyPressed[key] = true;
+		}
+		else {
+			_previousKeyPressed[key] = false;
 		}
 	}
 
 	for (auto&& [mouseButton, callbacks] : _clickCallbacks) {
 		if (IsMouseButtonPressed(mouseButton)) {
-			for (auto&& callback : callbacks) {
-				callback();
+			if (!_previousClickPressed[mouseButton]) {
+				for (auto&& callback : callbacks) {
+					callback();
+				}
+				_previousClickPressed[mouseButton] = true;
 			}
+		}
+		else {
+			_previousClickPressed[mouseButton] = false;
 		}
 	}
 
@@ -85,7 +97,7 @@ Input::Input(GLFWwindow* p_window) :
 	_clickCallbacks(),
 	_cursorPositionCallbacks(),
 	_genericCallbacks(),
-	_previousClickStates(),
-	_previousKeyStates()
+	_previousClickPressed(),
+	_previousKeyPressed()
 {
 }

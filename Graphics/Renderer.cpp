@@ -238,6 +238,13 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 	glUseProgram(0);
 }
 
+void Renderer::RenderWireframe(ShaderProgram& p_shader)
+{
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	RenderFrame(p_shader);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
 void Renderer::DisplayScene()
 {
 	glfwSwapBuffers(_window);

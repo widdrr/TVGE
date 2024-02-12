@@ -79,5 +79,11 @@
     <None Include="shadows.geom">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="wireframe.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="wireframe.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
