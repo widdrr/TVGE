@@ -1,21 +1,34 @@
 export module Physics.Components:ColliderComponent;
 
 import Common;
+import Physics.Resources;
 
 import <functional>;
 import <vector>;
+import <optional>;
 
-export class ColliderComponent : Component
+export enum ColliderTypes
 {
-	friend class Entity;
-	using Callback = std::function<void(const Entity&)>;
+	Undefined = 0,
+	Box,
+	Sphere
+};
+
+export class ColliderComponent : public Component
+{
+	using Callback = std::function<void(Entity&, const Collision&)>;
 
 public:
-	virtual bool Intersects(const ColliderComponent& p_other) const = 0;
+	//TODO: GPU collision detection
+	virtual std::optional<Collision> Intersects(const ColliderComponent& p_other) const = 0;
+	virtual void ApplyTransformations() = 0;
+	void SendCollisionEvent(Entity& p_other, const Collision& p_info);
 	void AddCollisionEventHandler(Callback p_callback);
 
+	const ColliderTypes type;
+	bool physical;
+
 protected:
-	void SendCollisionEvent(const Entity& p_other);
-	ColliderComponent(Entity& p_entity);
+	ColliderComponent(Entity& p_entity, ColliderTypes p_type, const bool p_physical = true);
 	std::vector<Callback> _collisionCallbacks;
 };

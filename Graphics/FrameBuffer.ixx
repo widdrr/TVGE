@@ -37,7 +37,7 @@ public:
 	FrameBufferBuilder& AttachDepthRenderbuffer(unsigned int p_width, unsigned int p_height);
 	FrameBufferBuilder& AttachStencilRenderbuffer(unsigned int p_width, unsigned int p_height);
 	FrameBufferBuilder& NoColorBuffer();
-	std::unique_ptr<FrameBuffer>&& Build();
+	std::unique_ptr<FrameBuffer> Build();
 private:
 	FrameBufferBuilder();
 	std::unique_ptr<FrameBuffer> _object;

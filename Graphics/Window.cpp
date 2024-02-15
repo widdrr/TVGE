@@ -64,12 +64,14 @@ void Window::InitializeTime()
 	_frames = 0;
 }
 
-void Window::ComputeDeltaTime()
+double Window::ComputeDeltaTime()
 {
 	double currentTime = glfwGetTime();
 	_deltaTime = currentTime - _lastTime;
 
 	_lastTime = currentTime;
+
+	return GetDeltaTime();
 }
 
 void Window::ComputeFPS()

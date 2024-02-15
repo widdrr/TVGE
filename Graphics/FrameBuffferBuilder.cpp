@@ -171,7 +171,7 @@ FrameBufferBuilder& FrameBufferBuilder::NoColorBuffer()
 	return *this;
 }
 
-std::unique_ptr<FrameBuffer>&& FrameBufferBuilder::Build()
+std::unique_ptr<FrameBuffer> FrameBufferBuilder::Build()
 {
 	_object->Bind();
 	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);

@@ -151,9 +151,13 @@
     <ClCompile Include="BoxColliderComponent.ixx" />
     <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="ColliderComponent.ixx" />
+    <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="Collision.ixx" />
+    <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="CollisionHandler.ixx" />
     <ClCompile Include="Physics.ixx" />
     <ClCompile Include="PhysicsComponents.ixx" />
+    <ClCompile Include="PhysicsResources.ixx" />
     <ClCompile Include="Simulator.cpp" />
     <ClCompile Include="Simulator.ixx" />
   </ItemGroup>

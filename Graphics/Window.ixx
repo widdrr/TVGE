@@ -24,7 +24,7 @@ public:
 	void Unfocus();
 	
 	void InitializeTime();
-	void ComputeDeltaTime();
+	double ComputeDeltaTime();
 	void ComputeFPS();
 	double GetDeltaTime() const;
 	

@@ -7,19 +7,22 @@
     <Filter Include="Implementations">
       <UniqueIdentifier>{878d05d6-4e20-46b0-a8e5-9437d437d0b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interfaces\Components">
+      <UniqueIdentifier>{4769fb71-8749-4c79-a36e-6f1e205c98f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Components">
+      <UniqueIdentifier>{0fe5ceea-1f66-4f06-9864-96960eae2e2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces\Resources">
+      <UniqueIdentifier>{7a9e7b95-1395-43bf-b0d6-cb66c0e3a784}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Resources">
+      <UniqueIdentifier>{c389c5ed-8242-47a1-a4a7-cda0b89ee06f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PhysicsComponents.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyComponent.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="Simulator.ixx">
       <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyComponent.cpp">
-      <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="Simulator.cpp">
       <Filter>Implementations</Filter>
@@ -27,20 +30,41 @@
     <ClCompile Include="Physics.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="ColliderComponent.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="CollisionHandler.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="BoxColliderComponent.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="ColliderComponent.cpp">
+    <ClCompile Include="CollisionHandler.cpp">
       <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="BodyComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxColliderComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BodyComponent.cpp">
+      <Filter>Implementations\Components</Filter>
     </ClCompile>
     <ClCompile Include="BoxColliderComponent.cpp">
-      <Filter>Implementations</Filter>
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponents.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsResources.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Implementations\Resources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

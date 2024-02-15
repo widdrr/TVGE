@@ -141,96 +141,42 @@ int main()
 	basicMaterial->_lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
 	basicMaterial->_lightProperties.shininess = 10.f;
 
-	auto grassMaterial = std::make_shared<Material>(*defaultShader);
-	grassMaterial->_diffuseMap = renderer.GenerateTexture2D("grass-texture-background.jpg", true);
-	grassMaterial->_lightProperties.shininess = 0.f;
-
 	Entity moon;
-	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.f, 0.f, 0.f));
+	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(0.f, 0.f, 0.f));
 
 	Entity floor;
-	auto floorComp = floor.CreateComponentOfType<ModelComponent>();
-	for (auto&& vertex : vertices) {
-		vertex._textureCoordinates *= 100;
-	}
+	auto floorComp = floor.CreateComponentOfType<ModelComponent>().lock();
 
-	floorComp.lock()->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, grassMaterial, true));
+	floorComp->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution angleDistribution(0.f, 2 * PI);
-	std::uniform_real_distribution distanceDistribution(15.f, 30.f);
-	std::uniform_real_distribution scaleDistribution(0.03, 0.05);
-
-	std::vector<Entity> trees(3);
-	for (auto&& tree : trees) {
-		auto treeComp = tree.CreateComponentOfType<ModelComponent>().lock();
-
-		float scale = scaleDistribution(gen);
-
-		tree.Scale(scale, scale, scale);
-		tree.Rotate(glm::vec3(-1.f, 0.f, 0.f), 90);
-
-		float angle = angleDistribution(gen);
-		float distance = distanceDistribution(gen);
-
-		float x = 10 + distance * std::cosf(angle);
-		float z = 10 + distance * std::sinf(angle);
-
-		tree.Translate(x, -9.f, z);
-		renderer.LoadModel(*treeComp, "tree.obj", false);
-		renderer.AddObject(tree);
-	}
-
-	Entity fire;
-	auto fireModelComp = fire.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*fireModelComp, "fireme.obj");
-	auto flameLightComp = fire.CreateComponentOfType<PointLightComponent>(
-		glm::vec3(0.f, 0.f, 0.f),
-		glm::vec3(1.000000, 0.372789, 0.021186),
-		glm::vec3(1.000000, 0.372789, 0.021186),
-		glm::vec3(0.f, 4.f, 0.f),
-		0.010f, 0.010f, 1).lock();
-
-	fire.Translate(0.f, -8.f, 0.5);
-
-	Entity tent;
-	auto tentModelComp = tent.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*tentModelComp, "tent_low_uvfix.fbx");
-	tent.Scale(0.04f, 0.04f, 0.04f);
-	tent.Rotate(glm::vec3(0.f, 1.f, 0.f), -126.f);
-	tent.Translate(8.f, -6.45f, 6.f);
-
-	Entity log1;
-	auto log1ModelComp = log1.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*log1ModelComp, "log.dae", false);
-	log1.Scale(0.03f, 0.03f, 0.03f);
-	log1.Translate(-7.f, -8.f, 7.f);
-	log1.Rotate(glm::vec3(0.f, 1.f, 0.f), -45.f);
-
-	Entity log2;
-	auto log2ModelComp = log2.CreateComponentOfType<ModelComponent>().lock();
-	renderer.LoadModel(*log2ModelComp, "log.dae", false);
-	log2.Scale(0.03f, 0.03f, 0.03f);
-	log2.Translate(-1.f, -8.f, -6.f);
-	log2.Rotate(glm::vec3(0.f, 1.f, 0.f), 0.f);
+	Entity cube;
+	auto cubeComp = cube.CreateComponentOfType<ModelComponent>().lock();
+	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
+	cube.CreateComponentOfType<BoxColliderComponent>();
+	cube.Translate(5, -7, 0);
+	cube.Scale(1, 2, 1);
+	auto cubeBody = cube.CreateComponentOfType<BodyComponent>(1).lock();
+	//cubeBody->velocity = glm::vec3(0.f, -0.2f, 0.f);
+	cubeBody->angularVelocity = glm::vec3(0.5f, 0.5f, 0.f);
 
 	renderer.AddObject(floor);
-	renderer.AddObject(fire);
-	renderer.AddObject(tent);
-	renderer.AddObject(log1);
-	renderer.AddObject(log2);
+	renderer.AddObject(cube);
 	renderer.AddLightSource(moon);
-	renderer.AddLightSource(fire);
-	renderer.SetShadowCaster(fire);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
 
 	auto& camera = renderer.GetMainCamera();
+
+	Simulator simulator;
+	auto floorCollider = floor.CreateComponentOfType<BoxColliderComponent>().lock();
+	floorCollider->AddCollisionEventHandler([](Entity&, const Collision&) {std::cout << "Collision\n"; });
+
+	simulator.AddObject(floor);
+	simulator.AddObject(cube);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -275,9 +221,10 @@ int main()
 
 	window.InitializeTime();
 	while (window.IsOpen()) {
-		window.ComputeDeltaTime();
+		auto deltaTime = window.ComputeDeltaTime();
 		window.ComputeFPS();
 		input.ProcessInput();
+		simulator.SimulateStep(deltaTime);
 		if (!renderWireframe) {
 			renderer.RenderFrame();
 		}
