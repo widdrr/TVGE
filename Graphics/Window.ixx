@@ -24,9 +24,9 @@ public:
 	void Unfocus();
 	
 	void InitializeTime();
-	double ComputeDeltaTime();
+	float ComputeDeltaTime();
 	void ComputeFPS();
-	double GetDeltaTime() const;
+	float GetDeltaTime() const;
 	
 	Renderer& GetRenderer() const;
 	Input& GetInput() const;

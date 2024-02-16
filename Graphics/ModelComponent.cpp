@@ -9,19 +9,19 @@ ModelComponent::ModelComponent(Entity& p_entity) :
 glm::mat4 ModelComponent::GetModelTransformation() const
 {
 	//Translating object to desired position
-	glm::mat4 modelTransformation = glm::translate(glm::identity<glm::mat4>(), _entity.position);
+	glm::mat4 modelTransformation = glm::translate(glm::identity<glm::mat4>(), entity.position);
 
 	//Rotating object around 0,0
-	modelTransformation = modelTransformation * glm::mat4_cast(_entity.rotation);
+	modelTransformation = modelTransformation * glm::mat4_cast(entity.rotation);
 
 	//scaling along main axes 
-	modelTransformation = glm::scale(modelTransformation, _entity.scaling);
+	modelTransformation = glm::scale(modelTransformation, entity.scaling);
 
-	if (_entity._parent == nullptr) {
+	if (entity._parent == nullptr) {
 		return modelTransformation;
 	}
 
-	auto parentComponent = _entity._parent->TryGetComponentOfType<ModelComponent>();
+	auto parentComponent = entity._parent->TryGetComponentOfType<ModelComponent>();
 	if (!parentComponent.expired()) {
 		auto parentTransformation = parentComponent.lock()->GetModelTransformation();
 

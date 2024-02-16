@@ -3,15 +3,14 @@ module;
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 #include <assimp/material.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 module Graphics:Renderer;
 
 import MeshHelpers;
 
 import <glm/gtc/type_ptr.hpp>;
-import <assimp/Importer.hpp>;
-import <assimp/scene.h>;
-import <assimp/postprocess.h>;
 
 import <iostream>;
 import <fstream>;
@@ -115,7 +114,7 @@ void Renderer::RenderFrame()
 
 			//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
 			//to permit customizing this
-			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->_indices.size()), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 			glUseProgram(0);
 		}
@@ -177,7 +176,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 
 			_shadowsShader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 
-			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->_indices.size()), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 		}
 	}
@@ -231,7 +230,7 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 
 			//TODO: IMPORTANT!! design a mechanism to store drawing logic in the object
 			//to permit customizing this
-			glDrawElements(GL_TRIANGLES, mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->_indices.size()), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 
 		}
@@ -377,7 +376,7 @@ void Renderer::DrawSkybox()
 		auto viewMatrix = glm::mat4(glm::mat3(_mainCamera.GetViewTransformation()));
 		skybox->shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
 
-		glDrawElements(GL_TRIANGLES, skybox->mesh->_indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skybox->mesh->_indices.size()), GL_UNSIGNED_INT, 0);
 
 		glBindVertexArray(0);
 		glUseProgram(0);

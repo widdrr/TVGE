@@ -23,8 +23,4 @@ import <glm/geometric.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 import <glm/gtc/type_ptr.hpp>;
 
-import <assimp/Importer.hpp>;
-import <assimp/scene.h>;
-import <assimp/postprocess.h>;
-
 //only glm is well behaved as a module

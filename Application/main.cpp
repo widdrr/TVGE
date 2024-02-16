@@ -15,7 +15,7 @@ import <random>;
 //for some ungodly reason, main does not compile without this
 static void DontDeleteThis(Entity& obj)
 {
-	obj.Translate(0, 0, 0);
+	obj.Translate(0.f, 0.f, 0.f);
 }
 
 int main()
@@ -127,7 +127,7 @@ int main()
 		22, 23, 20,
 	};
 
-	auto& window = Window::Initialize("TVGE v0.13A", 800, 600);
+	auto& window = Window::Initialize("TVGE v0.2A", 800, 600);
 
 	auto& renderer = window.GetRenderer();
 	auto& input = window.GetInput();
@@ -155,14 +155,23 @@ int main()
 	auto cubeComp = cube.CreateComponentOfType<ModelComponent>().lock();
 	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
 	cube.CreateComponentOfType<BoxColliderComponent>();
-	cube.Translate(5, -7, 0);
-	cube.Scale(1, 2, 1);
-	auto cubeBody = cube.CreateComponentOfType<BodyComponent>(1).lock();
+	cube.Translate(0.f, -4.f, 0.f);
+	cube.Scale(1.f, 2.f, 1.f);
+	auto cubeBody = cube.CreateComponentOfType<BodyComponent>(1.f).lock();
 	//cubeBody->velocity = glm::vec3(0.f, -0.2f, 0.f);
 	cubeBody->angularVelocity = glm::vec3(0.5f, 0.5f, 0.f);
 
+	Entity sphere;
+	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*sphereModel, "sphere.dae");
+	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
+	sphereCollider->AddCollisionEventHandler([](Entity&, const Collision&) {std::cout << "Sphere Collision\n"; });
+	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
+	sphereBody->velocity = glm::vec3(0.f, -0.5f, 0.f);
+
 	renderer.AddObject(floor);
 	renderer.AddObject(cube);
+	renderer.AddObject(sphere);
 	renderer.AddLightSource(moon);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
@@ -173,10 +182,11 @@ int main()
 
 	Simulator simulator;
 	auto floorCollider = floor.CreateComponentOfType<BoxColliderComponent>().lock();
-	floorCollider->AddCollisionEventHandler([](Entity&, const Collision&) {std::cout << "Collision\n"; });
-
+	floorCollider->AddCollisionEventHandler([](Entity&, const Collision&) {});
+	
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
+	simulator.AddObject(sphere);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -213,7 +223,7 @@ int main()
 
 		auto delta = window.GetDeltaTime();
 		camera.MoveCamera(movement, delta);
-						  });
+								   });
 	bool showNormals = false;
 	input.AddKeyPressEventHandler(Keys::N, [&]() {showNormals = !showNormals; });
 	bool renderWireframe = false;

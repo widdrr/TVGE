@@ -19,8 +19,6 @@ export class ColliderComponent : public Component
 	using Callback = std::function<void(Entity&, const Collision&)>;
 
 public:
-	//TODO: GPU collision detection
-	virtual std::optional<Collision> Intersects(const ColliderComponent& p_other) const = 0;
 	virtual void ApplyTransformations() = 0;
 	void SendCollisionEvent(Entity& p_other, const Collision& p_info);
 	void AddCollisionEventHandler(Callback p_callback);

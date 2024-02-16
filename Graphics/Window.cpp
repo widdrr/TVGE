@@ -64,7 +64,7 @@ void Window::InitializeTime()
 	_frames = 0;
 }
 
-double Window::ComputeDeltaTime()
+float Window::ComputeDeltaTime()
 {
 	double currentTime = glfwGetTime();
 	_deltaTime = currentTime - _lastTime;
@@ -88,9 +88,9 @@ void Window::ComputeFPS()
 	}
 }
 
-double Window::GetDeltaTime() const
+float Window::GetDeltaTime() const
 {
-	return _deltaTime;
+	return static_cast<float>(_deltaTime);
 }
 
 Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth, const unsigned int p_windowHeight)
@@ -137,7 +137,7 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 	glfwSetFramebufferSizeCallback(_window,
 		[](GLFWwindow* p_window, int p_width, int p_height) {
 			glViewport(0, 0, p_width, p_height);
-			_instance->_renderer->SetPerspective(90,0.1, 100);
+			_instance->_renderer->SetPerspective(90,0.1f, 100);
 			_instance->_renderer->RenderFrame();
 		}
 	);

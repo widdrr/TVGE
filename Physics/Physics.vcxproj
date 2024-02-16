@@ -153,6 +153,8 @@
     <ClCompile Include="ColliderComponent.ixx" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Collision.ixx" />
+    <ClCompile Include="CollisionFunctions.cpp" />
+    <ClCompile Include="CollisionFunctions.ixx" />
     <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="CollisionHandler.ixx" />
     <ClCompile Include="Physics.ixx" />
@@ -160,6 +162,8 @@
     <ClCompile Include="PhysicsResources.ixx" />
     <ClCompile Include="Simulator.cpp" />
     <ClCompile Include="Simulator.ixx" />
+    <ClCompile Include="SphereColliderComponent.cpp" />
+    <ClCompile Include="SphereColliderComponent.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

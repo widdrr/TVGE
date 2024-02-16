@@ -66,5 +66,17 @@
     <ClCompile Include="Collision.cpp">
       <Filter>Implementations\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="CollisionFunctions.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionFunctions.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereColliderComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereColliderComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

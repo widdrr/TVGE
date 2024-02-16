@@ -1,6 +1,7 @@
 module;
 
 #include <GL/glfw3.h>
+#include <assimp/scene.h>
 
 export module Graphics:Renderer;
 
@@ -9,7 +10,6 @@ import Graphics.Components;
 import Graphics.Resources;
 
 import <glm/mat4x4.hpp>;
-import <assimp/scene.h>;
 
 import <string>;
 import <memory>;

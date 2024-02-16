@@ -14,10 +14,10 @@ export class Component
 public:
 	//declaring a virtual default destructor makes the hierarchy polymorphic
 	virtual ~Component() = default;
+	Entity& entity;
 
 protected:
 	Component(Entity& p_entity);
-	Entity& _entity;
 	//TODO: implement the use for this -> component removal
 	std::vector<Component>::size_type _index;
 	
@@ -87,6 +87,6 @@ private:
 
 module : private;
 Component::Component(Entity& p_entity) :
-	_entity(p_entity),
+	entity(p_entity),
 	_index()
 {}
