@@ -11,7 +11,8 @@ public:
 	BoxColliderComponent(Entity& p_entity, 
 						 glm::vec3 p_extents = { 0.5f, 0.5f, 0.5f }, 
 						 glm::vec3 p_center = { 0.f, 0.f, 0.f }, 
-						 glm::mat3 p_axes = glm::mat3(1.f));
+						 glm::mat3 p_axes = glm::mat3(1.f),
+						 const bool p_physical = true);
 
 	void ApplyTransformations() override;
 

@@ -17,6 +17,8 @@ public:
 	void AddObject(const Entity& p_object);
 
 private:
+	void ResolveCollisions(std::vector<Collision> p_collisions);
+
 	std::vector<std::weak_ptr<BodyComponent>> _bodies;
 	CollisionHandler _collisionHandler;
 };

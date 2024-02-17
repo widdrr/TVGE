@@ -81,6 +81,7 @@ private:
 	unsigned int _id;
 
 	//TODO: better data structure for efficient retrieval(hashmap via class name?)
+	//TODO2: how to properly query for base types?
 	std::vector<std::shared_ptr<Component>> _components;
 };
 

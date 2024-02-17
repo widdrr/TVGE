@@ -156,10 +156,11 @@ int main()
 	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
 	cube.CreateComponentOfType<BoxColliderComponent>();
 	cube.Translate(0.f, -4.f, 0.f);
-	cube.Scale(1.f, 2.f, 1.f);
-	auto cubeBody = cube.CreateComponentOfType<BodyComponent>(1.f).lock();
+	cube.Scale(5.f, 1.f, 5.f);
+	cube.Rotate(1.f, 0.f, 0.f, 60.f);
+	//auto cubeBody = cube.CreateComponentOfType<BodyComponent>(1.f).lock();
 	//cubeBody->velocity = glm::vec3(0.f, -0.2f, 0.f);
-	cubeBody->angularVelocity = glm::vec3(0.5f, 0.5f, 0.f);
+	//cubeBody->angularVelocity = glm::vec3(0.5f, 0.5f, 0.f);
 
 	Entity sphere;
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();

@@ -2,8 +2,8 @@ module Physics.Components:SphereColliderComponent;
 
 import <glm/mat3x3.hpp>;
 
-SphereColliderComponent::SphereColliderComponent(Entity& p_entity, float p_radius, glm::vec3 p_center):
-	ColliderComponent(p_entity, Sphere),
+SphereColliderComponent::SphereColliderComponent(Entity& p_entity, float p_radius, glm::vec3 p_center, const bool p_physical):
+	ColliderComponent(p_entity, Sphere, p_physical),
 	localRadius(glm::abs(p_radius)),
 	localCenter(p_center)
 {}

@@ -1,7 +1,7 @@
 module Physics.Components:BoxColliderComponent;
 
-BoxColliderComponent::BoxColliderComponent(Entity& p_entity, glm::vec3 p_extents, glm::vec3 p_center, glm::mat3 p_axes) :
-	ColliderComponent(p_entity, Box),
+BoxColliderComponent::BoxColliderComponent(Entity& p_entity, glm::vec3 p_extents, glm::vec3 p_center, glm::mat3 p_axes, const bool p_physical) :
+	ColliderComponent(p_entity, Box, p_physical),
 	localExtents(p_extents),
 	localCenter(p_center),
 	localAxes(p_axes)
@@ -16,7 +16,7 @@ void BoxColliderComponent::ApplyTransformations()
 	_extents = localExtents * entity.scaling;
 	_extents = glm::abs(_extents);
 
-	_axes = glm::mat3_cast(entity.rotation) * localAxes;
+	_axes = localAxes * glm::mat3_cast(entity.rotation);
 }
 
 glm::vec3 BoxColliderComponent::GetExtents() const

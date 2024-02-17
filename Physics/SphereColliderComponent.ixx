@@ -10,7 +10,8 @@ export class SphereColliderComponent : public ColliderComponent
 public:
 	SphereColliderComponent(Entity& p_entity,
 							float p_radius = 1,
-							glm::vec3 p_center = { 0.f, 0.f, 0.f });
+							glm::vec3 p_center = { 0.f, 0.f, 0.f },
+							const bool p_physical = true);
 
 	void ApplyTransformations() override;
 
