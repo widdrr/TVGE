@@ -17,8 +17,12 @@ public:
 	void AddTorque(float p_torqueX, float p_torqueY, float p_torqueZ);
 
 	float mass;
+	bool gravity = true;
 	glm::vec3 velocity;
 	glm::vec3 angularVelocity;
+
+protected:
+	virtual std::shared_ptr<Component> Clone(Entity& p_entity) const override;
 
 private:
 	void Update(float p_deltaTime);

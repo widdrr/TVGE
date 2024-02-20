@@ -36,3 +36,16 @@ void PointLightComponent::SetLightVariables(ShaderProgram& p_shader, int p_index
 	p_shader.SetVariable(InsertArrayIndex(lightAttenuationLinearArray, p_index), _linearAttenuation);
 	p_shader.SetVariable(InsertArrayIndex(lightAttenuationQuadraticArray, p_index), _quadraticAttenuation);
 }
+
+std::shared_ptr<Component> PointLightComponent::Clone(Entity& p_entity) const
+{
+	auto component = p_entity.CreateComponentOfType<PointLightComponent>(_ambientColor,
+																		 _diffuseColor,
+																		 _specularColor,
+																		 _offset,
+																		 _quadraticAttenuation,
+																		 _linearAttenuation,
+																		 _constantAttenuation).lock();
+
+	return component;
+}

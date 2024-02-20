@@ -24,6 +24,9 @@ public:
 	glm::vec3 localCenter;
 	glm::mat3 localAxes;
 
+protected:
+	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+
 private:
 	glm::vec3 _extents;
 	glm::vec3 _center;

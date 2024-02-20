@@ -18,6 +18,7 @@ public:
 
 protected:
 	Component(Entity& p_entity);
+	virtual std::shared_ptr<Component> Clone(Entity& p_entity) const = 0;
 	//TODO: implement the use for this -> component removal
 	std::vector<Component>::size_type _index;
 	
@@ -30,6 +31,7 @@ export class Entity
 {
 public:
 	Entity();
+	Entity(Entity& p_other);
 
 	//template definitions have to be defined here to save a lot of headaches
 	template <IsComponentType TComponent, class... TArgs>

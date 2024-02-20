@@ -12,6 +12,19 @@ Entity::Entity() :
 	++_current_id;
 }
 
+Entity::Entity(Entity& p_other) :
+	_id(_current_id),
+	scaling(p_other.scaling),
+	position(p_other.position),
+	rotation(p_other.rotation),
+	_parent(nullptr)
+{
+	++_current_id;
+	for (auto&& component : p_other._components) {
+		component->Clone(*this);
+	}
+}
+
 void Entity::Scale(float p_scaleX, float p_scaleY, float p_scaleZ) 
 {
 	Scale(glm::vec3(p_scaleX, p_scaleY, p_scaleZ));

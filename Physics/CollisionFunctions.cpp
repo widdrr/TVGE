@@ -74,7 +74,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 		}
 	}
 
-	return Collision(p_firstCollider.entity, p_secondCollider.entity, glm::vec3(0));
+	return Collision(p_firstCollider.entity, p_secondCollider.entity, glm::vec3(0), glm::vec3(0));
 }
 
 std::optional<Collision> CollisionFunctions::IntersectSphere_Sphere(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
@@ -82,12 +82,14 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Sphere(const Collid
 	const SphereColliderComponent& firstSphere = static_cast<const SphereColliderComponent&>(p_firstCollider);
 	const SphereColliderComponent& secondSphere = static_cast<const SphereColliderComponent&>(p_secondCollider);
 
-	glm::vec3 centerDifference = secondSphere.GetCenter() - secondSphere.GetCenter();
+	glm::vec3 centerDifference = secondSphere.GetCenter() - firstSphere.GetCenter();
 	float distance = glm::length(centerDifference);
 	float radiusSum = firstSphere.GetRadius() + secondSphere.GetRadius();
 	if (radiusSum > distance) {
-		float penetration = 2 * radiusSum - distance;
-		return Collision(p_firstCollider.entity, p_secondCollider.entity, glm::normalize(centerDifference) * penetration);
+		glm::vec3 point1 = glm::normalize(centerDifference) * firstSphere.GetRadius() + firstSphere.GetRadius();
+		glm::vec3 point2 = glm::normalize(-centerDifference) * secondSphere.GetRadius() + secondSphere.GetRadius();
+
+		return Collision(p_firstCollider.entity, p_secondCollider.entity, point1, point2);
 	}
 
 	return std::nullopt;
@@ -110,17 +112,16 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 	const SphereColliderComponent& sphere = *spherePointer;
 	const BoxColliderComponent& box = *boxPointer;
 
-	glm::vec3 boxLocalSphere = glm::transpose(box.GetAxes()) * (sphere.GetCenter() - box.GetCenter());
+	glm::vec3 boxLocalSphere = (sphere.GetCenter() - box.GetCenter()) * box.GetAxes();
 
-	glm::vec3 closestPoint = glm::clamp(boxLocalSphere, -box.GetExtents(), box.GetExtents());
-	glm::vec3 vectorToPoint = closestPoint - boxLocalSphere;
+	glm::vec3 closestPointLocal = glm::clamp(boxLocalSphere, -box.GetExtents(), box.GetExtents());
+	glm::vec3 vectorToPoint = closestPointLocal - boxLocalSphere;
 
 	float distance = glm::length(vectorToPoint);
 	if (sphere.GetRadius() > distance) {
-		float penetration = sphere.GetRadius() - distance;
-		glm::vec3 localPenVector = glm::normalize(vectorToPoint) * penetration;
-		glm::vec3 worldPenVector = box.GetAxes() * localPenVector;
-		return Collision(sphere.entity, box.entity, worldPenVector);
+		glm::vec3 boxPoint = box.GetAxes() * closestPointLocal + box.GetCenter();
+		glm::vec3 spherePoint = glm::normalize(boxPoint - sphere.GetCenter()) * sphere.GetRadius() + sphere.GetCenter();
+		return Collision(sphere.entity, box.entity, spherePoint, boxPoint);
 	}
 
 	return std::nullopt;

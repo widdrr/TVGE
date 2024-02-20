@@ -30,3 +30,11 @@ glm::mat4 ModelComponent::GetModelTransformation() const
 
 	return modelTransformation;
 }
+
+std::shared_ptr<Component> ModelComponent::Clone(Entity& p_entity) const
+{
+	auto component = p_entity.CreateComponentOfType<ModelComponent>().lock();
+	component->_meshes = _meshes;
+
+	return component;
+}

@@ -21,6 +21,9 @@ public:
 	float localRadius;
 	glm::vec3 localCenter;
 
+protected:
+	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+
 private:
 	float _radius;
 	glm::vec3 _center;

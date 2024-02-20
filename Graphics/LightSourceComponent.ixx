@@ -41,6 +41,9 @@ public:
 	glm::vec4 GetPosition() const override;
 	void SetLightVariables(ShaderProgram& p_shaderProgram, int p_index = 0) override;
 
+protected:
+	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+
 private:
 	float _constantAttenuation;
 	float _linearAttenuation;
@@ -58,6 +61,9 @@ public:
 
 	glm::vec4 GetPosition() const override;
 	void SetLightVariables(ShaderProgram& p_shaderProgram, int p_index = 0) override;
+
+protected:
+	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
 
 private:
 	static const glm::vec3 _defaultDirection;

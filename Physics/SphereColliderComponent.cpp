@@ -24,3 +24,9 @@ glm::vec3 SphereColliderComponent::GetCenter() const
 {
 	return _center;
 }
+
+std::shared_ptr<Component> SphereColliderComponent::Clone(Entity& p_entity) const
+{
+	auto component = p_entity.CreateComponentOfType<SphereColliderComponent>(localRadius, localCenter, physical).lock();
+	return component;
+}

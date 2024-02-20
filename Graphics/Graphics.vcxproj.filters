@@ -140,5 +140,8 @@
     <ClCompile Include="FrameBuffferBuilder.cpp">
       <Filter>Implementations\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="SkyboxComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

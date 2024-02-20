@@ -16,8 +16,11 @@ public:
 
 	void AddObject(const Entity& p_object);
 
+	static float gravityStrength;
+
 private:
 	void ResolveCollisions(std::vector<Collision> p_collisions);
+	void ApplyNormal(BodyComponent& p_body, const Collision& p_collision);
 
 	std::vector<std::weak_ptr<BodyComponent>> _bodies;
 	CollisionHandler _collisionHandler;

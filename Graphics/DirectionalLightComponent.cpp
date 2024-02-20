@@ -22,3 +22,12 @@ void DirectionalLightComponent::SetLightVariables(ShaderProgram& p_shader, int p
 
 
 }
+
+std::shared_ptr<Component> DirectionalLightComponent::Clone(Entity& p_entity) const
+{
+	auto component = p_entity.CreateComponentOfType<DirectionalLightComponent>(_ambientColor,
+																		 _diffuseColor,
+																		 _specularColor).lock();
+
+	return component;
+}

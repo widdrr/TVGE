@@ -16,4 +16,7 @@ public:
 	glm::mat4 GetModelTransformation() const;
 	
 	std::vector<std::weak_ptr<Mesh>> _meshes;
+
+protected:
+	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
 };

@@ -155,24 +155,29 @@ int main()
 	auto cubeComp = cube.CreateComponentOfType<ModelComponent>().lock();
 	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
 	cube.CreateComponentOfType<BoxColliderComponent>();
-	cube.Translate(0.f, -4.f, 0.f);
-	cube.Scale(5.f, 1.f, 5.f);
-	cube.Rotate(1.f, 0.f, 0.f, 60.f);
-	//auto cubeBody = cube.CreateComponentOfType<BodyComponent>(1.f).lock();
-	//cubeBody->velocity = glm::vec3(0.f, -0.2f, 0.f);
-	//cubeBody->angularVelocity = glm::vec3(0.5f, 0.5f, 0.f);
+	cube.Scale(5.f, 0.1f, 5.f);
+	cube.Translate(-3.f, 2.f, -10.f);
+	cube.Rotate(0.f, 0.f, 1.f, -45.f);
+
+	Entity cube2(cube);
+	cube2.Translate(3.f, 0.f, 0.f);
+	cube2.Rotate(0.f, 0.f, 1.f, 90.f);
 
 	Entity sphere;
+	sphere.Translate(-4.f, 10.f, -10.f);
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
-	sphereCollider->AddCollisionEventHandler([](Entity&, const Collision&) {std::cout << "Sphere Collision\n"; });
 	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
-	sphereBody->velocity = glm::vec3(0.f, -0.5f, 0.f);
+
+	Entity sphere2(sphere);
+	sphere2.Translate(4.f, 0.f, 0.f);
 
 	renderer.AddObject(floor);
 	renderer.AddObject(cube);
+	renderer.AddObject(cube2);
 	renderer.AddObject(sphere);
+	renderer.AddObject(sphere2);
 	renderer.AddLightSource(moon);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
@@ -187,7 +192,9 @@ int main()
 	
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
+	simulator.AddObject(cube2);
 	simulator.AddObject(sphere);
+	simulator.AddObject(sphere2);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -234,6 +241,7 @@ int main()
 	while (window.IsOpen()) {
 		auto deltaTime = window.ComputeDeltaTime();
 		window.ComputeFPS();
+		std::cout << sphereBody->entity.position.y<< "\n";
 		input.ProcessInput();
 		simulator.SimulateStep(deltaTime);
 		if (!renderWireframe) {

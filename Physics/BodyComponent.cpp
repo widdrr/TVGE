@@ -9,7 +9,8 @@ BodyComponent::BodyComponent(Entity& p_entity, const float p_mass)
 	velocity(0),
 	angularVelocity(0),
 	force(0),
-	torque(0)
+	torque(0),
+	gravity(true)
 {}
 
 void BodyComponent::AddForce(glm::vec3 p_force)
@@ -32,10 +33,23 @@ void BodyComponent::AddTorque(float p_torqueX, float p_torqueY, float p_torqueZ)
 	AddTorque(glm::vec3(p_torqueX, p_torqueY, p_torqueZ));
 }
 
+std::shared_ptr<Component> BodyComponent::Clone(Entity& p_entity) const
+{
+	auto component = p_entity.CreateComponentOfType<BodyComponent>(mass).lock();
+	component->velocity = velocity;
+	component->angularVelocity = angularVelocity;
+	component->force = force;
+	component->torque = torque;
+	component->gravity = gravity;
+
+	return component;
+}
+
 void BodyComponent::Update(float p_deltaTime)
 {
 	glm::vec3 acceleration = force / mass;
 	glm::vec3 displacement = velocity * p_deltaTime + acceleration * p_deltaTime * p_deltaTime / 2.f;
+	
 	velocity += acceleration * p_deltaTime;
 	entity.Translate(displacement);
 

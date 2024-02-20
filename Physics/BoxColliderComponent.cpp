@@ -33,3 +33,9 @@ glm::mat3 BoxColliderComponent::GetAxes() const
 {
 	return _axes;
 }
+
+std::shared_ptr<Component> BoxColliderComponent::Clone(Entity& p_entity) const
+{
+	auto component = p_entity.CreateComponentOfType<BoxColliderComponent>(localExtents, localCenter, localAxes, physical).lock();
+	return component;
+}

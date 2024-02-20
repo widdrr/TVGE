@@ -4,6 +4,8 @@ import <glm/vec3.hpp>;
 
 import <iostream>;
 
+float Simulator::gravityStrength = 9.8f;
+
 Simulator::Simulator() :
 	_collisionHandler()
 {}
@@ -22,6 +24,9 @@ void Simulator::UpdateBodies(float p_delta)
 			continue;
 		}
 		auto body = wbody.lock();
+		if (body->gravity) {
+			body->AddForce(glm::vec3(0.f, -1.f, 0.f) * body->mass * gravityStrength);
+		}
 
 		body->Update(p_delta);
 	}
@@ -60,10 +65,26 @@ void Simulator::ResolveCollisions(std::vector<Collision> p_collisions)
 		else if (!wbody1.expired()) {
 			auto body1 = wbody1.lock();
 			body1->entity.Translate(-1.f * collision.penetration);
+			ApplyNormal(*body1, collision);
 		}
 		else if (!wbody2.expired()) {
 			auto body2 = wbody2.lock();
 			body2->entity.Translate(1.f * collision.penetration);
+			ApplyNormal(*body2, collision);
 		}
 	}
+}
+
+void Simulator::ApplyNormal(BodyComponent& p_body, const Collision& p_collision)
+{
+	if (!p_body.gravity) {
+		return;
+	}
+
+	if (p_body.entity.position.y < p_collision.penetrationMidpoint.y) {
+		return;
+	}
+
+	glm::vec3 normalForce = glm::normalize(p_body.entity.position - p_collision.penetrationMidpoint) * p_body.mass * gravityStrength;
+	p_body.AddForce(normalForce);
 }
