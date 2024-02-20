@@ -241,7 +241,6 @@ int main()
 	while (window.IsOpen()) {
 		auto deltaTime = window.ComputeDeltaTime();
 		window.ComputeFPS();
-		std::cout << sphereBody->entity.position.y<< "\n";
 		input.ProcessInput();
 		simulator.SimulateStep(deltaTime);
 		if (!renderWireframe) {

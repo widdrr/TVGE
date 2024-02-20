@@ -86,8 +86,8 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Sphere(const Collid
 	float distance = glm::length(centerDifference);
 	float radiusSum = firstSphere.GetRadius() + secondSphere.GetRadius();
 	if (radiusSum > distance) {
-		glm::vec3 point1 = glm::normalize(centerDifference) * firstSphere.GetRadius() + firstSphere.GetRadius();
-		glm::vec3 point2 = glm::normalize(-centerDifference) * secondSphere.GetRadius() + secondSphere.GetRadius();
+		glm::vec3 point1 = glm::normalize(centerDifference) * firstSphere.GetRadius() + firstSphere.GetCenter();
+		glm::vec3 point2 = glm::normalize(-centerDifference) * secondSphere.GetRadius() + secondSphere.GetCenter();
 
 		return Collision(p_firstCollider.entity, p_secondCollider.entity, point1, point2);
 	}
