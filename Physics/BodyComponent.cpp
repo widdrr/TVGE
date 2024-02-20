@@ -5,13 +5,14 @@ import <iostream>;
 BodyComponent::BodyComponent(Entity& p_entity, const float p_mass)
 	:
 	Component(p_entity),
-	mass(p_mass),
+	mass(abs(p_mass)),
 	velocity(0),
 	angularVelocity(0),
 	force(0),
 	torque(0),
 	gravity(true)
-{}
+{
+}
 
 void BodyComponent::AddForce(glm::vec3 p_force)
 {

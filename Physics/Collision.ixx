@@ -12,8 +12,6 @@ public:
 
 	Entity& entity1;
 	Entity& entity2;
-	glm::vec3 penetrationPoint1;
-	glm::vec3 penetrationPoint2;
-	glm::vec3 penetration;
-	glm::vec3 penetrationMidpoint;
+	glm::vec3 contactPoint1;
+	glm::vec3 contactPoint2;
 };

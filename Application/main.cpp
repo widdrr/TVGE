@@ -156,22 +156,27 @@ int main()
 	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
 	cube.CreateComponentOfType<BoxColliderComponent>();
 	cube.Scale(5.f, 0.1f, 5.f);
-	cube.Translate(-3.f, 2.f, -10.f);
-	cube.Rotate(0.f, 0.f, 1.f, -45.f);
+	cube.Translate(0.f, 2.f, -10.f);
 
 	Entity cube2(cube);
-	cube2.Translate(3.f, 0.f, 0.f);
-	cube2.Rotate(0.f, 0.f, 1.f, 90.f);
+
+	cube.Translate(-5.f, 0.f, 0.f);
+	cube.Rotate(0.f, 0.f, 1.f, -45.f);
+
+	cube2.Translate(5.f, 0.f, 0.f);
+	cube2.Rotate(0.f, 0.f, 1.f, 45.f);
 
 	Entity sphere;
-	sphere.Translate(-4.f, 10.f, -10.f);
+	sphere.Translate(0.f, 10.f, -10.f);
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
-	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
+	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(10.f).lock();
 
 	Entity sphere2(sphere);
-	sphere2.Translate(4.f, 0.f, 0.f);
+
+	sphere.Translate(-5.f, 0.f, 0.f);
+	sphere2.Translate(5.f, 0.f, 0.f);
 
 	renderer.AddObject(floor);
 	renderer.AddObject(cube);

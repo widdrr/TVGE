@@ -1,10 +1,12 @@
 module Physics:Simulator;
 
 import <glm/vec3.hpp>;
+import <glm/geometric.hpp>;
 
 import <iostream>;
 
 float Simulator::gravityStrength = 9.8f;
+float Simulator::airDynamicFriction = 0.5f;
 
 Simulator::Simulator() :
 	_collisionHandler()
@@ -26,6 +28,7 @@ void Simulator::UpdateBodies(float p_delta)
 		auto body = wbody.lock();
 		if (body->gravity) {
 			body->AddForce(glm::vec3(0.f, -1.f, 0.f) * body->mass * gravityStrength);
+			body->AddForce(-body->velocity * airDynamicFriction);
 		}
 
 		body->Update(p_delta);
@@ -59,32 +62,35 @@ void Simulator::ResolveCollisions(std::vector<Collision> p_collisions)
 			auto body1 = wbody1.lock();
 			auto body2 = wbody2.lock();
 
-			body1->entity.Translate(-0.5f * collision.penetration);
-			body2->entity.Translate(0.5f * collision.penetration);
+			ApplyCollisionDynamic(*body1, *body2, collision.contactPoint1, collision.contactPoint2);;
 		}
 		else if (!wbody1.expired()) {
 			auto body1 = wbody1.lock();
-			body1->entity.Translate(-1.f * collision.penetration);
-			ApplyNormal(*body1, collision);
+
+			ApplyCollisionStatic(*body1, collision.contactPoint1, glm::normalize(collision.contactPoint2 - collision.contactPoint1));
 		}
 		else if (!wbody2.expired()) {
 			auto body2 = wbody2.lock();
-			body2->entity.Translate(1.f * collision.penetration);
-			ApplyNormal(*body2, collision);
+
+			ApplyCollisionStatic(*body2, collision.contactPoint2, glm::normalize(collision.contactPoint1 - collision.contactPoint2));
 		}
 	}
 }
 
-void Simulator::ApplyNormal(BodyComponent& p_body, const Collision& p_collision)
+void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, glm::vec3 p_normal)
 {
-	if (!p_body.gravity) {
-		return;
-	}
+	glm::vec3 newVelocity = glm::reflect(p_body.velocity, p_normal);
 
-	if (p_body.entity.position.y < p_collision.penetrationMidpoint.y) {
-		return;
-	}
+	p_body.velocity = newVelocity;
+}
 
-	glm::vec3 normalForce = glm::normalize(p_body.entity.position - p_collision.penetrationMidpoint) * p_body.mass * gravityStrength;
-	p_body.AddForce(normalForce);
+void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint)
+{
+	glm::vec3 collisionNormal = glm::normalize(p_point - p_otherPoint);
+	glm::vec3 relativeVelocity = p_body.velocity - p_other.velocity;
+
+	float impulse = glm::dot(-2.f * relativeVelocity, collisionNormal) * p_body.mass * p_other.mass / (p_body.mass + p_other.mass);
+
+	p_body.velocity += collisionNormal * (impulse / p_body.mass);
+	p_other.velocity -= collisionNormal * (impulse / p_other.mass);
 }
