@@ -62,31 +62,33 @@ void Simulator::ResolveCollisions(std::vector<Collision> p_collisions)
 			auto body1 = wbody1.lock();
 			auto body2 = wbody2.lock();
 
-			ApplyCollisionDynamic(*body1, *body2, collision.contactPoint1, collision.contactPoint2);;
+			ApplyCollisionDynamic(*body1, *body2, collision.contactPoint1, collision.contactPoint2, collision.collisionNormal);
 		}
 		else if (!wbody1.expired()) {
 			auto body1 = wbody1.lock();
 
-			ApplyCollisionStatic(*body1, collision.contactPoint1, glm::normalize(collision.contactPoint2 - collision.contactPoint1));
+			ApplyCollisionStatic(*body1, collision.contactPoint1, collision.collisionNormal);
 		}
 		else if (!wbody2.expired()) {
 			auto body2 = wbody2.lock();
 
-			ApplyCollisionStatic(*body2, collision.contactPoint2, glm::normalize(collision.contactPoint1 - collision.contactPoint2));
+			ApplyCollisionStatic(*body2, collision.contactPoint2, -1.f * collision.collisionNormal);
 		}
 	}
 }
 
 void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, glm::vec3 p_normal)
 {
-	glm::vec3 newVelocity = glm::reflect(p_body.velocity, p_normal);
+	glm::vec3 newVelocity = glm::reflect(p_body.velocity, glm::normalize(p_normal));
 
-	p_body.velocity = newVelocity;
+	//p_body.velocity = newVelocity;
+	p_body.entity.Translate(p_normal);
 }
 
-void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint)
+void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint, glm::vec3 p_normal)
 {
-	glm::vec3 collisionNormal = glm::normalize(p_point - p_otherPoint);
+	glm::vec3 collisionNormal = glm::normalize(p_normal);
+
 	glm::vec3 relativeVelocity = p_body.velocity - p_other.velocity;
 
 	float impulse = glm::dot(-2.f * relativeVelocity, collisionNormal) * p_body.mass * p_other.mass / (p_body.mass + p_other.mass);

@@ -25,7 +25,7 @@ public:
 private:
 	void ResolveCollisions(std::vector<Collision> p_collisions);
 	void ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, glm::vec3 p_normal);
-	void ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint);
+	void ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint, glm::vec3 p_normal);
 
 	std::vector<std::weak_ptr<BodyComponent>> _bodies;
 	CollisionHandler _collisionHandler;

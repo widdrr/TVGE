@@ -11,7 +11,9 @@ import <unordered_map>;
 import <format>;
 import <string_view>;
 import <random>;
+import <numeric>;
 import <optional>;
+import <ranges>;
 
 //External headers
 import <glm/vec2.hpp>;
@@ -22,5 +24,6 @@ import <glm/mat4x4.hpp>;
 import <glm/geometric.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 import <glm/gtc/type_ptr.hpp>;
+import <glm/gtc/epsilon.hpp>;
 
 //only glm is well behaved as a module

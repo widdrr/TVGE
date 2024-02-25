@@ -146,8 +146,15 @@ int main()
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>().lock();
+	auto floorCollider = floor.CreateComponentOfType<BoxColliderComponent>().lock();
 
 	floorComp->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
+	
+	Entity testFloor(floor);
+	testFloor.Translate(0.f, -7.f, -10.f);
+	testFloor.Rotate(0.f, 1.f, 0.f, 90.f);
+	testFloor.Rotate(1.f, 0.f, 0.f, 45.f);
+
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
@@ -155,6 +162,9 @@ int main()
 	auto cubeComp = cube.CreateComponentOfType<ModelComponent>().lock();
 	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
 	cube.CreateComponentOfType<BoxColliderComponent>();
+
+	Entity testCube(cube);
+	testCube.CreateComponentOfType<BodyComponent>(0.1f);
 	cube.Scale(5.f, 0.1f, 5.f);
 	cube.Translate(0.f, 2.f, -10.f);
 
@@ -166,7 +176,11 @@ int main()
 	cube2.Translate(5.f, 0.f, 0.f);
 	cube2.Rotate(0.f, 0.f, 1.f, 45.f);
 
-	Entity sphere;
+	testCube.Translate(0.f, 2.f, -10.f);
+	testCube.Rotate(1.f, 0.f, 0.f, 45.f);
+	testCube.Rotate(0.f, 0.f, 1.f, 45.f);
+
+	/*Entity sphere;
 	sphere.Translate(0.f, 10.f, -10.f);
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
@@ -176,13 +190,15 @@ int main()
 	Entity sphere2(sphere);
 
 	sphere.Translate(-5.f, 0.f, 0.f);
-	sphere2.Translate(5.f, 0.f, 0.f);
+	sphere2.Translate(5.f, 0.f, 0.f);*/
 
-	renderer.AddObject(floor);
 	renderer.AddObject(cube);
 	renderer.AddObject(cube2);
-	renderer.AddObject(sphere);
-	renderer.AddObject(sphere2);
+	renderer.AddObject(testCube);
+	renderer.AddObject(floor);
+	renderer.AddObject(testFloor);
+	//renderer.AddObject(sphere);
+	//renderer.AddObject(sphere2);
 	renderer.AddLightSource(moon);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
@@ -192,14 +208,14 @@ int main()
 	auto& camera = renderer.GetMainCamera();
 
 	Simulator simulator;
-	auto floorCollider = floor.CreateComponentOfType<BoxColliderComponent>().lock();
-	floorCollider->AddCollisionEventHandler([](Entity&, const Collision&) {});
-	
+
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
 	simulator.AddObject(cube2);
-	simulator.AddObject(sphere);
-	simulator.AddObject(sphere2);
+	simulator.AddObject(testFloor);
+	simulator.AddObject(testCube);
+	//simulator.AddObject(sphere);
+	//simulator.AddObject(sphere2);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;

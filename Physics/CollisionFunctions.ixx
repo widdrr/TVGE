@@ -14,5 +14,4 @@ export namespace CollisionFunctions
 	std::optional<Collision> IntersectBox_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
 	std::optional<Collision> IntersectSphere_Sphere(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
 	std::optional<Collision> IntersectSphere_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
-	
 }
