@@ -4,3 +4,9 @@
 
 ## Building
 WIP
+
+## Features
+WIP
+
+## My sanity
+WIP
