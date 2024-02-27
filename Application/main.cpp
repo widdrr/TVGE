@@ -163,7 +163,7 @@ int main()
 	Entity testCube(cube);
 	testCube.CreateComponentOfType<BodyComponent>(1.f);
 	cube.Scale(5.f, 0.1f, 5.f);
-	testCube.Rotate(0.f, 0.f, 1.f, 45.f);
+	testCube.Rotate(1.f, 0.f, 1.f, 46.f);
 	
 	cube.Translate(0.f, 2.f, -10.f);
 
@@ -190,12 +190,12 @@ int main()
 	testCube.Translate(5.f, 10.f, -10.f);
 
 	renderer.AddObject(cube);
-	//renderer.AddObject(cube2);
+	renderer.AddObject(cube2);
 	renderer.AddObject(testCube);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
 	renderer.AddLightSource(moon);
-	renderer.SetShadowCaster(moon);
+	//renderer.SetShadowCaster(moon);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
@@ -207,9 +207,9 @@ int main()
 
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
-	//simulator.AddObject(cube2);
+	simulator.AddObject(cube2);
 	simulator.AddObject(testCube);
-	//simulator.AddObject(sphere);
+	simulator.AddObject(sphere);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -274,7 +274,7 @@ int main()
 		input.ProcessInput();
 
 		if (!stopSimulation) {
-			simulator.SimulateStep(deltaTime * 0.5f);
+			simulator.SimulateStep(deltaTime);
 		}
 		if (!renderWireframe) {
 			renderer.RenderFrame();

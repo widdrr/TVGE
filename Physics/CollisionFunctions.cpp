@@ -18,7 +18,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 
 	glm::vec3 centerDifference = secondBox.GetCenter() - firstBox.GetCenter();
 	//TODO: compute these on a per-needed basis
-	glm::mat3 coefficients = glm::transpose(firstBoxAxes) * secondBoxAxes;
+	glm::mat3 coefficients = glm::transpose(glm::transpose(firstBoxAxes) * secondBoxAxes);
 	glm::mat3 absCoefficients = coefficients;
 	absCoefficients[0] = glm::abs(absCoefficients[0]);
 	absCoefficients[1] = glm::abs(absCoefficients[1]);

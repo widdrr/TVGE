@@ -6,10 +6,12 @@ DirectionalLightComponent::DirectionalLightComponent(Entity& p_entity, const glm
 	LightSourceComponent(p_entity, p_ambient, p_diffuse, p_specular)
 {
 }
+
 glm::vec4 DirectionalLightComponent::GetPosition() const
 {
 	return glm::vec4(_defaultDirection * entity.rotation, 0.f);
 }
+
 void DirectionalLightComponent::SetLightVariables(ShaderProgram& p_shader, int p_index)
 {
 	using namespace UniformVariables;

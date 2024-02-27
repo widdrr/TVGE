@@ -11,8 +11,8 @@ void main()
 {
     for(int face = 0; face < 6; ++face)
     {
-        gl_Layer = face; // built-in variable that specifies to which face we render.
-        for(int i = 0; i < 3; ++i) // for each triangle vertex
+        gl_Layer = face;
+        for(int i = 0; i < 3; ++i) 
         {
             FragmentPosition = gl_in[i].gl_Position;
             gl_Position = glShadowMatrices[face] * FragmentPosition;
