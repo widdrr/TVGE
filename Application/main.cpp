@@ -11,6 +11,7 @@ import <thread>;
 import <chrono>;
 import <memory>;
 import <random>;
+import <format>;
 
 //for some ungodly reason, main does not compile without this
 static void DontDeleteThis(Entity& obj)
@@ -134,6 +135,7 @@ int main()
 
 	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
 	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
+	auto axes = renderer.GenerateShader("axis.vert", "axis.frag", "axis.geom");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -149,11 +151,6 @@ int main()
 	auto floorCollider = floor.CreateComponentOfType<BoxColliderComponent>().lock();
 
 	floorComp->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
-	
-	Entity testFloor(floor);
-	testFloor.Translate(0.f, -7.f, -10.f);
-	testFloor.Rotate(0.f, 1.f, 0.f, 90.f);
-	testFloor.Rotate(1.f, 0.f, 0.f, 45.f);
 
 	floor.Scale(100.f, 0.1f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
@@ -164,8 +161,10 @@ int main()
 	cube.CreateComponentOfType<BoxColliderComponent>();
 
 	Entity testCube(cube);
-	testCube.CreateComponentOfType<BodyComponent>(0.1f);
+	testCube.CreateComponentOfType<BodyComponent>(1.f);
 	cube.Scale(5.f, 0.1f, 5.f);
+	testCube.Rotate(0.f, 0.f, 1.f, 45.f);
+	
 	cube.Translate(0.f, 2.f, -10.f);
 
 	Entity cube2(cube);
@@ -176,30 +175,27 @@ int main()
 	cube2.Translate(5.f, 0.f, 0.f);
 	cube2.Rotate(0.f, 0.f, 1.f, 45.f);
 
-	testCube.Translate(0.f, 2.f, -10.f);
-	testCube.Rotate(1.f, 0.f, 0.f, 45.f);
-	testCube.Rotate(0.f, 0.f, 1.f, 45.f);
-
-	/*Entity sphere;
+	Entity sphere;
 	sphere.Translate(0.f, 10.f, -10.f);
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
+	Entity collisionSphere(sphere);
+	collisionSphere.Scale(0.1f, 0.1f, 0.1f);
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
-	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(10.f).lock();
+	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
 
-	Entity sphere2(sphere);
+
 
 	sphere.Translate(-5.f, 0.f, 0.f);
-	sphere2.Translate(5.f, 0.f, 0.f);*/
+	testCube.Translate(5.f, 10.f, -10.f);
 
 	renderer.AddObject(cube);
-	renderer.AddObject(cube2);
+	//renderer.AddObject(cube2);
 	renderer.AddObject(testCube);
 	renderer.AddObject(floor);
-	renderer.AddObject(testFloor);
-	//renderer.AddObject(sphere);
-	//renderer.AddObject(sphere2);
+	renderer.AddObject(sphere);
 	renderer.AddLightSource(moon);
+	renderer.SetShadowCaster(moon);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
@@ -211,11 +207,9 @@ int main()
 
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
-	simulator.AddObject(cube2);
-	simulator.AddObject(testFloor);
+	//simulator.AddObject(cube2);
 	simulator.AddObject(testCube);
 	//simulator.AddObject(sphere);
-	//simulator.AddObject(sphere2);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -257,13 +251,31 @@ int main()
 	input.AddKeyPressEventHandler(Keys::N, [&]() {showNormals = !showNormals; });
 	bool renderWireframe = false;
 	input.AddKeyPressEventHandler(Keys::M, [&]() {renderWireframe = !renderWireframe; });
+	
+	std::vector<Entity> cols;
+	bool stopSimulation = false;
+	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
+	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision& c) {
+		stopSimulation = true;
+		cols.push_back(collisionSphere);
+		auto&& col = cols.back();
+		col.position = c.contactPoint2;
+		renderer.AddObject(col);
+		std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
+		std::cout << std::format("Point: {}, {}, {}\n", c.contactPoint2.x, c.contactPoint2.y, c.contactPoint2.z);});
+
+	bool showAxes = false;
+	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
 
 	window.InitializeTime();
 	while (window.IsOpen()) {
 		auto deltaTime = window.ComputeDeltaTime();
-		window.ComputeFPS();
+		//window.ComputeFPS();
 		input.ProcessInput();
-		simulator.SimulateStep(deltaTime);
+
+		if (!stopSimulation) {
+			simulator.SimulateStep(deltaTime * 0.5f);
+		}
 		if (!renderWireframe) {
 			renderer.RenderFrame();
 		}
@@ -272,6 +284,9 @@ int main()
 		}
 		if (showNormals) {
 			renderer.RenderFrame(*normals);
+		}
+		if (showAxes) {
+			renderer.RenderFrame(*axes);
 		}
 		renderer.DisplayScene();
 	}

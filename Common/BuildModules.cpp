@@ -14,6 +14,8 @@ import <random>;
 import <numeric>;
 import <optional>;
 import <ranges>;
+import <any>;
+import <concepts>;
 
 //External headers
 import <glm/vec2.hpp>;

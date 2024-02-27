@@ -172,6 +172,9 @@ xcopy /y "$(SolutionDir)Libraries\External\bin\assimp-vc143-mt.dll" "$(OutDir)"<
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="axis.frag" />
+    <None Include="axis.geom" />
+    <None Include="axis.vert" />
     <None Include="normal.frag" />
     <None Include="normal.geom" />
     <None Include="shader.frag" />

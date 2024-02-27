@@ -5,3 +5,4 @@ export import :SkyboxComponent;
 //TODO: make a proper component
 export import :Camera;
 export import :LightSourceComponent;
+export import :ShaderDataComponent;

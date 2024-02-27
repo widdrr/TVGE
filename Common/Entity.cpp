@@ -12,7 +12,7 @@ Entity::Entity() :
 	++_current_id;
 }
 
-Entity::Entity(Entity& p_other) :
+Entity::Entity(const Entity& p_other) :
 	_id(_current_id),
 	scaling(p_other.scaling),
 	position(p_other.position),
@@ -54,7 +54,7 @@ void Entity::Rotate(const glm::vec3& p_axis, float p_thetaDeg)
 {
 	glm::vec3 rotationAxis = glm::normalize(p_axis);
 	float angleRadians = glm::radians(p_thetaDeg);
-	rotation = rotation * glm::angleAxis(angleRadians, rotationAxis);
+	rotation = glm::angleAxis(angleRadians, rotationAxis) * rotation;
 }
 
 void Entity::Rotate(const glm::vec3& p_rotation)

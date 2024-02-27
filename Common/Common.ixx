@@ -31,7 +31,7 @@ export class Entity
 {
 public:
 	Entity();
-	Entity(Entity& p_other);
+	Entity(const Entity& p_other);
 
 	//template definitions have to be defined here to save a lot of headaches
 	template <IsComponentType TComponent, class... TArgs>
@@ -48,7 +48,6 @@ public:
 	template <IsComponentType TComponent>
 	const std::weak_ptr<TComponent> TryGetComponentOfType() const
 	{
-
 		for (auto& component : _components) {
 			auto castComponent = std::dynamic_pointer_cast<TComponent>(component);
 			if (castComponent) {

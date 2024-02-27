@@ -27,9 +27,10 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 	float minOverlap = std::numeric_limits<float>::infinity();
 	int axisType = 0;
 	int iAxis = 0, jAxis = 0;
+	int sigma = 0;
 
 	//Separating Axes for first box
-	for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		float firstRadius = firstBoxExtents[i];
 		float secondRadius = glm::dot(secondBoxExtents, absCoefficients[i]);
 
@@ -48,7 +49,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 	}
 
 	//Separating Axes for second box
-	for (int j = 0; j < 2; ++j) {
+	for (int j = 0; j < 3; ++j) {
 		float firstRadius = glm::dot(firstBoxExtents, glm::vec3(absCoefficients[0][j], absCoefficients[1][j], absCoefficients[2][j]));
 		float secondRadius = secondBoxExtents[j];
 
@@ -66,11 +67,11 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 	}
 
 	//Separating Axes for edge collisions
-	for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		int i0 = (i + 1) % 3;
 		int i1 = (i + 2) % 3;
 
-		for (int j = 0; j < 2; ++j) {
+		for (int j = 0; j < 3; ++j) {
 
 			int j0 = (j + 1) % 3;
 			int j1 = (j + 2) % 3;
@@ -110,70 +111,81 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 
 	switch (axisType) {
 		case 0:
-			for (int j = 0; j < 2; ++j) {
+			axis = firstBoxAxes[iAxis];
+			minOverlap /= glm::dot(axis, axis);
+			sigma = glm::dot(axis, centerDifference) > 0 ? 1.f : -1.f;
+
+			for (int j = 0; j < 3; ++j) {
 				float coefficient = 0;
 				if (glm::epsilonNotEqual(coefficients[iAxis][j], 0.f, EPSILON)) {
-					coefficient = -1 * glm::sign(coefficients[iAxis][j]) * secondBoxExtents[j];
+					coefficient = -1.f * sigma * glm::sign(coefficients[iAxis][j]) * secondBoxExtents[j];
 				}
 				else {
-					auto indices = { 0, 1, 2 };
-					float sum = std::reduce(indices.begin(), indices.end(), 0.f, [&](int acc, int k) {
-						return acc + absCoefficients[k][j] * firstBoxExtents[k]; });
+					//auto indices = { 0, 1, 2 };
+					//float sum = std::reduce(indices.begin(), indices.end(), 0.f, [&](int acc, int k) {
+					//	return acc + absCoefficients[k][j] * firstBoxExtents[k]; });
 
-					float dot = glm::dot(-secondBoxAxes[j], centerDifference);
-					float minCoeff = dot - sum;
-					float maxCoeff = dot + sum;
+					//float dot = glm::dot(-secondBoxAxes[j], centerDifference);
+					//float minCoeff = dot - sum;
+					//float maxCoeff = dot + sum;
 
-					if (secondBoxExtents[j] <= maxCoeff) {
-						coefficient = secondBoxExtents[j];
-					}
-					else if(-secondBoxExtents[j] >= minCoeff) {
-						coefficient = -secondBoxExtents[j];
-					}
-					else {
-						coefficient = minCoeff;
-					}
+					//if (secondBoxExtents[j] <= maxCoeff) {
+					//	coefficient = secondBoxExtents[j];
+					//}
+					//else if(-secondBoxExtents[j] >= minCoeff) {
+					//	coefficient = -secondBoxExtents[j];
+					//}
+					//else {
+					//	coefficient = minCoeff;
+					//}
+					coefficient = 0.f;
 				}
 				contactPoint += coefficient * secondBoxAxes[j];
 			}
 			contactPoint += secondBox.GetCenter();
-			axis = firstBoxAxes[iAxis];
-			minOverlap /= glm::dot(axis, axis);
 
 			break;
 		case 1:
-			for (int i = 0; i < 2; ++i) {
+			axis = secondBoxAxes[jAxis];
+			minOverlap /= glm::dot(axis, axis);
+			sigma = glm::dot(axis, centerDifference) > 0 ? 1.f : -1.f;
+
+			for (int i = 0; i < 3; ++i) {
 				float coefficient = 0;
 				if (glm::epsilonNotEqual(coefficients[i][jAxis], 0.f, EPSILON)) {
-					coefficient = glm::sign(coefficients[i][jAxis]) * firstBoxExtents[i];
+					coefficient = sigma * glm::sign(coefficients[i][jAxis]) * firstBoxExtents[i];
 				}
 				else {
-					auto indices = { 0, 1, 2 };
-					float sum = std::reduce(indices.begin(), indices.end(), 0.f, [&](int acc, int k) {
-						return acc + absCoefficients[i][k] * secondBoxExtents[k]; });
+					//auto indices = { 0, 1, 2 };
+					//float sum = std::reduce(indices.begin(), indices.end(), 0.f, [&](int acc, int k) {
+					//	return acc + absCoefficients[i][k] * secondBoxExtents[k]; });
 
-					float dot = glm::dot(-firstBoxAxes[i], centerDifference);
-					float minCoeff = dot - sum;
-					float maxCoeff = dot + sum;
+					//float dot = glm::dot(-firstBoxAxes[i], centerDifference);
+					//float minCoeff = dot - sum;
+					//float maxCoeff = dot + sum;
 
-					if (firstBoxExtents[i] <= maxCoeff) {
-						coefficient = firstBoxExtents[i];
-					}
-					else if (-firstBoxExtents[i] >= minCoeff) {
-						coefficient = -firstBoxExtents[i];
-					}
-					else {
-						coefficient = minCoeff;
-					}
+					//if (firstBoxExtents[i] <= maxCoeff) {
+					//	coefficient = firstBoxExtents[i];
+					//}
+					//else if (-firstBoxExtents[i] >= minCoeff) {
+					//	coefficient = -firstBoxExtents[i];
+					//}
+					//else {
+					//	coefficient = minCoeff;
+					//}
+					coefficient = 0.f;
 				}
 				contactPoint += coefficient * firstBoxAxes[i];
 			}
 			contactPoint += firstBox.GetCenter();
-			axis = secondBoxAxes[jAxis];
-			minOverlap /= glm::dot(axis, axis);
 
 			break;
 		case 2:
+
+			axis = glm::cross(firstBoxAxes[iAxis], secondBoxAxes[jAxis]);
+			minOverlap /= glm::dot(axis, axis);
+			sigma = glm::dot(axis, centerDifference) > 0 ? 1.f : -1.f;
+
 			glm::vec3 xCoefficients(0);
 			glm::vec3 yCoefficients(0);
 
@@ -183,11 +195,11 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 			int j0 = (jAxis + 1) % 3;
 			int j1 = (jAxis + 2) % 3;
 
-			xCoefficients[i0] = -1.f * glm::sign(coefficients[i1][jAxis]) * firstBoxExtents[i0];
-			xCoefficients[i1] = glm::sign(coefficients[i0][jAxis]) * firstBoxExtents[i1];
+			xCoefficients[i0] = -1.f * sigma * glm::sign(coefficients[i1][jAxis]) * firstBoxExtents[i0];
+			xCoefficients[i1] = sigma * glm::sign(coefficients[i0][jAxis]) * firstBoxExtents[i1];
 
-			yCoefficients[j0] = -1.f * glm::sign(coefficients[iAxis][j1]) * secondBoxExtents[j0];
-			yCoefficients[j1] = glm::sign(coefficients[iAxis][j0]) * secondBoxExtents[j1];
+			yCoefficients[j0] = -1.f * sigma * glm::sign(coefficients[iAxis][j1]) * secondBoxExtents[j0];
+			yCoefficients[j1] = sigma * glm::sign(coefficients[iAxis][j0]) * secondBoxExtents[j1];
 
 			float fraction = 1.f / (1.f - coefficients[iAxis][jAxis] * coefficients[iAxis][jAxis]);
 			float innerParanthesis =
@@ -202,13 +214,10 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 
 			xCoefficients[iAxis] = fraction * outerParanthesis;
 
-			for (int i = 0; i < 2; ++i) {
+			for (int i = 0; i < 3; ++i) {
 				contactPoint += xCoefficients[i] * firstBoxAxes[i];
 			}
 			contactPoint += firstBox.GetCenter();
-
-			axis = glm::cross(firstBoxAxes[iAxis], secondBoxAxes[jAxis]);
-			minOverlap /= glm::dot(axis, axis);
 	}
 
 	glm::vec3 normal = glm::normalize(axis) * minOverlap;

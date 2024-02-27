@@ -19,6 +19,18 @@ void BoxColliderComponent::ApplyTransformations()
 	_axes = localAxes * glm::mat3_cast(entity.rotation);
 }
 
+glm::mat3 BoxColliderComponent::ComputeInertiaMatrix(float p_mass)
+{
+	float factor = p_mass / 3.f;
+	float inertiaXX = factor * (_extents.y * _extents.y + _extents.z * _extents.z);
+	float inertiaYY = factor * (_extents.x * _extents.x + _extents.z * _extents.z);
+	float inertiaZZ = factor * (_extents.x * _extents.x + _extents.y * _extents.y);
+	
+	return glm::mat3(inertiaXX, 0.f, 0.f, 
+					 0.f, inertiaYY, 0.f,  
+					 0.f, 0.f, inertiaZZ);
+}
+
 glm::vec3 BoxColliderComponent::GetExtents() const
 {
 	return _extents;

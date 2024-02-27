@@ -143,5 +143,11 @@
     <ClCompile Include="SkyboxComponent.cpp">
       <Filter>Implementations\Components</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderDataComponent.ixx">
+      <Filter>Interfaces\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderDataComponent.cpp">
+      <Filter>Implementations\Components</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

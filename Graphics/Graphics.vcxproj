@@ -173,6 +173,8 @@
     <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Renderer.ixx" />
+    <ClCompile Include="ShaderDataComponent.cpp" />
+    <ClCompile Include="ShaderDataComponent.ixx" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="ShaderProgram.ixx" />
     <ClCompile Include="SkyboxComponent.cpp" />

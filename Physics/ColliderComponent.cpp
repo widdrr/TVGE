@@ -1,11 +1,18 @@
 module Physics.Components:ColliderComponent;
 
+import :BodyComponent;
+
 ColliderComponent::ColliderComponent(Entity& p_entity, ColliderTypes p_type, const bool p_physical) :
 	Component(p_entity),
 	type(p_type),
 	physical(p_physical),
 	_collisionCallbacks()
-{}
+{
+	auto body = p_entity.TryGetComponentOfType<BodyComponent>();
+	if (!body.expired()) {
+		body.lock()->RegisterCollider();
+	}
+}
 
 void ColliderComponent::AddCollisionEventHandler(Callback p_callback)
 {

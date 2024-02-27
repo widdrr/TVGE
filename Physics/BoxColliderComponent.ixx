@@ -15,6 +15,7 @@ public:
 						 const bool p_physical = true);
 
 	void ApplyTransformations() override;
+	glm::mat3 ComputeInertiaMatrix(float p_mass) override;
 
 	glm::vec3 GetExtents() const;
 	glm::vec3 GetCenter() const;
