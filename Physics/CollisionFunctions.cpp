@@ -72,6 +72,11 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 			int j0 = (j + 1) % 3;
 			int j1 = (j + 2) % 3;
 
+			if (glm::epsilonEqual(glm::dot(firstBoxAxes[i], secondBoxAxes[j]), 1.f, EPSILON))
+			{
+				continue;
+			}
+
 			float firstRadius =
 				firstBoxExtents[i0] * absCoefficients[i1][j] +
 				firstBoxExtents[i1] * absCoefficients[i0][j];

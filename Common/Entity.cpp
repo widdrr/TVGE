@@ -35,6 +35,11 @@ void Entity::Scale(const glm::vec3& p_scaling)
 	scaling *= p_scaling;
 }
 
+void Entity::Scale(float p_scaling)
+{
+	Scale(glm::vec3(p_scaling));
+}
+
 void Entity::Translate(float p_dispX, float p_dispY, float p_dispZ) 
 {
 	Translate(glm::vec3(p_dispX, p_dispY, p_dispZ));

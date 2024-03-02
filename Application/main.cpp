@@ -163,8 +163,14 @@ int main()
 	Entity testCube(cube);
 	Entity testFloor(cube);
 	testCube.CreateComponentOfType<BodyComponent>(1.f);
+	
+	testCube.Translate(5.f, 10.f, -10.f);
+	testFloor.Translate(5.f, 0.f, -10.f);
+	//testFloor.Scale(10.f, 0.1f, 10.f);
+	testFloor.Rotate(1.f, 0.f, 0.f, 45.f);
+
 	cube.Scale(5.f, 0.1f, 5.f);
-	testCube.Rotate(0.f, 0.f, 1.f, 45.f);
+	testCube.Rotate(1.f, 0.f, 0.f, 45.f);
 	
 	cube.Translate(0.f, 2.f, -10.f);
 
@@ -186,9 +192,6 @@ int main()
 	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
 
 	sphere.Translate(-5.f, 0.f, 0.f);
-	testCube.Translate(5.f, 10.f, -10.f);
-	testFloor.Translate(5.f, 0.f, -10.5f);
-	testFloor.Rotate(1.f, 0.f, 0.f, 45.f);
 
 	renderer.AddObject(cube);
 	//renderer.AddObject(cube2);
@@ -269,7 +272,8 @@ int main()
 		col2.position = c.contactPoint2;
 		renderer.AddObject(col2);
 		std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
-		std::cout << std::format("Point: {}, {}, {}\n", c.contactPoint2.x, c.contactPoint2.y, c.contactPoint2.z);
+		std::cout << std::format("Point1: {}, {}, {}\n", c.contactPoint1.x, c.contactPoint1.y, c.contactPoint1.z);
+		std::cout << std::format("Point2: {}, {}, {}\n", c.contactPoint2.x, c.contactPoint2.y, c.contactPoint2.z);
 		std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); });
 
 	bool showAxes = false;
@@ -282,7 +286,7 @@ int main()
 		input.ProcessInput();
 
 		if (!stopSimulation) {
-			simulator.SimulateStep(deltaTime * 0.5f);
+			simulator.SimulateStep(deltaTime * 1.f);
 		}
 		if (!renderWireframe) {
 			renderer.RenderFrame();

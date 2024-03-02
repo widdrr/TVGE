@@ -40,7 +40,7 @@ std::vector<glm::vec3> ContactPoints::GetBoxSupports(const BoxColliderComponent&
 	auto&& boxAxes = p_collider.GetAxes();
 	auto&& boxExtents = p_collider.GetExtents();
 
-	glm::vec3 normal = p_normal * boxAxes;
+	glm::vec3 normal = glm::normalize(p_normal * boxAxes);
 
 	std::vector<glm::vec3> support;
 
@@ -48,7 +48,7 @@ std::vector<glm::vec3> ContactPoints::GetBoxSupports(const BoxColliderComponent&
 		glm::vec3 axis(0);
 		axis[i] = 1;
 
-		float dot = glm::dot(axis, p_normal);
+		float dot = glm::dot(axis, normal);
 		if (glm::epsilonEqual(glm::abs(dot), 1.f, EPSILON)) {
 			float sign = dot < 0 ? -1.0 : 1.0;
 
@@ -73,8 +73,8 @@ std::vector<glm::vec3> ContactPoints::GetBoxSupports(const BoxColliderComponent&
 			}
 
 			if (sign == -1.f) {
-				std::swap(support[0], support[1]);
-				std::swap(support[2], support[3]);
+				std::swap(support[0], support[2]);
+				std::swap(support[1], support[3]);
 			}
 
 			return support;
@@ -96,7 +96,7 @@ std::vector<glm::vec3> ContactPoints::GetBoxSupports(const BoxColliderComponent&
 				point[i0] *= -1.f;
 			}
 
-			if (p_normal[i1] >= 0.f) {
+			if (normal[i1] >= 0.f) {
 				point[i1] *= -1.f;
 			}
 
@@ -147,7 +147,7 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 		//normal for the clip plane described by the edge
 		//special case for rectangular faces
 		//TODO: don't forget to implement the generic case when doing general convex faces
-		glm::vec3 clipNormal = glm::normalize(clipEdgeEnd2 - clipEdgeEnd1);
+		glm::vec3 clipNormal = glm::normalize(clipEdgeEnd1 - clipEdgeEnd2);
 		float clipDistance = glm::dot(clipNormal, clipEdgeEnd1);
 
 		for (int j = 0; j < clippedPoints.size(); ++j) {
@@ -159,7 +159,7 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 			float dist1 = GeometryHelpers::DistanceToPlane(testEdgeEnd1, clipNormal, clipDistance);
 			float dist2 = GeometryHelpers::DistanceToPlane(testEdgeEnd2, clipNormal, clipDistance);
 
-			if (dist1 < 0) {
+			if (dist1 <= 0) {
 				nextClippedPoints.push_back(testEdgeEnd1);
 			}
 
@@ -190,6 +190,8 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 		glm::vec3 closestPoint = point - faceNormal * dist;
 		secondPoint += closestPoint;
 	}
+	firstPoint /= clippedPoints.size();
+	secondPoint /= clippedPoints.size();
 
 	return { firstPoint, secondPoint };
 }
@@ -197,12 +199,12 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_EdgeContacts(std::vector<glm::vec3> p_firstSupport, std::vector<glm::vec3> p_secondSupport)
 {
 	//Both Face-Edge and Face-Face are resolved through Polygon Clipping
-	return GetFace_FaceContacts(p_firstSupport, p_secondSupport);
+	return GetFace_FaceContacts(p_secondSupport, p_firstSupport);
 }
 
 std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_PointContacts(std::vector<glm::vec3> p_firstSupport, std::vector<glm::vec3> p_secondSupport)
 {
-	glm::vec3 projectionPoint = GeometryHelpers::ProjectOnPlane(p_secondSupport[0], p_secondSupport[0], p_secondSupport[1], p_secondSupport[2]);
+	glm::vec3 projectionPoint = GeometryHelpers::ProjectOnPlane(p_secondSupport[0], p_firstSupport[0], p_firstSupport[1], p_firstSupport[2]);
 	return { projectionPoint, p_secondSupport[0] };
 }
 

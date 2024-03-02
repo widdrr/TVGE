@@ -90,7 +90,7 @@ void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, g
 		(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
 	p_body.velocity += collisionNormal * impulse * p_body._inverseMass;
-	p_body.angularVelocity += p_body._inverseInertiaMatrix * glm::cross(support, impulse * collisionNormal);
+	p_body.angularVelocity += 0.1f * p_body._inverseInertiaMatrix * glm::cross(support, impulse * collisionNormal);
 }
 
 void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint, glm::vec3 p_normal)
