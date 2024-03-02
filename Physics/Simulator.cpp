@@ -80,13 +80,13 @@ void Simulator::ResolveCollisions(std::vector<Collision> p_collisions)
 void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, glm::vec3 p_normal)
 {
 	glm::vec3 collisionNormal = glm::normalize(p_normal);
-	p_body.entity.Translate(p_normal);
 
 	glm::vec3 support = p_point - p_body.entity.position;
+	p_body.entity.Translate(p_normal);
 
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 
-	float impulse = glm::dot(-2.f * p_body.velocity, collisionNormal) /
+	float impulse = glm::dot(-1.5f * p_body.velocity, collisionNormal) /
 		(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
 	p_body.velocity += collisionNormal * impulse * p_body._inverseMass;
@@ -97,16 +97,16 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 {
 	glm::vec3 collisionNormal = glm::normalize(p_normal);
 
-	p_body.entity.Translate(p_normal * 0.5f);
-	p_other.entity.Translate(p_normal * -0.5f);
-
 	glm::vec3 relativeVelocity = p_body.velocity - p_other.velocity;
 	glm::vec3 support = p_point - p_body.entity.position;
 	glm::vec3 otherSupport = p_otherPoint - p_other.entity.position;
 
-	float numerator = glm::dot(-2.f * relativeVelocity, collisionNormal);
+	p_body.entity.Translate(p_normal * 0.5f);
+	p_other.entity.Translate(p_normal * -0.5f);
+
+	float numerator = glm::dot(-1.5f * relativeVelocity, collisionNormal);
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
-	glm::vec3 otherScaledAngularVel = glm::cross(p_other._inverseInertiaMatrix *  glm::cross(otherSupport, collisionNormal), otherSupport);
+	glm::vec3 otherScaledAngularVel = glm::cross(p_other._inverseInertiaMatrix * glm::cross(otherSupport, collisionNormal), otherSupport);
 	float denominator = p_body._inverseMass + p_other._inverseMass + glm::dot(scaledAngularVel + otherScaledAngularVel, collisionNormal);
 						
 	float impulse = numerator / denominator;

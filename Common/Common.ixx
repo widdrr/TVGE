@@ -6,6 +6,8 @@ import <glm/gtc/quaternion.hpp>;
 import <vector>;
 import <memory>;
 
+export import :GeometryHelpers;
+
 export class Component 
 {
 	//Entity acts as a component factory

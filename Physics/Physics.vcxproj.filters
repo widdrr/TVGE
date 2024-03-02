@@ -19,6 +19,12 @@
     <Filter Include="Implementations\Resources">
       <UniqueIdentifier>{c389c5ed-8242-47a1-a4a7-cda0b89ee06f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interfaces\Functions">
+      <UniqueIdentifier>{595e0b4e-2a58-4867-8246-c40de730e028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Functions">
+      <UniqueIdentifier>{51fa72cc-886a-4698-893b-d2d5da8d9212}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Simulator.ixx">
@@ -66,17 +72,23 @@
     <ClCompile Include="Collision.cpp">
       <Filter>Implementations\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionFunctions.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionFunctions.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
     <ClCompile Include="SphereColliderComponent.ixx">
       <Filter>Interfaces\Components</Filter>
     </ClCompile>
     <ClCompile Include="SphereColliderComponent.cpp">
       <Filter>Implementations\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionFunctions.ixx">
+      <Filter>Interfaces\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionFunctions.cpp">
+      <Filter>Implementations\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="ContactPoints.ixx">
+      <Filter>Interfaces\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="ContactPoints.cpp">
+      <Filter>Implementations\Functions</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

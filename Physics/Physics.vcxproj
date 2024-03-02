@@ -157,6 +157,8 @@
     <ClCompile Include="CollisionFunctions.ixx" />
     <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="CollisionHandler.ixx" />
+    <ClCompile Include="ContactPoints.cpp" />
+    <ClCompile Include="ContactPoints.ixx" />
     <ClCompile Include="Physics.ixx" />
     <ClCompile Include="PhysicsComponents.ixx" />
     <ClCompile Include="PhysicsResources.ixx" />

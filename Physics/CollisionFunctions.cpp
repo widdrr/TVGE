@@ -1,10 +1,10 @@
 module Physics.CollisionFunctions;
 
+import :ContactPoints;
+
 import <glm/gtc/epsilon.hpp>;
 
 import <numeric>;
-
-constexpr float EPSILON = 0.001f;
 
 std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
@@ -25,9 +25,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 	absCoefficients[2] = glm::abs(absCoefficients[2]);
 
 	float minOverlap = std::numeric_limits<float>::infinity();
-	int axisType = 0;
-	int iAxis = 0, jAxis = 0;
-	int sigma = 0;
+	glm::vec3 axis(0);
 
 	//Separating Axes for first box
 	for (int i = 0; i < 3; ++i) {
@@ -43,8 +41,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 		float overlap = firstRadius + secondRadius - distance;
 		if (overlap != 0.f && overlap < minOverlap) {
 			minOverlap = overlap;
-			axisType = 0;
-			iAxis = i;
+			axis = firstBoxAxes[i];
 		}
 	}
 
@@ -61,8 +58,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 		float overlap = firstRadius + secondRadius - distance;
 		if (overlap != 0.f && overlap < minOverlap) {
 			minOverlap = overlap;
-			axisType = 1;
-			jAxis = j;
+			axis = secondBoxAxes[j];
 		}
 	}
 
@@ -99,132 +95,19 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 			float overlap = firstRadius + secondRadius - distance;
 			if (overlap != 0.f && overlap < minOverlap) {
 				minOverlap = overlap;
-				axisType = 2;
-				iAxis = i;
-				jAxis = j;
+				axis = glm::cross(firstBoxAxes[i], secondBoxAxes[j]);
 			}
 		}
-	}
-
-	glm::vec3 contactPoint(0);
-	glm::vec3 axis(0);
-
-	switch (axisType) {
-		case 0:
-			axis = firstBoxAxes[iAxis];
-			minOverlap /= glm::dot(axis, axis);
-			sigma = glm::dot(axis, centerDifference) > 0 ? 1.f : -1.f;
-
-			for (int j = 0; j < 3; ++j) {
-				float coefficient = 0;
-				if (glm::epsilonNotEqual(coefficients[iAxis][j], 0.f, EPSILON)) {
-					coefficient = -1.f * sigma * glm::sign(coefficients[iAxis][j]) * secondBoxExtents[j];
-				}
-				else {
-					//auto indices = { 0, 1, 2 };
-					//float sum = std::reduce(indices.begin(), indices.end(), 0.f, [&](int acc, int k) {
-					//	return acc + absCoefficients[k][j] * firstBoxExtents[k]; });
-
-					//float dot = glm::dot(-secondBoxAxes[j], centerDifference);
-					//float minCoeff = dot - sum;
-					//float maxCoeff = dot + sum;
-
-					//if (secondBoxExtents[j] <= maxCoeff) {
-					//	coefficient = secondBoxExtents[j];
-					//}
-					//else if(-secondBoxExtents[j] >= minCoeff) {
-					//	coefficient = -secondBoxExtents[j];
-					//}
-					//else {
-					//	coefficient = minCoeff;
-					//}
-					coefficient = 0.f;
-				}
-				contactPoint += coefficient * secondBoxAxes[j];
-			}
-			contactPoint += secondBox.GetCenter();
-
-			break;
-		case 1:
-			axis = secondBoxAxes[jAxis];
-			minOverlap /= glm::dot(axis, axis);
-			sigma = glm::dot(axis, centerDifference) > 0 ? 1.f : -1.f;
-
-			for (int i = 0; i < 3; ++i) {
-				float coefficient = 0;
-				if (glm::epsilonNotEqual(coefficients[i][jAxis], 0.f, EPSILON)) {
-					coefficient = sigma * glm::sign(coefficients[i][jAxis]) * firstBoxExtents[i];
-				}
-				else {
-					//auto indices = { 0, 1, 2 };
-					//float sum = std::reduce(indices.begin(), indices.end(), 0.f, [&](int acc, int k) {
-					//	return acc + absCoefficients[i][k] * secondBoxExtents[k]; });
-
-					//float dot = glm::dot(-firstBoxAxes[i], centerDifference);
-					//float minCoeff = dot - sum;
-					//float maxCoeff = dot + sum;
-
-					//if (firstBoxExtents[i] <= maxCoeff) {
-					//	coefficient = firstBoxExtents[i];
-					//}
-					//else if (-firstBoxExtents[i] >= minCoeff) {
-					//	coefficient = -firstBoxExtents[i];
-					//}
-					//else {
-					//	coefficient = minCoeff;
-					//}
-					coefficient = 0.f;
-				}
-				contactPoint += coefficient * firstBoxAxes[i];
-			}
-			contactPoint += firstBox.GetCenter();
-
-			break;
-		case 2:
-
-			axis = glm::cross(firstBoxAxes[iAxis], secondBoxAxes[jAxis]);
-			minOverlap /= glm::dot(axis, axis);
-			sigma = glm::dot(axis, centerDifference) > 0 ? 1.f : -1.f;
-
-			glm::vec3 xCoefficients(0);
-			glm::vec3 yCoefficients(0);
-
-			int i0 = (iAxis + 1) % 3;
-			int i1 = (iAxis + 2) % 3;
-
-			int j0 = (jAxis + 1) % 3;
-			int j1 = (jAxis + 2) % 3;
-
-			xCoefficients[i0] = -1.f * sigma * glm::sign(coefficients[i1][jAxis]) * firstBoxExtents[i0];
-			xCoefficients[i1] = sigma * glm::sign(coefficients[i0][jAxis]) * firstBoxExtents[i1];
-
-			yCoefficients[j0] = -1.f * sigma * glm::sign(coefficients[iAxis][j1]) * secondBoxExtents[j0];
-			yCoefficients[j1] = sigma * glm::sign(coefficients[iAxis][j0]) * secondBoxExtents[j1];
-
-			float fraction = 1.f / (1.f - coefficients[iAxis][jAxis] * coefficients[iAxis][jAxis]);
-			float innerParanthesis =
-				-1.f * glm::dot(secondBoxAxes[jAxis], centerDifference) +
-				coefficients[i0][jAxis] * xCoefficients[i0] +
-				coefficients[i1][jAxis] * xCoefficients[i1];
-			float outerParanthesis =
-				glm::dot(firstBoxAxes[iAxis], centerDifference) +
-				coefficients[iAxis][jAxis] * innerParanthesis +
-				coefficients[iAxis][j0] * yCoefficients[j0] +
-				coefficients[iAxis][j1] * yCoefficients[j1];
-
-			xCoefficients[iAxis] = fraction * outerParanthesis;
-
-			for (int i = 0; i < 3; ++i) {
-				contactPoint += xCoefficients[i] * firstBoxAxes[i];
-			}
-			contactPoint += firstBox.GetCenter();
 	}
 
 	glm::vec3 normal = glm::normalize(axis) * minOverlap;
 	if (glm::dot(normal, centerDifference) >= 0.f) {
 		normal *= -1.f;
 	}
-	return Collision(p_firstCollider.entity, p_secondCollider.entity, contactPoint, contactPoint, normal);
+
+	auto&& [contactPoint1, contactPoint2] = ContactPoints::GetBox_BoxContacts(firstBox, secondBox, normal);
+
+	return Collision(p_firstCollider.entity, p_secondCollider.entity, contactPoint1, contactPoint2, normal);
 }
 
 std::optional<Collision> CollisionFunctions::IntersectSphere_Sphere(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
@@ -249,12 +132,14 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 {
 	const SphereColliderComponent* spherePointer;
 	const BoxColliderComponent* boxPointer;
+	bool swap = false;
 
 	if (p_firstCollider.type == Sphere) {
 		spherePointer = static_cast<const SphereColliderComponent*>(&p_firstCollider);
 		boxPointer = static_cast<const BoxColliderComponent*>(&p_secondCollider);
 	}
 	else {
+		swap = true;
 		spherePointer = static_cast<const SphereColliderComponent*>(&p_secondCollider);
 		boxPointer = static_cast<const BoxColliderComponent*>(&p_firstCollider);
 	}
@@ -271,6 +156,9 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 	if (sphere.GetRadius() > distance) {
 		glm::vec3 boxPoint = box.GetAxes() * closestPointLocal + box.GetCenter();
 		glm::vec3 spherePoint = glm::normalize(boxPoint - sphere.GetCenter()) * sphere.GetRadius() + sphere.GetCenter();
+		if (swap) {
+			Collision(box.entity, sphere.entity, boxPoint, spherePoint, spherePoint - boxPoint);
+		}
 		return Collision(sphere.entity, box.entity, spherePoint, boxPoint, boxPoint - spherePoint);
 	}
 

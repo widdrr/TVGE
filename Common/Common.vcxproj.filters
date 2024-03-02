@@ -17,5 +17,11 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
+    <ClCompile Include="GeometryHelpers.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryHelpers.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

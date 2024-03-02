@@ -3,6 +3,8 @@ export module Physics.CollisionFunctions;
 import Physics.Components;
 import Physics.Resources;
 
+import <glm/vec3.hpp>;
+
 import <optional>;
 import <functional>;
 

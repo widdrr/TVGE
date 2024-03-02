@@ -144,6 +144,8 @@
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Common.ixx" />
+    <ClCompile Include="GeometryHelpers.cpp" />
+    <ClCompile Include="GeometryHelpers.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -161,9 +161,10 @@ int main()
 	cube.CreateComponentOfType<BoxColliderComponent>();
 
 	Entity testCube(cube);
+	Entity testFloor(cube);
 	testCube.CreateComponentOfType<BodyComponent>(1.f);
 	cube.Scale(5.f, 0.1f, 5.f);
-	testCube.Rotate(1.f, 0.f, 1.f, 46.f);
+	testCube.Rotate(0.f, 0.f, 1.f, 45.f);
 	
 	cube.Translate(0.f, 2.f, -10.f);
 
@@ -184,14 +185,15 @@ int main()
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
 	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
 
-
-
 	sphere.Translate(-5.f, 0.f, 0.f);
 	testCube.Translate(5.f, 10.f, -10.f);
+	testFloor.Translate(5.f, 0.f, -10.5f);
+	testFloor.Rotate(1.f, 0.f, 0.f, 45.f);
 
 	renderer.AddObject(cube);
-	renderer.AddObject(cube2);
+	//renderer.AddObject(cube2);
 	renderer.AddObject(testCube);
+	renderer.AddObject(testFloor);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
 	renderer.AddLightSource(moon);
@@ -207,9 +209,10 @@ int main()
 
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
-	simulator.AddObject(cube2);
+	//simulator.AddObject(cube2);
 	simulator.AddObject(testCube);
-	simulator.AddObject(sphere);
+	simulator.AddObject(testFloor);
+	//simulator.AddObject(sphere);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -256,13 +259,18 @@ int main()
 	bool stopSimulation = false;
 	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
 	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision& c) {
-		stopSimulation = true;
+		//stopSimulation = true;
 		cols.push_back(collisionSphere);
 		auto&& col = cols.back();
-		col.position = c.contactPoint2;
+		col.position = c.contactPoint1;
 		renderer.AddObject(col);
+		cols.push_back(collisionSphere);
+		auto&& col2 = cols.back();
+		col2.position = c.contactPoint2;
+		renderer.AddObject(col2);
 		std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
-		std::cout << std::format("Point: {}, {}, {}\n", c.contactPoint2.x, c.contactPoint2.y, c.contactPoint2.z);});
+		std::cout << std::format("Point: {}, {}, {}\n", c.contactPoint2.x, c.contactPoint2.y, c.contactPoint2.z);
+		std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); });
 
 	bool showAxes = false;
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
@@ -274,7 +282,7 @@ int main()
 		input.ProcessInput();
 
 		if (!stopSimulation) {
-			simulator.SimulateStep(deltaTime);
+			simulator.SimulateStep(deltaTime * 0.5f);
 		}
 		if (!renderWireframe) {
 			renderer.RenderFrame();
