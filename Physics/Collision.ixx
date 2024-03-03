@@ -15,4 +15,6 @@ public:
 	glm::vec3 contactPoint1;
 	glm::vec3 contactPoint2;
 	glm::vec3 collisionNormal;
+
+	Collision GetOther() const;
 };

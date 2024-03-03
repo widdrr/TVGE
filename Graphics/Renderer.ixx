@@ -30,6 +30,8 @@ public:
 	void RenderShadows(std::shared_ptr<LightSourceComponent> p_caster);
 	void RenderFrame(ShaderProgram& p_shader);
 	void RenderWireframe();
+	void DrawRayBetweenPoints(glm::vec3 p_start, glm::vec3 p_end, glm::vec3 p_color);
+	void DrawRayAtPosition(glm::vec3 p_position, glm::vec3 p_ray, glm::vec3 p_color);
 
 	void DisplayScene();
 
@@ -105,6 +107,7 @@ private:
 	std::shared_ptr<ShaderProgram> _shadowsShader;
 	std::unique_ptr<FrameBuffer> _shadowBuffer;
 	static unsigned int _shadowWidth, _shadowHeight;
+	unsigned int _rayVao, _rayVbo;
 
 
 	//TODO: add to camera?

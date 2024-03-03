@@ -11,6 +11,7 @@ module Graphics:Renderer;
 import MeshHelpers;
 
 import <glm/gtc/type_ptr.hpp>;
+import <glm/gtx/matrix_cross_product.hpp>;
 
 import <iostream>;
 import <fstream>;
@@ -44,11 +45,38 @@ Renderer::Renderer(GLFWwindow* p_window) :
 
 	auto shadowMap = std::shared_ptr<Cubemap>(new Cubemap(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
 	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(shadowMap).NoColorBuffer().Build();
+
+	//creating the one true ray, all other rays are instances of this
+	glGenVertexArrays(1, &_rayVao);
+	glGenBuffers(1, &_rayVbo);
+
+	glBindVertexArray(_rayVao);
+	glBindBuffer(GL_ARRAY_BUFFER, _rayVbo);
+
+	std::vector<float> vertices = { 0.f, 0.f, 0.f, 1.f, 0.f, 0.f };
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), reinterpret_cast<void*>(vertices.data()), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(VertexAttributes::Position, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);
+	glEnableVertexAttribArray(VertexAttributes::Position);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 Renderer::~Renderer()
 {
 	glUseProgram(0);
+
+	//Cleaning up ray primitive
+	glBindVertexArray(_rayVao);
+
+	glDisableVertexAttribArray(VertexAttributes::Position);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &_rayVbo);
+
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &_rayVao);
 }
 
 void Renderer::RenderAndDisplayScene()
@@ -241,8 +269,53 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 void Renderer::RenderWireframe()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	_wireframeShader->SetVariable(UniformVariables::color, glm::vec3(1.f, 0.f, 0.f));
 	RenderFrame(*_wireframeShader);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Renderer::DrawRayBetweenPoints(glm::vec3 p_start, glm::vec3 p_end, glm::vec3 p_color)
+{
+	DrawRayAtPosition(p_start, p_end - p_start, p_color);
+}
+
+void Renderer::DrawRayAtPosition(glm::vec3 p_position, glm::vec3 p_ray, glm::vec3 p_color)
+{
+	float length = glm::length(p_ray);
+	glm::vec3 ray = glm::normalize(p_ray);
+
+	auto modelMatrix = glm::translate(glm::identity<glm::mat4>(), p_position);
+
+	float cosine = glm::dot(ray, glm::vec3(1.f, 0.f, 0.f));
+
+
+	if (glm::epsilonNotEqual(cosine, -1.f, EPSILON)) {
+
+		float factor = 1.f / (1.f + cosine);
+
+		glm::vec3 cross = glm::cross(glm::vec3(1.f, 0.f, 0.f), ray);
+		glm::mat4 crossProductMatrix = glm::matrixCross4(cross);
+		glm::mat4 rotation = glm::identity<glm::mat4>() + crossProductMatrix + crossProductMatrix * crossProductMatrix * factor;
+
+		modelMatrix = modelMatrix * rotation;
+	}
+	else {
+		length *= -1.f;
+	}
+
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(length));
+
+	glUseProgram(_wireframeShader->_id);
+	_wireframeShader->SetVariable(UniformVariables::color, p_color);
+	_wireframeShader->SetVariable(UniformVariables::viewMatrix, _mainCamera.GetViewTransformation());
+	_wireframeShader->SetVariable(UniformVariables::modelMatrix, modelMatrix);
+
+	glBindVertexArray(_rayVao);
+	glDrawArrays(GL_LINES, 0, 2);
+	glBindVertexArray(0);
+
+	glUseProgram(0);
+
 }
 
 void Renderer::DisplayScene()

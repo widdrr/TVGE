@@ -21,7 +21,7 @@ void BoxColliderComponent::ApplyTransformations()
 
 glm::mat3 BoxColliderComponent::ComputeInertiaMatrix(float p_mass)
 {
-	float factor = p_mass / 3.f;
+	float factor = p_mass / 12.f;
 	float inertiaXX = factor * (_extents.y * _extents.y + _extents.z * _extents.z);
 	float inertiaYY = factor * (_extents.x * _extents.x + _extents.z * _extents.z);
 	float inertiaZZ = factor * (_extents.x * _extents.x + _extents.y * _extents.y);

@@ -28,5 +28,6 @@ import <glm/gtc/matrix_transform.hpp>;
 import <glm/gtc/type_ptr.hpp>;
 import <glm/gtc/epsilon.hpp>;
 import <glm/gtx/norm.hpp>;
+import <glm/gtx/matrix_cross_product.hpp>;
 
 //only glm is well behaved as a module

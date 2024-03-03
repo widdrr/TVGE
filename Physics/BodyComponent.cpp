@@ -60,7 +60,7 @@ void BodyComponent::RegisterCollider()
 void BodyComponent::UpdateInertiaMatrix()
 {
 	if (_collider.expired()) {
-		_inertiaMatrix = glm::mat3(2.f * _mass);
+		_inertiaMatrix = glm::mat3(0.4f * _mass);
 		_inverseInertiaMatrix = glm::inverse(_inertiaMatrix);
 		return;
 	}
@@ -89,11 +89,12 @@ void BodyComponent::Update(float p_deltaTime)
 	glm::vec3 acceleration = _force * _inverseMass;
 	glm::vec3 displacement = velocity * p_deltaTime + acceleration * p_deltaTime * p_deltaTime * 0.5f;
 	
-	velocity += acceleration * p_deltaTime;
+	velocity = displacement / p_deltaTime;
 	entity.Translate(displacement);
 
-	glm::vec3 angularAcceleration = _torque * _inverseInertiaMatrix;
+	glm::vec3 angularAcceleration = _inverseInertiaMatrix * _torque;
 	glm::vec3 rotation = angularVelocity * p_deltaTime + angularAcceleration * p_deltaTime * p_deltaTime * 0.5f;
+	
 	angularVelocity += angularAcceleration * p_deltaTime;
 	if (glm::length(rotation) > 0) {
 		entity.Rotate(rotation);

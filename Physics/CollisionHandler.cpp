@@ -42,8 +42,10 @@ std::vector<Collision> CollisionHandler::DetectCollisions()
 				if (collider1.physical || collider2.physical) {
 					_collisions.push_back(collision);
 				}
-				collider1.SendCollisionEvent(collision.entity2, collision);
-				collider2.SendCollisionEvent(collision.entity1, collision);
+				collider1.SendCollisionEvent(collision.entity1, collision);
+
+				Collision collision2 = collision.GetOther();
+				collider2.SendCollisionEvent(collision.entity2, collision2);
 			}
 		}
 	}

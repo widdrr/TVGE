@@ -161,16 +161,15 @@ int main()
 	cube.CreateComponentOfType<BoxColliderComponent>();
 
 	Entity testCube(cube);
-	Entity testFloor(cube);
-	testCube.CreateComponentOfType<BodyComponent>(1.f);
+	auto cubeBody = testCube.CreateComponentOfType<BodyComponent>(10.f).lock();
+
+	cubeBody->angularVelocity = glm::vec3(3.f, 0.f, 0.f);
 	
-	testCube.Translate(5.f, 10.f, -10.f);
-	testFloor.Translate(5.f, 0.f, -10.f);
-	//testFloor.Scale(10.f, 0.1f, 10.f);
-	testFloor.Rotate(1.f, 0.f, 0.f, 45.f);
+	testCube.Translate(5.f, -6.f, -10.f);
+	testCube.Scale(2.f);
 
 	cube.Scale(5.f, 0.1f, 5.f);
-	testCube.Rotate(1.f, 0.f, 0.f, 45.f);
+	testCube.Rotate(1.f, 0.f, 1.f, 46.f);
 	
 	cube.Translate(0.f, 2.f, -10.f);
 
@@ -187,16 +186,15 @@ int main()
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
 	Entity collisionSphere(sphere);
-	collisionSphere.Scale(0.1f, 0.1f, 0.1f);
+	collisionSphere.Scale(0.05f);
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
 	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
 
 	sphere.Translate(-5.f, 0.f, 0.f);
 
 	renderer.AddObject(cube);
-	//renderer.AddObject(cube2);
+	renderer.AddObject(cube2);
 	renderer.AddObject(testCube);
-	renderer.AddObject(testFloor);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
 	renderer.AddLightSource(moon);
@@ -214,7 +212,6 @@ int main()
 	simulator.AddObject(cube);
 	//simulator.AddObject(cube2);
 	simulator.AddObject(testCube);
-	simulator.AddObject(testFloor);
 	//simulator.AddObject(sphere);
 
 	bool initialFocus = true;
@@ -260,21 +257,19 @@ int main()
 	
 	std::vector<Entity> cols;
 	bool stopSimulation = false;
+	glm::vec3 contact, normal;
 	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
-	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision& c) {
+	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision c) {
 		//stopSimulation = true;
 		cols.push_back(collisionSphere);
 		auto&& col = cols.back();
 		col.position = c.contactPoint1;
 		renderer.AddObject(col);
-		cols.push_back(collisionSphere);
-		auto&& col2 = cols.back();
-		col2.position = c.contactPoint2;
-		renderer.AddObject(col2);
-		std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
-		std::cout << std::format("Point1: {}, {}, {}\n", c.contactPoint1.x, c.contactPoint1.y, c.contactPoint1.z);
-		std::cout << std::format("Point2: {}, {}, {}\n", c.contactPoint2.x, c.contactPoint2.y, c.contactPoint2.z);
-		std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); });
+		contact = c.contactPoint1;
+		normal = glm::normalize(c.collisionNormal);
+		//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
+		std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
+																						 });
 
 	bool showAxes = false;
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
@@ -285,9 +280,15 @@ int main()
 		//window.ComputeFPS();
 		input.ProcessInput();
 
+		renderer.DrawRayAtPosition(testCube.position, cubeBody->angularVelocity, glm::vec3(1.f, 1.f, 0.f));
 		if (!stopSimulation) {
 			simulator.SimulateStep(deltaTime * 1.f);
 		}
+		else {
+			renderer.DrawRayAtPosition(contact, normal, glm::vec3(0.f, 1.f, 0.f));
+			renderer.DrawRayBetweenPoints(contact, testCube.position, glm::vec3(0.f, 0.f, 1.f));
+		}
+
 		if (!renderWireframe) {
 			renderer.RenderFrame();
 		}

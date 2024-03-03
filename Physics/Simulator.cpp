@@ -2,6 +2,7 @@ module Physics:Simulator;
 
 import <glm/vec3.hpp>;
 import <glm/geometric.hpp>;
+import <glm/gtx/norm.hpp>;
 
 import <iostream>;
 
@@ -29,6 +30,7 @@ void Simulator::UpdateBodies(float p_delta)
 		if (body->gravity) {
 			body->AddForce(glm::vec3(0.f, -1.f, 0.f) * body->_mass * gravityStrength);
 			body->AddForce(-body->velocity * airDynamicFriction);
+			//body->AddTorque(-body->angularVelocity * airDynamicFriction);
 		}
 		body->UpdateInertiaMatrix();
 		body->Update(p_delta);
@@ -82,15 +84,22 @@ void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, g
 	glm::vec3 collisionNormal = glm::normalize(p_normal);
 
 	glm::vec3 support = p_point - p_body.entity.position;
+	glm::vec3 collisionVelocity = p_body.velocity + glm::cross(p_body.angularVelocity, support);
+
 	p_body.entity.Translate(p_normal);
 
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 
-	float impulse = glm::dot(-1.5f * p_body.velocity, collisionNormal) /
+	float impulse = -1.5f * glm::dot(collisionVelocity, collisionNormal) /
 		(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
-	p_body.velocity += collisionNormal * impulse * p_body._inverseMass;
-	p_body.angularVelocity += 0.1f * p_body._inverseInertiaMatrix * glm::cross(support, impulse * collisionNormal);
+	glm::vec3 velocityChange = collisionNormal * impulse * p_body._inverseMass;
+
+	p_body.velocity += velocityChange;
+
+	glm::vec3 angularVelocityChange = p_body._inverseInertiaMatrix * impulse * glm::cross(support, collisionNormal);
+
+	p_body.angularVelocity += angularVelocityChange;
 }
 
 void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint, glm::vec3 p_normal)

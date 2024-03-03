@@ -19,7 +19,7 @@ void ColliderComponent::AddCollisionEventHandler(Callback p_callback)
 	_collisionCallbacks.push_back(p_callback);
 }
 
-void ColliderComponent::SendCollisionEvent(Entity& p_other, const Collision& p_info)
+void ColliderComponent::SendCollisionEvent(Entity& p_other, const Collision p_info)
 {
 	for (auto&& callback : _collisionCallbacks) {
 		callback(p_other, p_info);

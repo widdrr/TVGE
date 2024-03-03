@@ -17,7 +17,7 @@ void SphereColliderComponent::ApplyTransformations()
 
 glm::mat3 SphereColliderComponent::ComputeInertiaMatrix(float p_mass)
 {
-	float inertia = 2.f * p_mass * _radius * _radius;
+	float inertia = 0.4f * p_mass * _radius * _radius;
 	return glm::mat3(inertia);
 }
 

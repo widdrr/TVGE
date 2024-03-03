@@ -24,6 +24,7 @@ export namespace UniformVariables
 	constexpr std::string_view projectionMatrix = "glProjectionMatrix";
 	constexpr std::string_view modelMatrix = "glModelMatrix";
 	constexpr std::string_view viewMatrix = "glViewMatrix";
+	constexpr std::string_view color = "glColor";
 
 	constexpr std::string_view cameraPosition = "glCameraPosition";
 	namespace Materials
