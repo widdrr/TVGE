@@ -13,6 +13,7 @@ import <memory>;
 import <random>;
 import <format>;
 
+
 //for some ungodly reason, main does not compile without this
 static void DontDeleteThis(Entity& obj)
 {
@@ -161,15 +162,15 @@ int main()
 	cube.CreateComponentOfType<BoxColliderComponent>();
 
 	Entity testCube(cube);
-	auto cubeBody = testCube.CreateComponentOfType<BodyComponent>(10.f).lock();
+	auto cubeBody = testCube.CreateComponentOfType<BodyComponent>(1.f).lock();
 
 	cubeBody->angularVelocity = glm::vec3(3.f, 0.f, 0.f);
 	
-	testCube.Translate(5.f, -6.f, -10.f);
+	testCube.Translate(5.f, 10.f, -10.f);
 	testCube.Scale(2.f);
 
 	cube.Scale(5.f, 0.1f, 5.f);
-	testCube.Rotate(1.f, 0.f, 1.f, 46.f);
+	testCube.Rotate(1.f, 1.f, 0.f, 45.f);
 	
 	cube.Translate(0.f, 2.f, -10.f);
 
@@ -210,7 +211,7 @@ int main()
 
 	simulator.AddObject(floor);
 	simulator.AddObject(cube);
-	//simulator.AddObject(cube2);
+	simulator.AddObject(cube2);
 	simulator.AddObject(testCube);
 	//simulator.AddObject(sphere);
 
@@ -257,16 +258,21 @@ int main()
 	
 	std::vector<Entity> cols;
 	bool stopSimulation = false;
-	glm::vec3 contact, normal;
+	glm::vec3 contact, normal, angularVec;
 	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
+	bool enableAutostop = false;
+	input.AddKeyPressEventHandler(Keys::V, [&]() {enableAutostop = !enableAutostop; });
 	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision c) {
-		//stopSimulation = true;
+		if (enableAutostop) {
+			stopSimulation = true;
+		}
 		cols.push_back(collisionSphere);
 		auto&& col = cols.back();
 		col.position = c.contactPoint1;
 		renderer.AddObject(col);
 		contact = c.contactPoint1;
 		normal = glm::normalize(c.collisionNormal);
+		angularVec = glm::cross(contact - e.position, normal);
 		//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
 		std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
 																						 });
@@ -287,6 +293,7 @@ int main()
 		else {
 			renderer.DrawRayAtPosition(contact, normal, glm::vec3(0.f, 1.f, 0.f));
 			renderer.DrawRayBetweenPoints(contact, testCube.position, glm::vec3(0.f, 0.f, 1.f));
+			renderer.DrawRayAtPosition(testCube.position, angularVec, glm::vec3(0.f, 1.f, 1.f));
 		}
 
 		if (!renderWireframe) {

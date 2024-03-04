@@ -29,8 +29,17 @@ void Simulator::UpdateBodies(float p_delta)
 		auto body = wbody.lock();
 		if (body->gravity) {
 			body->AddForce(glm::vec3(0.f, -1.f, 0.f) * body->_mass * gravityStrength);
-			body->AddForce(-body->velocity * airDynamicFriction);
-			//body->AddTorque(-body->angularVelocity * airDynamicFriction);
+			glm::vec3 linearFriction = -body->velocity * airDynamicFriction;
+			if (glm::length2(linearFriction) <= 0.01f) {
+				linearFriction *= 10;
+			}
+			body->AddForce(linearFriction);
+
+			glm::vec3 angularFriction = -body->angularVelocity * airDynamicFriction;
+			if (glm::length2(angularFriction) <= 0.01f) {
+				angularFriction *= 10;
+			}
+			body->AddTorque(angularFriction);
 		}
 		body->UpdateInertiaMatrix();
 		body->Update(p_delta);
@@ -96,6 +105,8 @@ void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, g
 	glm::vec3 velocityChange = collisionNormal * impulse * p_body._inverseMass;
 
 	p_body.velocity += velocityChange;
+
+	std::cout << impulse << "\n";
 
 	glm::vec3 angularVelocityChange = p_body._inverseInertiaMatrix * impulse * glm::cross(support, collisionNormal);
 
