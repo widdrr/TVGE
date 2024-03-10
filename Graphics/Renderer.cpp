@@ -169,7 +169,6 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 
 	glViewport(0, 0, _shadowWidth, _shadowHeight);
 
-	float farPlane = 100.f;
 	auto position = p_caster->GetPosition();
 	std::shared_ptr<ShaderProgram> shadowShader;
 	std::vector<glm::mat4> shadowMatrices;
@@ -181,7 +180,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 		_shadowBuffer->SetDepthCubemap(_pointShadowMap);
 		_pointShadowsShader->SetVariable(shadowCasterPosition, lightPosition);
 
-		auto shadowProjection = glm::perspective(glm::radians(90.0f), static_cast<float>(_shadowWidth / _shadowHeight), 1.f, farPlane);
+		auto shadowProjection = glm::perspective(glm::radians(90.0f), static_cast<float>(_shadowWidth / _shadowHeight), _shadowNearPlane, _shadowFarPlane);
 
 		shadowMatrices.push_back(shadowProjection *
 								 glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
@@ -198,12 +197,18 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	}
 	//Directional light, fall back to simpler shadow mapping
 	else {
-		auto lightPosition = glm::vec3(position) * farPlane * 0.75f;
+		auto lightPosition = glm::vec3(position) * _directionalShadowHeight;
 		shadowShader = _directionalShadowsShader;
 		_shadowBuffer->SetDepthTexture2D(_directionalShadowMap);
 		_directionalShadowsShader->SetVariable(shadowCasterPosition, lightPosition);
 
-		auto shadowProjection = glm::ortho(-farPlane / 2.f, farPlane / 2.f, farPlane / 2.f, -farPlane / 2.f, 1.f, farPlane);
+		auto shadowProjection = glm::ortho(-_directionalShadowSize / 2.f, 
+										   _directionalShadowSize / 2.f, 
+										   _directionalShadowSize / 2.f,  
+										   -_directionalShadowSize / 2.f,
+										   _shadowNearPlane,
+										   _shadowFarPlane);
+		
 		auto upVector = glm::vec3(0.f, 1.f, 0.f);
 		if (glm::epsilonEqual(glm::abs(glm::dot(upVector, glm::normalize(lightPosition))), 1.f, EPSILON)) {
 			upVector = glm::normalize(upVector + glm::vec3(0.1f, 0.f, 0.1f));
@@ -213,7 +218,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 		shadowMatrices.push_back(_shadowLightMatrix);
 	}
 
-	shadowShader->SetVariable(shadowFarPlane, farPlane);
+	shadowShader->SetVariable(shadowFarPlane, _shadowFarPlane);
 	for (int i = 0; i < shadowMatrices.size(); ++i) {
 		shadowShader->SetVariable(UniformVariables::InsertArrayIndex(shadowMatricesArray, i), shadowMatrices[i]);
 	}
@@ -523,7 +528,7 @@ void Renderer::SetShadowVariables(ShaderProgram& p_shader)
 
 		glm::vec4 position = _shadow->GetPosition();
 		p_shader.SetVariable(hasShadows, true);
-		p_shader.SetVariable(shadowFarPlane, 100.f);
+		p_shader.SetVariable(shadowFarPlane, _shadowFarPlane);
 
 		if (position.w == 1.f) {
 			p_shader.SetVariable(shadowCasterPosition, position);
@@ -671,7 +676,11 @@ void Renderer::AddLightSource(const Entity& p_object)
 	_lightSources.push_back(lightSource);
 }
 
-void Renderer::SetShadowCaster(const Entity& p_object)
+void Renderer::SetShadowCaster(const Entity& p_object, 
+							   float p_shadowFarPlane, 
+							   float p_directionalShadowHeight, 
+							   float p_directionalShadowSize, 
+							   float p_shadowNearPlane)
 {
 	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
 	if (lightSource.expired()) {
@@ -680,6 +689,10 @@ void Renderer::SetShadowCaster(const Entity& p_object)
 	}
 
 	_shadowCaster = lightSource;
+	_shadowFarPlane = p_shadowFarPlane;
+	_directionalShadowHeight = p_directionalShadowHeight;
+	_directionalShadowSize = p_directionalShadowSize;
+	_shadowNearPlane = p_shadowNearPlane;
 }
 
 void Renderer::SetBackgroundColor(float p_red, float p_green, float p_blue, float p_alpha)

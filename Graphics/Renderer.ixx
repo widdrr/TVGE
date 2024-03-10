@@ -47,7 +47,11 @@ public:
 
 	void AddObject(const Entity& p_object);
 	void AddLightSource(const Entity& p_object);
-	void SetShadowCaster(const Entity& p_object);
+	void SetShadowCaster(const Entity& p_object,
+						 float p_shadowFarPlane = 100.f,
+						 float p_directionalShadowHeight = 80.f,
+						 float p_directionalShadowSize = 100.f,
+						 float p_shadowNearPlane = 1.f);
 
 	void Set2DMode(float p_width, float p_height);
 	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
@@ -64,6 +68,7 @@ public:
 														  const std::string& p_geometryShaderText = "");
 
 	std::shared_ptr<Texture2D> GenerateTexture2D(const std::string& p_texturePath, const bool p_repeat = true);
+	
 	std::shared_ptr<Cubemap> GenerateCubemap(const std::string& p_frontPath,
 											 const std::string& p_rightPath,
 											 const std::string& p_leftPath,
@@ -113,8 +118,9 @@ private:
 	std::shared_ptr<Texture2D> _directionalShadowMap;
 	std::unique_ptr<FrameBuffer> _shadowBuffer;
 	glm::mat4 _shadowLightMatrix;
-	static unsigned int _shadowWidth, _shadowHeight;
+	float _shadowNearPlane, _shadowFarPlane, _directionalShadowHeight,_directionalShadowSize;
 	
+	static unsigned int _shadowWidth, _shadowHeight;
 	unsigned int _rayVao, _rayVbo;
 
 	//TODO: add to camera?
