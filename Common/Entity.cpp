@@ -57,6 +57,11 @@ void Entity::Rotate(float p_axisX, float p_axisY, float p_axisZ, float p_thetaDe
 
 void Entity::Rotate(const glm::vec3& p_axis, float p_thetaDeg) 
 {
+	if(glm::epsilonEqual(p_thetaDeg, 0.f, EPSILON) || 
+	   glm::epsilonEqual(glm::length2(p_axis), 0.f, EPSILON))
+	{
+		return;
+	}
 	glm::vec3 rotationAxis = glm::normalize(p_axis);
 	float angleRadians = glm::radians(p_thetaDeg);
 	rotation = glm::angleAxis(angleRadians, rotationAxis) * rotation;
@@ -64,6 +69,9 @@ void Entity::Rotate(const glm::vec3& p_axis, float p_thetaDeg)
 
 void Entity::Rotate(const glm::vec3& p_rotation)
 {
+	if (glm::epsilonEqual(glm::length2(p_rotation), 0.f, EPSILON)) {
+		return;
+	}
 	glm::vec3 rotationAxis = glm::normalize(p_rotation);
 	float angleRadians = glm::length(p_rotation);
 	rotation = glm::angleAxis(angleRadians, rotationAxis) * rotation;

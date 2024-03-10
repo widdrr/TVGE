@@ -149,5 +149,8 @@
     <ClCompile Include="ShaderDataComponent.cpp">
       <Filter>Implementations\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Shaders.ixx">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

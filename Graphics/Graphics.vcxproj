@@ -177,6 +177,7 @@
     <ClCompile Include="ShaderDataComponent.ixx" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="ShaderProgram.ixx" />
+    <ClCompile Include="Shaders.ixx" />
     <ClCompile Include="SkyboxComponent.cpp" />
     <ClCompile Include="SkyboxComponent.ixx" />
     <ClCompile Include="Texture2D.cpp" />

@@ -11,14 +11,13 @@ import <glm/gtc/type_ptr.hpp>;
 import <fstream>;
 import <iostream>;
 
-ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
-							 const std::string& p_fragmentShaderPath,
-							 const std::string& p_geometryShaderPath) :
-	_vertexShaderPath(p_vertexShaderPath),
-	_fragmentShaderPath(p_fragmentShaderPath),
-	_geometryShaderPath(""),
+ShaderProgram::ShaderProgram(const std::string& p_vertexShader,
+							 const std::string& p_fragmentShader,
+							 const std::string& p_geometryShader,
+							 bool p_fromFiles) :
 	_failed(false)
 {	
+	_sourceId = GenerateProgramSourceId(p_vertexShader, p_fragmentShader, p_geometryShader);
 	_id = glCreateProgram();
 
 	if (_id == 0) {
@@ -27,10 +26,19 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
 		return;
 	}
 
-	AddShader(ReadShaderFromFile(p_vertexShaderPath), GL_VERTEX_SHADER);
-	AddShader(ReadShaderFromFile(p_fragmentShaderPath), GL_FRAGMENT_SHADER);
-	if (p_geometryShaderPath != "") {
-		AddShader(ReadShaderFromFile(p_geometryShaderPath), GL_GEOMETRY_SHADER);
+	if (p_fromFiles) {
+		AddShader(ReadShaderFromFile(p_vertexShader), GL_VERTEX_SHADER);
+		AddShader(ReadShaderFromFile(p_fragmentShader), GL_FRAGMENT_SHADER);
+		if (p_geometryShader != "") {
+			AddShader(ReadShaderFromFile(p_geometryShader), GL_GEOMETRY_SHADER);
+		}
+	}
+	else {
+		AddShader(p_vertexShader, GL_VERTEX_SHADER);
+		AddShader(p_fragmentShader, GL_FRAGMENT_SHADER);
+		if (p_geometryShader != "") {
+			AddShader(p_geometryShader, GL_GEOMETRY_SHADER);
+		}
 	}
 
 	glLinkProgram(_id);
@@ -47,7 +55,8 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
 	}
 
 	SetVariable(UniformVariables::skyBoxMap, TextureUnits::Skybox);
-	SetVariable(UniformVariables::Shadows::shadowMap, TextureUnits::Shadow);
+	SetVariable(UniformVariables::Shadows::pointShadowMap, TextureUnits::Shadow);
+	SetVariable(UniformVariables::Shadows::directionalShadowMap, TextureUnits::Shadow);
 	SetVariable(UniformVariables::Materials::materialAmbientMap, TextureUnits::Ambient);
 	SetVariable(UniformVariables::Materials::materialDiffuseMap, TextureUnits::Diffuse);
 	SetVariable(UniformVariables::Materials::materialSpecularMap, TextureUnits::Specular);
@@ -62,18 +71,30 @@ ShaderProgram::ShaderProgram(const std::string& p_vertexShaderPath,
 		glGetProgramInfoLog(_id, _dumpSize, nullptr, dump);
 		std::cerr << "Error while validating shader program: " << dump << "\n";
 		_failed = true;
-		return;
 	}
 }
+
 
 ShaderProgram::~ShaderProgram()
 {
 	glDeleteProgram(_id);
 }
 
+const unsigned int ShaderProgram::GetProgramSourceId() const
+{
+	return _sourceId;
+}
+
+unsigned int ShaderProgram::GenerateProgramSourceId(const std::string& p_vertexShader, const std::string& p_fragmentShader, const std::string& p_geometryShader)
+{
+	unsigned int id = 0;
+	HashCombine(id, p_vertexShader, p_fragmentShader, p_geometryShader);
+	return id;
+}
+
 void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat3 p_value, bool p_debug)
 {
-	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	GLint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
 		return;
 	}
@@ -83,7 +104,7 @@ void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat3 p_val
 
 void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat4 p_value, bool p_debug)
 {	
-	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	GLint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
 		return;
 	}
@@ -93,7 +114,7 @@ void ShaderProgram::SetVariable(std::string_view p_variableName, glm::mat4 p_val
 
 void ShaderProgram::SetVariable(std::string_view p_variableName, glm::vec3 p_value, bool p_debug) 
 {
-	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	GLint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
 		return;
 	}
@@ -103,7 +124,7 @@ void ShaderProgram::SetVariable(std::string_view p_variableName, glm::vec3 p_val
 
 void ShaderProgram::SetVariable(std::string_view p_variableName, glm::vec4 p_value, bool p_debug)
 {
-	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	GLint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
 		return;
 	}
@@ -113,7 +134,7 @@ void ShaderProgram::SetVariable(std::string_view p_variableName, glm::vec4 p_val
 
 void ShaderProgram::SetVariable(std::string_view p_variableName, float p_value, bool p_debug) 
 {
-	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	GLint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
 		return;
 	}
@@ -123,7 +144,7 @@ void ShaderProgram::SetVariable(std::string_view p_variableName, float p_value, 
 
 void ShaderProgram::SetVariable(std::string_view p_variableName, int p_value, bool p_debug)
 {
-	GLuint location = GetUniformLocation(p_variableName, p_debug);
+	GLint location = GetUniformLocation(p_variableName, p_debug);
 	if (location == -1) {
 		return;
 	}
@@ -185,7 +206,7 @@ std::string ShaderProgram::ReadShaderFromFile(std::string p_fileName)
 
 unsigned int ShaderProgram::GetUniformLocation(std::string_view p_variableName, bool p_debug)
 {
-	GLuint location = glGetUniformLocation(_id, p_variableName.data());
+	GLint location = glGetUniformLocation(_id, p_variableName.data());
 	if (location == -1 && p_debug) {
 		std::cerr << "Variable " << p_variableName << " not defined in Shader\n";
 	}

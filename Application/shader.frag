@@ -3,6 +3,7 @@
 in vec2 TextureCoordinates;
 in vec3 Normal;
 in vec3 FragmentPosition;
+in vec4 LightFragmentPosition;
 
 out vec4 FragmentColor;
 
@@ -44,9 +45,10 @@ uniform int glLightCount;
 uniform vec3 glCameraPosition;
 
 uniform bool glShadowCasterPresent;
-uniform vec3 glShadowCasterPosition;
+uniform vec4 glShadowCasterPosition;
 uniform float glShadowFarPlane;
-uniform samplerCubeShadow glShadowMap;
+uniform samplerCubeShadow glPointShadowMap;
+uniform sampler2DShadow glDirectionalShadowMap;
 
 vec3 ComputeAmbientColor(LightSource light)
 {
@@ -98,15 +100,30 @@ float ComputeShadow(vec3 fragmentPosition, vec3 normal)
         return 0;
     }
 
-    vec3 relativePosition = fragmentPosition - glShadowCasterPosition;
-    vec3 casterDirection = normalize(glShadowCasterPosition - FragmentPosition);
-    float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
+    if(glShadowCasterPosition.w == 1)
+    {
+        vec3 relativePosition = fragmentPosition - glShadowCasterPosition.xyz;
+        vec3 casterDirection = normalize(glShadowCasterPosition.xyz - FragmentPosition);
+        float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
 
-    //the reference value for depth comparison is the distance from the shadow caster to the fragmentcolor
-    //with a shadow bias added to prevent shadow acne, normalized by dividing by the far plane
-    float testValue = (length(relativePosition) - bias) / glShadowFarPlane;
+        //the reference value for depth comparison is the distance from the shadow caster to the fragmentcolor
+        //with a shadow bias added to prevent shadow acne, normalized by dividing by the far plane
+        float testValue = (length(relativePosition) - bias) / glShadowFarPlane;
     
-    return texture(glShadowMap, vec4(relativePosition, testValue));
+        return texture(glPointShadowMap, vec4(relativePosition, testValue));
+    }
+
+    else {
+        vec3 coords = LightFragmentPosition.xyz / LightFragmentPosition.w;
+        coords = coords * 0.f, + 0.5f;
+        
+        vec3 casterDirection = normallize(glShadowCasterPosition.xyz);
+        float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
+
+        float testValue = coords.z - bias;
+
+        return texture(glDirectionalShadowMap, vec3(coords.xy, testValue));
+    }
 }
 
 void main()

@@ -9,6 +9,7 @@ module;
 module Graphics:Renderer;
 
 import MeshHelpers;
+import :Shaders;
 
 import <glm/gtc/type_ptr.hpp>;
 import <glm/gtx/matrix_cross_product.hpp>;
@@ -36,15 +37,25 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	glDepthFunc(GL_LEQUAL);
 
 	//loading the default shader
-	_defaultShader = GenerateShader("shader.vert", "shader.frag");
+	_defaultShader = GenerateShaderFromText(ShaderSources::defaultVertex.data(),
+											ShaderSources::defaultFragment.data());
+
+	_wireframeShader = GenerateShaderFromText(ShaderSources::wireframeVertex.data(),
+											  ShaderSources::wireframeFragment.data());
+
 	_mainCamera.SetCameraDirection(0, 0, -1);
 
 	//initializing shadow framebuffer and shader
-	_shadowsShader = GenerateShader("shadows.vert", "shadows.frag", "shadows.geom");
-	_wireframeShader = GenerateShader("wireframe.vert", "wireframe.frag");
+	_pointShadowsShader = GenerateShaderFromText(ShaderSources::pointShadowVertex.data(),
+												 ShaderSources::pointShadowFragment.data(),
+												 ShaderSources::pointShadowGeometry.data());
+	_pointShadowMap = std::shared_ptr<Cubemap>(new Cubemap(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
 
-	auto shadowMap = std::shared_ptr<Cubemap>(new Cubemap(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
-	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(shadowMap).NoColorBuffer().Build();
+	_directionalShadowsShader = GenerateShaderFromText(ShaderSources::directionalShadowVertex.data(),
+													   ShaderSources::directionalShadowFragment.data());
+
+	_directionalShadowMap = std::shared_ptr<Texture2D>(new Texture2D(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
+	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(_pointShadowMap).NoColorBuffer().Build();
 
 	//creating the one true ray, all other rays are instances of this
 	glGenVertexArrays(1, &_rayVao);
@@ -56,9 +67,9 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	std::vector<float> vertices = { 0.f, 0.f, 0.f, 1.f, 0.f, 0.f };
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), reinterpret_cast<void*>(vertices.data()), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(VertexAttributes::Position, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);
+	glVertexAttribPointer(VertexAttributes::Position, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(VertexAttributes::Position);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -122,6 +133,7 @@ void Renderer::RenderFrame()
 			shader.SetVariable(UniformVariables::modelMatrix, modelMatrix);
 			shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
 			shader.SetVariable(UniformVariables::cameraPosition, _mainCamera.GetPosition());
+			shader.SetVariable(UniformVariables::lightMatrix, _shadowLightMatrix);
 
 			//the model matrix to apply to normal vectors to correctly transform to view space
 			//shader.SetVariable(UniformVariables::modelInverseTranspose, glm::mat3(glm::transpose(glm::inverse(modelMatrix))));
@@ -156,35 +168,60 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	using namespace UniformVariables::Shadows;
 
 	glViewport(0, 0, _shadowWidth, _shadowHeight);
+
+	float farPlane = 100.f;
+	auto position = p_caster->GetPosition();
+	std::shared_ptr<ShaderProgram> shadowShader;
+	std::vector<glm::mat4> shadowMatrices;
+
+	//Point shadow, use omnidirectional shadow mapping
+	if (position.w == 1) {
+		auto lightPosition = glm::vec3(position);
+		shadowShader = _pointShadowsShader;
+		_shadowBuffer->SetDepthCubemap(_pointShadowMap);
+		_pointShadowsShader->SetVariable(shadowCasterPosition, lightPosition);
+
+		auto shadowProjection = glm::perspective(glm::radians(90.0f), static_cast<float>(_shadowWidth / _shadowHeight), 1.f, farPlane);
+
+		shadowMatrices.push_back(shadowProjection *
+								 glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowMatrices.push_back(shadowProjection *
+								 glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowMatrices.push_back(shadowProjection *
+								 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+		shadowMatrices.push_back(shadowProjection *
+								 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+		shadowMatrices.push_back(shadowProjection *
+								 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowMatrices.push_back(shadowProjection *
+								 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+	}
+	//Directional light, fall back to simpler shadow mapping
+	else {
+		auto lightPosition = glm::vec3(position) * farPlane * 0.75f;
+		shadowShader = _directionalShadowsShader;
+		_shadowBuffer->SetDepthTexture2D(_directionalShadowMap);
+		_directionalShadowsShader->SetVariable(shadowCasterPosition, lightPosition);
+
+		auto shadowProjection = glm::ortho(-farPlane / 2.f, farPlane / 2.f, farPlane / 2.f, -farPlane / 2.f, 1.f, farPlane);
+		auto upVector = glm::vec3(0.f, 1.f, 0.f);
+		if (glm::epsilonEqual(glm::abs(glm::dot(upVector, glm::normalize(lightPosition))), 1.f, EPSILON)) {
+			upVector = glm::normalize(upVector + glm::vec3(0.1f, 0.f, 0.1f));
+		}
+
+		_shadowLightMatrix = shadowProjection * glm::lookAt(lightPosition, glm::vec3(0.f, 0.f, 0.f), upVector);
+		shadowMatrices.push_back(_shadowLightMatrix);
+	}
+
+	shadowShader->SetVariable(shadowFarPlane, farPlane);
+	for (int i = 0; i < shadowMatrices.size(); ++i) {
+		shadowShader->SetVariable(UniformVariables::InsertArrayIndex(shadowMatricesArray, i), shadowMatrices[i]);
+	}
+
 	_shadowBuffer->Bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glCullFace(GL_FRONT);
-
-	auto lightPosition = glm::vec3(p_caster->GetPosition());
-
-	_shadowsShader->SetVariable(shadowCasterPosition, lightPosition);
-	_shadowsShader->SetVariable(shadowFarPlane, 100.f);
-
-	auto shadowProjection = glm::perspective(glm::radians(90.0f), static_cast<float>(_shadowWidth / _shadowHeight), 1.f, 100.f);
-	std::vector<glm::mat4> shadowMatrices;
-	shadowMatrices.push_back(shadowProjection *
-							 glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-	shadowMatrices.push_back(shadowProjection *
-							 glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-	shadowMatrices.push_back(shadowProjection *
-							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-	shadowMatrices.push_back(shadowProjection *
-							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-	shadowMatrices.push_back(shadowProjection *
-							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-	shadowMatrices.push_back(shadowProjection *
-							 glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
-
-	for (int i = 0; i < 6; ++i) {
-		_shadowsShader->SetVariable(UniformVariables::InsertArrayIndex(shadowMatricesArray, i), shadowMatrices[i]);
-	}
-
-	glUseProgram(_shadowsShader->_id);
+	glUseProgram(shadowShader->_id);
 
 	for (auto&& model : _models) {
 
@@ -202,7 +239,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 			auto mesh = weakMesh.lock();
 			glBindVertexArray(mesh->_vao);
 
-			_shadowsShader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
+			shadowShader->SetVariable(UniformVariables::modelMatrix, component->GetModelTransformation());
 
 			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->_indices.size()), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
@@ -329,13 +366,13 @@ Camera& Renderer::GetMainCamera()
 	return _mainCamera;
 }
 
-std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_vertexShaderPath,
-														const std::string& p_fragmentShaderPath,
-														const std::string& p_geometryShaderPath)
+std::shared_ptr<ShaderProgram> Renderer::GenerateShaderFromFiles(const std::string& p_vertexShaderPath,
+																 const std::string& p_fragmentShaderPath,
+																 const std::string& p_geometryShaderPath)
 {
-	const std::string concatPath = p_vertexShaderPath + p_fragmentShaderPath + p_geometryShaderPath;
-	if (_shaders.contains(concatPath)) {
-		return _shaders[concatPath];
+	const unsigned int sourceId = ShaderProgram::GenerateProgramSourceId(p_vertexShaderPath, p_fragmentShaderPath, p_geometryShaderPath);
+	if (_shaders.contains(sourceId)) {
+		return _shaders[sourceId];
 	}
 
 	auto thisShader = std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderPath, p_fragmentShaderPath, p_geometryShaderPath));
@@ -345,7 +382,27 @@ std::shared_ptr<ShaderProgram> Renderer::GenerateShader(const std::string& p_ver
 		return nullptr;
 	}
 
-	_shaders[concatPath] = thisShader;
+	_shaders[sourceId] = thisShader;
+	thisShader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
+
+	return thisShader;
+}
+
+std::shared_ptr<ShaderProgram> Renderer::GenerateShaderFromText(const std::string& p_vertexShaderText, const std::string& p_fragmentShaderText, const std::string& p_geometryShaderText)
+{
+	const unsigned int sourceId = ShaderProgram::GenerateProgramSourceId(p_vertexShaderText, p_fragmentShaderText, p_geometryShaderText);
+	if (_shaders.contains(sourceId)) {
+		return _shaders[sourceId];
+	}
+
+	auto thisShader = std::shared_ptr<ShaderProgram>(new ShaderProgram(p_vertexShaderText, p_fragmentShaderText, p_geometryShaderText, false));
+
+	if (thisShader->_failed) {
+		std::cerr << "Shader Program creation failed, nullptr is returned\n";
+		return nullptr;
+	}
+
+	_shaders[sourceId] = thisShader;
 	thisShader->SetVariable(UniformVariables::projectionMatrix, _projectionMatrix);
 
 	return thisShader;
@@ -394,7 +451,7 @@ std::shared_ptr<Cubemap> Renderer::GenerateCubemap(const std::string& p_frontPat
 
 std::shared_ptr<Mesh> Renderer::GenerateMesh(const std::string& p_name,
 											 const std::vector<Vertex>& p_vertices,
-											 const std::vector<unsigned int>& p_indices, 
+											 const std::vector<unsigned int>& p_indices,
 											 const std::shared_ptr<Material>& p_material,
 											 bool p_genNormal)
 {
@@ -463,11 +520,20 @@ void Renderer::SetShadowVariables(ShaderProgram& p_shader)
 	if (!_shadowCaster.expired()) {
 		using namespace UniformVariables::Shadows;
 		auto _shadow = _shadowCaster.lock();
+
+		glm::vec4 position = _shadow->GetPosition();
 		p_shader.SetVariable(hasShadows, true);
-		p_shader.SetVariable(shadowCasterPosition, glm::vec3(_shadow->GetPosition()));
 		p_shader.SetVariable(shadowFarPlane, 100.f);
 
-		_shadowBuffer->_depthTexture->Bind(TextureUnits::Shadow, GL_TEXTURE_CUBE_MAP);
+		if (position.w == 1.f) {
+			p_shader.SetVariable(shadowCasterPosition, position);
+			_shadowBuffer->_depthTexture->Bind(TextureUnits::Shadow, GL_TEXTURE_CUBE_MAP);
+
+		}
+		else {
+			p_shader.SetVariable(shadowCasterPosition, position);
+			_shadowBuffer->_depthTexture->Bind(TextureUnits::Shadow, GL_TEXTURE_2D);
+		}
 	}
 }
 
@@ -630,7 +696,7 @@ void Renderer::SetSkybox(const std::string& p_frontPath,
 {
 	auto skyboxComp = _skybox.TryGetComponentOfType<SkyboxComponent>();
 	if (skyboxComp.expired()) {
-		auto&& shader = *GenerateShader("skybox.vert", "skybox.frag");
+		auto&& shader = *GenerateShaderFromFiles("skybox.vert", "skybox.frag");
 		skyboxComp = _skybox.CreateComponentOfType<SkyboxComponent>(std::ref(shader));
 		auto&& [vertices, indices] = CommonMeshes::Cube();
 

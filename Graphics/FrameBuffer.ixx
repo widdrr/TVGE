@@ -13,6 +13,8 @@ public:
 	~FrameBuffer();
 
 	void Bind();
+	void SetDepthTexture2D(std::shared_ptr<Texture2D> p_texture);
+	void SetDepthCubemap(std::shared_ptr<Cubemap> p_cubemap);
 
 private:
 	FrameBuffer();

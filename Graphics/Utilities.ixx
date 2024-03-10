@@ -24,6 +24,7 @@ export namespace UniformVariables
 	constexpr std::string_view projectionMatrix = "glProjectionMatrix";
 	constexpr std::string_view modelMatrix = "glModelMatrix";
 	constexpr std::string_view viewMatrix = "glViewMatrix";
+	constexpr std::string_view lightMatrix = "glLightMatrix";
 	constexpr std::string_view color = "glColor";
 
 	constexpr std::string_view cameraPosition = "glCameraPosition";
@@ -64,7 +65,8 @@ export namespace UniformVariables
 		constexpr std::string_view hasShadows = "glShadowCasterPresent";
 		constexpr std::string_view shadowCasterPosition = "glShadowCasterPosition";
 		constexpr std::string_view shadowFarPlane = "glShadowFarPlane";
-		constexpr std::string_view shadowMap = "glShadowMap";
+		constexpr std::string_view pointShadowMap = "glPointShadowMap";
+		constexpr std::string_view directionalShadowMap = "glDirectionalShadowMap";
 		constexpr std::string_view shadowMatricesArray = "glShadowMatrices[{}]";
 	}
 

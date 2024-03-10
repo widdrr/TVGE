@@ -56,9 +56,12 @@ public:
 
 	/*********************************************************************/
 
-	std::shared_ptr<ShaderProgram> GenerateShader(const std::string& p_vertexShaderPath,
-												  const std::string& p_fragmentShaderPath,
-												  const std::string& p_geometryShaderPath = "");
+	std::shared_ptr<ShaderProgram> GenerateShaderFromFiles(const std::string& p_vertexShaderPath,
+														   const std::string& p_fragmentShaderPath,
+														   const std::string& p_geometryShaderPath = "");
+	std::shared_ptr<ShaderProgram> GenerateShaderFromText(const std::string& p_vertexShaderText,
+														  const std::string& p_fragmentShaderText,
+														  const std::string& p_geometryShaderText = "");
 
 	std::shared_ptr<Texture2D> GenerateTexture2D(const std::string& p_texturePath, const bool p_repeat = true);
 	std::shared_ptr<Cubemap> GenerateCubemap(const std::string& p_frontPath,
@@ -96,7 +99,7 @@ private:
 	std::vector<std::weak_ptr<LightSourceComponent>> _lightSources;
 	Entity _defaultLight;
 
-	std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> _shaders;
+	std::unordered_map<unsigned int, std::shared_ptr<ShaderProgram>> _shaders;
 	std::shared_ptr<ShaderProgram> _defaultShader;
 	std::shared_ptr<ShaderProgram> _wireframeShader;
 
@@ -104,11 +107,15 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Mesh>> _meshes;
 
 	std::weak_ptr<LightSourceComponent> _shadowCaster;
-	std::shared_ptr<ShaderProgram> _shadowsShader;
+	std::shared_ptr<ShaderProgram> _pointShadowsShader;
+	std::shared_ptr<ShaderProgram> _directionalShadowsShader;
+	std::shared_ptr<Cubemap> _pointShadowMap;
+	std::shared_ptr<Texture2D> _directionalShadowMap;
 	std::unique_ptr<FrameBuffer> _shadowBuffer;
+	glm::mat4 _shadowLightMatrix;
 	static unsigned int _shadowWidth, _shadowHeight;
+	
 	unsigned int _rayVao, _rayVbo;
-
 
 	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;

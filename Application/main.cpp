@@ -134,9 +134,9 @@ int main()
 	auto& renderer = window.GetRenderer();
 	auto& input = window.GetInput();
 
-	auto defaultShader = renderer.GenerateShader("shader.vert", "shader.frag");
-	auto normals = renderer.GenerateShader("normal.vert", "normal.frag", "normal.geom");
-	auto axes = renderer.GenerateShader("axis.vert", "axis.frag", "axis.geom");
+	auto defaultShader = renderer.DefaultShader();
+	auto normals = renderer.GenerateShaderFromFiles("normal.vert", "normal.frag", "normal.geom");
+	auto axes = renderer.GenerateShaderFromFiles("axis.vert", "axis.frag", "axis.geom");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
 	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -145,7 +145,12 @@ int main()
 	basicMaterial->_lightProperties.shininess = 10.f;
 
 	Entity moon;
+	moon.Rotate(1.f, 0.f, 0.f, 15.f);
+	moon.Translate(0.f, 5.f, 0.f);
+	moon.Scale(0.2f);
 	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(0.f, 0.f, 0.f));
+	auto test = moon.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*test, "sphere.dae");
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>().lock();
@@ -174,6 +179,9 @@ int main()
 	
 	cube.Translate(0.f, 2.f, -10.f);
 
+	Entity testCube2(testCube);
+	testCube2.Translate(-10.f, 0.f, 0.f);
+
 	Entity cube2(cube);
 
 	cube.Translate(-5.f, 0.f, 0.f);
@@ -196,10 +204,12 @@ int main()
 	renderer.AddObject(cube);
 	renderer.AddObject(cube2);
 	renderer.AddObject(testCube);
+	renderer.AddObject(testCube2);
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
+	renderer.AddObject(moon);
 	renderer.AddLightSource(moon);
-	//renderer.SetShadowCaster(moon);
+	renderer.SetShadowCaster(moon);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
@@ -213,7 +223,8 @@ int main()
 	simulator.AddObject(cube);
 	simulator.AddObject(cube2);
 	simulator.AddObject(testCube);
-	//simulator.AddObject(sphere);
+	//simulator.AddObject(testCube2);
+	simulator.AddObject(sphere);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -274,7 +285,7 @@ int main()
 		normal = glm::normalize(c.collisionNormal);
 		angularVec = glm::cross(contact - e.position, normal);
 		//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
-		std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
+		//std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
 																						 });
 
 	bool showAxes = false;

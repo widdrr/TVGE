@@ -27,3 +27,13 @@ float GeometryHelpers::DistanceToPlane(glm::vec3 p_point, glm::vec3 p_planeNorma
 {
 	return  glm::dot(p_planeNormal, p_point) - p_planeDistance;
 }
+
+glm::vec3 GeometryHelpers::GetUpVector(glm::vec3 p_direction)
+{
+	auto right = glm::cross(glm::vec3(0.f, 1.f, 0.f), p_direction);
+	if (glm::epsilonEqual(glm::length2(right), 0.f, EPSILON)) {
+		right = glm::cross(glm::vec3(0.f, 0.f, 1.f), p_direction);
+	}
+
+	return glm::normalize(glm::cross(p_direction, right));
+}
