@@ -17,8 +17,8 @@ import <glm/gtx/matrix_cross_product.hpp>;
 import <iostream>;
 import <fstream>;
 
-unsigned int Renderer::_shadowWidth = 2048;
-unsigned int Renderer::_shadowHeight = 2048;
+unsigned int Renderer::_shadowWidth = 4096;
+unsigned int Renderer::_shadowHeight = 4096;
 
 Renderer::Renderer(GLFWwindow* p_window) :
 	_window(p_window),

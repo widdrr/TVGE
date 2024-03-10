@@ -9,7 +9,7 @@ DirectionalLightComponent::DirectionalLightComponent(Entity& p_entity, const glm
 
 glm::vec4 DirectionalLightComponent::GetPosition() const
 {
-	return glm::vec4(_defaultDirection * entity.rotation, 0.f);
+	return glm::vec4(entity.rotation * _defaultDirection, 0.f);
 }
 
 void DirectionalLightComponent::SetLightVariables(ShaderProgram& p_shader, int p_index)
