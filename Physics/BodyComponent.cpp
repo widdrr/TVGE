@@ -1,7 +1,5 @@
 module Physics.Components:BodyComponent;
 
-import <iostream>;
-
 BodyComponent::BodyComponent(Entity& p_entity, const float p_mass)
 	:
 	Component(p_entity),
@@ -9,6 +7,8 @@ BodyComponent::BodyComponent(Entity& p_entity, const float p_mass)
 	angularVelocity(0),
 	_force(0),
 	_torque(0),
+	_mass(0),
+	_inertiaMatrix(1),
 	gravity(true)
 {
 	RegisterCollider();
@@ -89,6 +89,8 @@ void BodyComponent::Update(float p_deltaTime)
 	glm::vec3 acceleration = _force * _inverseMass;
 	glm::vec3 displacement = velocity * p_deltaTime + acceleration * p_deltaTime * p_deltaTime * 0.5f;
 	
+	bool test = glm::all(glm::isnan(displacement));
+
 	velocity = displacement / p_deltaTime;
 	entity.Translate(displacement);
 

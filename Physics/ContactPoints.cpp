@@ -2,6 +2,7 @@ module Physics.CollisionFunctions:ContactPoints;
 
 import Common;
 
+import <glm/glm.hpp>;
 import <glm/gtc/epsilon.hpp>;
 
 import <iostream>;
@@ -9,8 +10,9 @@ import <algorithm>;
 
 std::pair<glm::vec3, glm::vec3> ContactPoints::GetBox_BoxContacts(const BoxColliderComponent& p_firstCollider, const BoxColliderComponent& p_secondCollider, glm::vec3 p_normal)
 {
-	auto firstSupport = GetBoxSupports(p_firstCollider, -p_normal);
-	auto secondSupport = GetBoxSupports(p_secondCollider, p_normal);
+	glm::vec3 normal = glm::normalize(p_normal);
+	auto firstSupport = GetBoxSupports(p_firstCollider, -normal);
+	auto secondSupport = GetBoxSupports(p_secondCollider, normal);
 
 	bool swap = false;
 	if (firstSupport.size() < secondSupport.size()) {
@@ -24,6 +26,11 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetBox_BoxContacts(const BoxColli
 		if (swap) {
 			std::swap(firstPoint, secondPoint);
 		}
+		bool test1 = glm::all(glm::isnan(firstPoint));
+		bool test2 = glm::all(glm::isnan(secondPoint));
+
+		auto firstSupport = GetBoxSupports(p_firstCollider, -p_normal);
+		auto secondSupport = GetBoxSupports(p_secondCollider, p_normal);
 
 		return { firstPoint, secondPoint };
 	}
@@ -135,6 +142,8 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 	glm::vec3 faceNormal = glm::normalize(glm::cross(p_secondSupport[1] - p_secondSupport[0], p_secondSupport[2] - p_secondSupport[1]));
 	float faceDistance = glm::dot(faceNormal, p_secondSupport[0]);
 
+	float debug1, debug2;
+
 	for (int i = 0; i < p_secondSupport.size(); ++i) {
 		bool isEdge = clippedPoints.size() == 2;
 
@@ -158,6 +167,9 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 
 			float dist1 = GeometryHelpers::DistanceToPlane(testEdgeEnd1, clipNormal, clipDistance);
 			float dist2 = GeometryHelpers::DistanceToPlane(testEdgeEnd2, clipNormal, clipDistance);
+
+			debug1 = dist1;
+			debug2 = dist2;
 
 			if (dist1 <= 0) {
 				nextClippedPoints.push_back(testEdgeEnd1);
@@ -192,6 +204,9 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 	}
 	firstPoint /= clippedPoints.size();
 	secondPoint /= clippedPoints.size();
+
+	bool test1 = glm::all(glm::isnan(firstPoint));
+	bool test2 = glm::all(glm::isnan(secondPoint));
 
 	return { firstPoint, secondPoint };
 }

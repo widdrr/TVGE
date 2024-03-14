@@ -7,6 +7,10 @@ BoxColliderComponent::BoxColliderComponent(Entity& p_entity, glm::vec3 p_extents
 	localAxes(p_axes)
 {
 	localExtents = glm::abs(localExtents);
+	for (int i = 0; i < 3; ++i) {
+		localAxes[i] = glm::normalize(localAxes[i]);
+	}
+	ApplyTransformations();
 }
 
 void BoxColliderComponent::ApplyTransformations()
@@ -16,7 +20,7 @@ void BoxColliderComponent::ApplyTransformations()
 	_extents = localExtents * entity.scaling;
 	_extents = glm::abs(_extents);
 
-	_axes = localAxes * glm::mat3_cast(entity.rotation);
+	_axes = glm::mat3_cast(entity.rotation) * localAxes;
 }
 
 glm::mat3 BoxColliderComponent::ComputeInertiaMatrix(float p_mass)

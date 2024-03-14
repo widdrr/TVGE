@@ -5,6 +5,7 @@ import :ContactPoints;
 import <glm/gtc/epsilon.hpp>;
 
 import <numeric>;
+import <iostream>;
 
 std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
@@ -39,7 +40,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 		}
 
 		float overlap = firstRadius + secondRadius - distance;
-		if (overlap != 0.f && overlap < minOverlap) {
+		if (overlap < minOverlap) {
 			minOverlap = overlap;
 			axis = firstBoxAxes[i];
 		}
@@ -56,7 +57,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 			return std::nullopt;
 		}
 		float overlap = firstRadius + secondRadius - distance;
-		if (overlap != 0.f && overlap < minOverlap) {
+		if (overlap < minOverlap) {
 			minOverlap = overlap;
 			axis = secondBoxAxes[j];
 		}
@@ -72,7 +73,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 			int j0 = (j + 1) % 3;
 			int j1 = (j + 2) % 3;
 
-			if (glm::epsilonEqual(glm::dot(firstBoxAxes[i], secondBoxAxes[j]), 1.f, EPSILON))
+			if (glm::epsilonEqual(glm::abs(glm::dot(firstBoxAxes[i], secondBoxAxes[j])), 1.f, EPSILON))
 			{
 				continue;
 			}
@@ -97,18 +98,25 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 				return std::nullopt;
 			}
 
-			float overlap = firstRadius + secondRadius - distance;
-			if (overlap != 0.f && overlap < minOverlap) {
+			auto crossAxis = glm::cross(firstBoxAxes[i], secondBoxAxes[j]);
+			float overlap = (firstRadius + secondRadius - distance) / glm::length(crossAxis);
+			if (overlap < minOverlap) {
 				minOverlap = overlap;
-				axis = glm::cross(firstBoxAxes[i], secondBoxAxes[j]);
+				axis = crossAxis;
 			}
 		}
+	}
+
+	if (minOverlap == 0.f) {
+		minOverlap = EPSILON;
 	}
 
 	glm::vec3 normal = glm::normalize(axis) * minOverlap;
 	if (glm::dot(normal, centerDifference) >= 0.f) {
 		normal *= -1.f;
 	}
+
+	bool test = glm::all(glm::isnan(normal));
 
 	auto&& [contactPoint1, contactPoint2] = ContactPoints::GetBox_BoxContacts(firstBox, secondBox, normal);
 

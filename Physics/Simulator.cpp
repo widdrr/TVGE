@@ -33,6 +33,7 @@ void Simulator::UpdateBodies(float p_delta)
 			if (glm::length2(linearFriction) <= 0.01f) {
 				linearFriction *= 10;
 			}
+			bool test = glm::all(glm::isnan(linearFriction));
 			body->AddForce(linearFriction);
 
 			glm::vec3 angularFriction = -body->angularVelocity * airDynamicFriction;
@@ -125,11 +126,12 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 	float numerator = glm::dot(-1.75f * relativeVelocity, collisionNormal);
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 	glm::vec3 otherScaledAngularVel = glm::cross(p_other._inverseInertiaMatrix * glm::cross(otherSupport, collisionNormal), otherSupport);
-	float denominator = p_body._inverseMass + p_other._inverseMass + glm::dot(scaledAngularVel + otherScaledAngularVel, collisionNormal);
-						
+
+	float denominator = p_body._inverseMass + p_other._inverseMass + glm::dot(scaledAngularVel + otherScaledAngularVel, collisionNormal);						
 	float impulse = numerator / denominator;
 
 	p_body.velocity += collisionNormal * impulse * p_body._inverseMass;
+	bool test = glm::all(glm::isnan(p_body.velocity));
 	p_other.velocity -= collisionNormal * impulse * p_other._inverseMass;
 
 	p_body.angularVelocity += p_body._inverseInertiaMatrix * glm::cross(support, impulse * collisionNormal);

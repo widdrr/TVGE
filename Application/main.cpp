@@ -145,7 +145,7 @@ int main()
 	basicMaterial->_lightProperties.shininess = 10.f;
 
 	Entity moon;
-	moon.Rotate(1.f, 0.f, 0.f, 15.f);
+	//moon.Rotate(1.f, 0.f, 0.f, 15.f);
 	moon.Translate(0.f, 5.f, 0.f);
 	moon.Scale(0.2f);
 	moon.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(0.f, 0.f, 0.f));
@@ -158,7 +158,7 @@ int main()
 
 	floorComp->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
 
-	floor.Scale(100.f, 0.1f, 100.f);
+	floor.Scale(100.f, 1.f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
 	Entity cube;
@@ -166,32 +166,31 @@ int main()
 	cubeComp->_meshes.push_back(renderer.GenerateMesh("Cube"));
 	cube.CreateComponentOfType<BoxColliderComponent>();
 
+	Entity ramp1(cube);
+	ramp1.Translate(0.f, 2.f, -10.f);
+	ramp1.Scale(5.f, 0.1f, 5.f);
+	
+
 	Entity testCube(cube);
 	auto cubeBody = testCube.CreateComponentOfType<BodyComponent>(1.f).lock();
-
-	cubeBody->angularVelocity = glm::vec3(3.f, 0.f, 0.f);
-	
-	testCube.Translate(5.f, 10.f, -10.f);
+	testCube.Translate(-5.f, 10.f, -10.f);
 	testCube.Scale(2.f);
-
-	cube.Scale(5.f, 0.1f, 5.f);
-	testCube.Rotate(1.f, 1.f, 0.f, 45.f);
+	testCube.Rotate(1.f, 0.f, 0.f, 45.f);
 	
-	cube.Translate(0.f, 2.f, -10.f);
-
+	
 	Entity testCube2(testCube);
-	testCube2.Translate(-10.f, 0.f, 0.f);
+	testCube2.Translate(10.f, 0.f, 0.f);
 
-	Entity cube2(cube);
+	Entity ramp2(ramp1);
 
-	cube.Translate(-5.f, 0.f, 0.f);
-	cube.Rotate(0.f, 0.f, 1.f, -45.f);
+	ramp1.Translate(-5.f, 0.f, 0.f);
+	ramp1.Rotate(0.f, 0.f, 1.f, -45.f);
 
-	cube2.Translate(5.f, 0.f, 0.f);
-	cube2.Rotate(0.f, 0.f, 1.f, 45.f);
+	ramp2.Translate(5.f, 0.f, 0.f);
+	ramp2.Rotate(0.f, 0.f, 1.f, 45.f);
 
 	Entity sphere;
-	sphere.Translate(0.f, 10.f, -10.f);
+	sphere.Translate(0.f, 15.f, -10.f);
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
 	Entity collisionSphere(sphere);
@@ -199,14 +198,27 @@ int main()
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
 	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
 
+	std::vector<Entity> cubeTower;
+
+	Simulator simulator;
+	cubeTower.reserve(10);
+	for (int i = 0; i < 10; ++i) {
+		cubeTower.push_back(cube);
+		auto&& newCube = cubeTower.back();
+		newCube.CreateComponentOfType<BodyComponent>(1.f);
+		newCube.Translate(0.f, i*2, -10.f);
+		renderer.AddObject(newCube);
+		simulator.AddObject(newCube);
+	}
+
 	sphere.Translate(-5.f, 0.f, 0.f);
 
-	renderer.AddObject(cube);
-	renderer.AddObject(cube2);
+	renderer.AddObject(ramp1);
+	renderer.AddObject(ramp2);
 	renderer.AddObject(testCube);
 	renderer.AddObject(testCube2);
 	renderer.AddObject(floor);
-	renderer.AddObject(sphere);
+	//renderer.AddObject(sphere);
 	renderer.AddObject(moon);
 	renderer.AddLightSource(moon);
 	renderer.SetShadowCaster(moon);
@@ -217,13 +229,11 @@ int main()
 
 	auto& camera = renderer.GetMainCamera();
 
-	Simulator simulator;
-
 	simulator.AddObject(floor);
-	simulator.AddObject(cube);
-	simulator.AddObject(cube2);
+	simulator.AddObject(ramp1);
+	simulator.AddObject(ramp2);
 	simulator.AddObject(testCube);
-	//simulator.AddObject(testCube2);
+	simulator.AddObject(testCube2);
 	simulator.AddObject(sphere);
 
 	bool initialFocus = true;
@@ -273,7 +283,7 @@ int main()
 	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
 	bool enableAutostop = false;
 	input.AddKeyPressEventHandler(Keys::V, [&]() {enableAutostop = !enableAutostop; });
-	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision c) {
+	testCube2.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision c) {
 		if (enableAutostop) {
 			stopSimulation = true;
 		}
@@ -297,16 +307,6 @@ int main()
 		//window.ComputeFPS();
 		input.ProcessInput();
 
-		renderer.DrawRayAtPosition(testCube.position, cubeBody->angularVelocity, glm::vec3(1.f, 1.f, 0.f));
-		if (!stopSimulation) {
-			simulator.SimulateStep(deltaTime * 1.f);
-		}
-		else {
-			renderer.DrawRayAtPosition(contact, normal, glm::vec3(0.f, 1.f, 0.f));
-			renderer.DrawRayBetweenPoints(contact, testCube.position, glm::vec3(0.f, 0.f, 1.f));
-			renderer.DrawRayAtPosition(testCube.position, angularVec, glm::vec3(0.f, 1.f, 1.f));
-		}
-
 		if (!renderWireframe) {
 			renderer.RenderFrame();
 		}
@@ -320,5 +320,15 @@ int main()
 			renderer.RenderFrame(*axes);
 		}
 		renderer.DisplayScene();
+
+		renderer.DrawRayAtPosition(testCube.position, cubeBody->angularVelocity, glm::vec3(1.f, 1.f, 0.f));
+		if (!stopSimulation) {
+			simulator.SimulateStep(deltaTime * 1.f);
+		}
+		else {
+			renderer.DrawRayAtPosition(contact, normal, glm::vec3(0.f, 1.f, 0.f));
+			renderer.DrawRayBetweenPoints(contact, testCube2.position, glm::vec3(0.f, 0.f, 1.f));
+			renderer.DrawRayAtPosition(testCube2.position, angularVec, glm::vec3(0.f, 1.f, 1.f));
+		}
 	}
 }
