@@ -163,12 +163,47 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 	glm::vec3 boxLocalSphere = (sphere.GetCenter() - box.GetCenter()) * box.GetAxes();
 
 	glm::vec3 closestPointLocal = glm::clamp(boxLocalSphere, -box.GetExtents(), box.GetExtents());
+
 	glm::vec3 vectorToPoint = closestPointLocal - boxLocalSphere;
 
 	float distance = glm::length(vectorToPoint);
 	if (sphere.GetRadius() > distance) {
+		float centerInBox = 1.f;
+		
+		if (glm::epsilonEqual(distance, 0.f, EPSILON)) {
+			centerInBox = -1.f;
+
+			int extentId = 0;
+			float extent = 0;
+			float absDif = std::numeric_limits<float>().max();
+			glm::vec3 extents = box.GetExtents();
+
+			for (int i = 0; i < 3; ++i){
+				float posDif = glm::abs(closestPointLocal[i] - extents[i]);
+				if (posDif < absDif) {
+					absDif = posDif;
+					extentId = i;
+					extent = extents[i];
+				}
+
+				float negDif = glm::abs(closestPointLocal[i] + extents[i]);
+				if (negDif < absDif) {
+					absDif = negDif;
+					extentId = i;
+					extent = -extents[i];
+				}
+			}
+
+			closestPointLocal[extentId] = extent;
+		}
+
 		glm::vec3 boxPoint = box.GetAxes() * closestPointLocal + box.GetCenter();
-		glm::vec3 spherePoint = glm::normalize(boxPoint - sphere.GetCenter()) * sphere.GetRadius() + sphere.GetCenter();
+
+		glm::vec3 spherePoint = centerInBox * glm::normalize(boxPoint - sphere.GetCenter()) * sphere.GetRadius() + sphere.GetCenter();
+		
+		bool test1 = glm::all(glm::isnan(boxPoint));
+		bool test2 = glm::all(glm::isnan(spherePoint));
+		
 		if (swap) {
 			Collision(box.entity, sphere.entity, boxPoint, spherePoint, spherePoint - boxPoint);
 		}
