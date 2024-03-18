@@ -65,6 +65,18 @@ void CollisionHandler::AddCollider(std::weak_ptr<ColliderComponent> p_collider)
 	_colliders.push_back(p_collider);
 }
 
+void CollisionHandler::CleanDanglingPointers()
+{
+	std::vector<std::weak_ptr<ColliderComponent>> validColliders;
+	for (auto&& comp : _colliders) {
+		if (!comp.expired()) {
+			validColliders.push_back(comp);
+		}
+	}
+
+	_colliders = validColliders;
+}
+
 std::optional<Collision> CollisionHandler::Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
 	auto types = std::make_pair(p_firstCollider.type, p_secondCollider.type);

@@ -303,7 +303,9 @@ int main()
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
 
 	window.InitializeTime();
+	int frameCounter = 0;
 	while (window.IsOpen()) {
+		++frameCounter;
 		auto deltaTime = window.ComputeDeltaTime();
 		window.ComputeFPS();
 		input.ProcessInput();
@@ -330,6 +332,12 @@ int main()
 			renderer.DrawRayAtPosition(contact, normal, glm::vec3(0.f, 1.f, 0.f));
 			renderer.DrawRayBetweenPoints(contact, testCube.position, glm::vec3(0.f, 0.f, 1.f));
 			renderer.DrawRayAtPosition(testCube.position, angularVec, glm::vec3(0.f, 1.f, 1.f));
+		}
+
+		if (frameCounter >= 3000) {
+			renderer.CleanDanglingPointers();
+			simulator.CleanDanglingPointers();
+			frameCounter = 0;
 		}
 	}
 }

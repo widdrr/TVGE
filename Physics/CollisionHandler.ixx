@@ -27,6 +27,7 @@ public:
 	CollisionHandler();
 	std::vector<Collision> DetectCollisions();
 	void AddCollider(std::weak_ptr<ColliderComponent> p_collider);
+	void CleanDanglingPointers();
 
 private:
 	std::optional<Collision> Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);

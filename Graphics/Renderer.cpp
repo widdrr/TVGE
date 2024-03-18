@@ -665,6 +665,30 @@ void Renderer::SetPerspective(float p_fov, float p_nearPlane, float p_farPlane)
 	}
 }
 
+void Renderer::CleanDanglingPointers()
+{
+	std::vector<std::weak_ptr<ModelComponent>> validModels;
+
+	for (auto&& comp : _models) {
+		if (!comp.expired()) {
+			validModels.push_back(comp);
+		}
+	}
+
+	_models = validModels;
+
+	std::vector<std::weak_ptr<LightSourceComponent>> validLightSources;
+
+	for (auto&& comp : _lightSources) {
+		if (!comp.expired()) {
+			validLightSources.push_back(comp);
+		}
+	}
+
+	_lightSources = validLightSources;
+
+}
+
 void Renderer::AddLightSource(const Entity& p_object)
 {
 	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();

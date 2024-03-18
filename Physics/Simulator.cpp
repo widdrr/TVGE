@@ -64,6 +64,21 @@ void Simulator::AddObject(const Entity& p_object)
 	}
 }
 
+void Simulator::CleanDanglingPointers()
+{
+	std::vector<std::weak_ptr<BodyComponent>> validBodies;
+
+	for (auto&& comp : _bodies) {
+		if (!comp.expired()) {
+			validBodies.push_back(comp);
+		}
+	}
+
+	_bodies = validBodies;
+
+	_collisionHandler.CleanDanglingPointers();
+}
+
 void Simulator::ResolveCollisions(std::vector<Collision> p_collisions)
 {
 	for (auto&& collision : p_collisions) {

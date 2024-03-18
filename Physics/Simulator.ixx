@@ -17,10 +17,12 @@ public:
 	void UpdateBodies(float p_delta);
 
 	void AddObject(const Entity& p_object);
+	void CleanDanglingPointers();
 
 	static float gravityStrength;
 	static float airDynamicFriction;
 	static float airStaticFriction;
+
 
 private:
 	void ResolveCollisions(std::vector<Collision> p_collisions);

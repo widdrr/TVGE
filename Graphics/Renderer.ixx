@@ -56,6 +56,8 @@ public:
 	void Set2DMode(float p_width, float p_height);
 	void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
 
+	void CleanDanglingPointers();
+
 	void LoadModel(ModelComponent& p_model, const std::string& p_path, bool p_flipUVs = true);
 
 	/*********************************************************************/
