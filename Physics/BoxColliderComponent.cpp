@@ -23,6 +23,19 @@ void BoxColliderComponent::ApplyTransformations()
 	_axes = glm::mat3_cast(entity.rotation) * localAxes;
 }
 
+const BoundingBox BoxColliderComponent::GetBoundingBox()
+{
+	glm::vec3 axisExtents(0);
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			axisExtents[i] += _axes[i][j] * _extents[j];
+		}
+	}
+
+
+	return BoundingBox(_center, axisExtents);
+}
+
 glm::mat3 BoxColliderComponent::ComputeInertiaMatrix(float p_mass)
 {
 	float factor = p_mass / 12.f;

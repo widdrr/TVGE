@@ -22,6 +22,7 @@ export class ColliderComponent : public Component
 
 public:
 	virtual void ApplyTransformations() = 0;
+	const virtual BoundingBox GetBoundingBox() = 0;
 	void SendCollisionEvent(Entity& p_other, const Collision p_info);
 	void AddCollisionEventHandler(Callback p_callback);
 	virtual glm::mat3 ComputeInertiaMatrix(float p_mass) = 0;

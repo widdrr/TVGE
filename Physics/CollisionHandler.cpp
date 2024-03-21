@@ -37,7 +37,7 @@ std::vector<Collision> CollisionHandler::DetectCollisions()
 			auto& collider1 = *_colliders[i].lock();
 			auto& collider2 = *_colliders[j].lock();
 
-			std::thread collisionThread(Intersect, collider1, collider2);
+			//std::thread collisionThread(Intersect, collider1, collider2);
 			auto collision_opt = Intersect(collider1, collider2);
 			if (collision_opt.has_value()) {
 				auto&& collision = collision_opt.value();

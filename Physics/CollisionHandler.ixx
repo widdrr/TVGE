@@ -31,7 +31,8 @@ public:
 
 private:
 	std::optional<Collision> Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
-	//TODO: octree
+	
 	std::unordered_map<ColliderPair, CollisionFunction, PairHash> _collisionFunctions;
+	//TODO: octree
 	std::vector<std::weak_ptr<ColliderComponent>> _colliders;
 };

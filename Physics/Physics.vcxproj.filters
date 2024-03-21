@@ -90,5 +90,8 @@
     <ClCompile Include="ContactPoints.cpp">
       <Filter>Implementations\Functions</Filter>
     </ClCompile>
+    <ClCompile Include="BoundingBox.ixx">
+      <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

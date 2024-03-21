@@ -135,8 +135,8 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 	glm::vec3 support = p_point - p_body.entity.position;
 	glm::vec3 otherSupport = p_otherPoint - p_other.entity.position;
 
-	p_body.entity.Translate(p_normal * 0.5f);
-	p_other.entity.Translate(p_normal * -0.5f);
+	p_body.entity.Translate(p_normal * p_body._mass / ( p_body._mass + p_other._mass)	);
+	p_other.entity.Translate(p_normal * -p_other._mass / (p_body._mass + p_other._mass));
 
 	float numerator = glm::dot(-1.75f * relativeVelocity, collisionNormal);
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);

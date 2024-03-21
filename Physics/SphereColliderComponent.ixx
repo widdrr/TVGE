@@ -14,6 +14,7 @@ public:
 							const bool p_physical = true);
 
 	void ApplyTransformations() override;
+	const BoundingBox GetBoundingBox() override;
 	glm::mat3 ComputeInertiaMatrix(float p_mass) override;
 
 	float GetRadius() const;

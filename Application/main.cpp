@@ -196,7 +196,7 @@ int main()
 	Entity collisionSphere(sphere);
 	collisionSphere.Scale(0.05f);
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
-	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
+	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(100.f).lock();
 
 	std::vector<Entity> cubeTower;
 
