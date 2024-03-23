@@ -10,6 +10,7 @@ import Graphics.Components;
 import Graphics.Resources;
 
 import <glm/mat4x4.hpp>;
+import <glm/gtc/quaternion.hpp>;
 
 import <string>;
 import <memory>;
@@ -32,6 +33,14 @@ public:
 	void RenderWireframe();
 	void DrawRayBetweenPoints(glm::vec3 p_start, glm::vec3 p_end, glm::vec3 p_color);
 	void DrawRayAtPosition(glm::vec3 p_position, glm::vec3 p_ray, glm::vec3 p_color);
+	void DrawBox(glm::vec3 p_color,
+				 glm::vec3 p_position = glm::vec3(0),
+				 glm::vec3 p_scaling = glm::vec3(1),
+				 glm::quat p_rotation = glm::identity<glm::quat>());
+
+	void DrawBoxFromExtents(glm::vec3 p_color,
+							glm::vec3 p_min,
+							glm::vec3 p_max);
 
 	void DisplayScene();
 
@@ -70,7 +79,7 @@ public:
 														  const std::string& p_geometryShaderText = "");
 
 	std::shared_ptr<Texture2D> GenerateTexture2D(const std::string& p_texturePath, const bool p_repeat = true);
-	
+
 	std::shared_ptr<Cubemap> GenerateCubemap(const std::string& p_frontPath,
 											 const std::string& p_rightPath,
 											 const std::string& p_leftPath,
@@ -88,6 +97,9 @@ public:
 
 private:
 	Renderer(GLFWwindow* p_window);
+
+	void GenerateRayPrimitive();
+	void GenerateBoxPrimitive();
 
 	void DrawSkybox();
 	void SetShadowVariables(ShaderProgram& p_shader);
@@ -120,10 +132,11 @@ private:
 	std::shared_ptr<Texture2D> _directionalShadowMap;
 	std::unique_ptr<FrameBuffer> _shadowBuffer;
 	glm::mat4 _shadowLightMatrix;
-	float _shadowNearPlane, _shadowFarPlane, _directionalShadowHeight,_directionalShadowSize;
-	
+	float _shadowNearPlane, _shadowFarPlane, _directionalShadowHeight, _directionalShadowSize;
+
 	static unsigned int _shadowWidth, _shadowHeight;
 	unsigned int _rayVao, _rayVbo;
+	unsigned int _boxVao, _boxVbo, _boxEbo;
 
 	//TODO: add to camera?
 	glm::mat4 _projectionMatrix;

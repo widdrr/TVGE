@@ -21,14 +21,14 @@
     <Filter Include="Implementations\Resources">
       <UniqueIdentifier>{6045b3af-96f1-423f-b634-8b922df5bddb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interfaces\Classes">
+      <UniqueIdentifier>{01f972f2-c320-4099-988e-bc4918eb941e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Classes">
+      <UniqueIdentifier>{f3fa5804-a93b-498a-9c6a-2d37fca30be9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="Utilities.ixx">
       <Filter>Interfaces</Filter>
     </ClCompile>
@@ -40,18 +40,6 @@
     </ClCompile>
     <ClCompile Include="Graphics.ixx">
       <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsResources.ixx">
       <Filter>Interfaces\Resources</Filter>
@@ -151,6 +139,24 @@
     </ClCompile>
     <ClCompile Include="Shaders.ixx">
       <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Implementations\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Implementations\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Implementations\Classes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

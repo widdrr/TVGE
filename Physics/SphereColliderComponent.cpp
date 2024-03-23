@@ -13,11 +13,13 @@ void SphereColliderComponent::ApplyTransformations()
 	_center = localCenter + entity.position;
 	glm::vec3 absScaling = glm::abs(entity.scaling);
 	_radius = localRadius * glm::max(absScaling.x, glm::max(absScaling.y, absScaling.z));
+
+	_boundingBox = ResizeBoundingBox();
 }
 
-const BoundingBox SphereColliderComponent::GetBoundingBox()
+const BoundingBox SphereColliderComponent::ResizeBoundingBox()
 {
-	return BoundingBox(_center, glm::vec3(_radius));
+	return BoundingBox(-_radius + _center, _radius + _center);
 }
 
 glm::mat3 SphereColliderComponent::ComputeInertiaMatrix(float p_mass)

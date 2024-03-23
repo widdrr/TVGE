@@ -26,8 +26,6 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetBox_BoxContacts(const BoxColli
 		if (swap) {
 			std::swap(firstPoint, secondPoint);
 		}
-		bool test1 = glm::all(glm::isnan(firstPoint));
-		bool test2 = glm::all(glm::isnan(secondPoint));
 
 		auto firstSupport = GetBoxSupports(p_firstCollider, -p_normal);
 		auto secondSupport = GetBoxSupports(p_secondCollider, p_normal);
@@ -204,9 +202,6 @@ std::pair<glm::vec3, glm::vec3> ContactPoints::GetFace_FaceContacts(std::vector<
 	}
 	firstPoint /= clippedPoints.size();
 	secondPoint /= clippedPoints.size();
-
-	bool test1 = glm::all(glm::isnan(firstPoint));
-	bool test2 = glm::all(glm::isnan(secondPoint));
 
 	return { firstPoint, secondPoint };
 }

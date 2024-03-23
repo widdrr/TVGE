@@ -25,14 +25,13 @@ export class CollisionHandler
 {
 public:
 	CollisionHandler();
-	std::vector<Collision> DetectCollisions();
-	void AddCollider(std::weak_ptr<ColliderComponent> p_collider);
-	void CleanDanglingPointers();
+	virtual std::vector<CollisionEvent> DetectCollisions() = 0;
+	virtual void AddCollider(std::weak_ptr<ColliderComponent> p_collider);
+	virtual void CleanDanglingPointers();
 
-private:
-	std::optional<Collision> Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
-	
+protected:
+	std::optional<CollisionEvent> Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
+
 	std::unordered_map<ColliderPair, CollisionFunction, PairHash> _collisionFunctions;
-	//TODO: octree
 	std::vector<std::weak_ptr<ColliderComponent>> _colliders;
 };

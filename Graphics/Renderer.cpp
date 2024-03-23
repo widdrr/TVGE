@@ -57,6 +57,13 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	_directionalShadowMap = std::shared_ptr<Texture2D>(new Texture2D(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
 	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(_pointShadowMap).NoColorBuffer().Build();
 
+	GenerateRayPrimitive();
+	GenerateBoxPrimitive();
+
+}
+
+void Renderer::GenerateRayPrimitive()
+{
 	//creating the one true ray, all other rays are instances of this
 	glGenVertexArrays(1, &_rayVao);
 	glGenBuffers(1, &_rayVbo);
@@ -74,6 +81,65 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	glBindVertexArray(0);
 }
 
+void Renderer::GenerateBoxPrimitive()
+{
+	//creating the one true box, all other boxes are instances of this
+	glGenVertexArrays(1, &_boxVao);
+	glGenBuffers(1, &_boxVbo);
+	glGenBuffers(1, &_boxEbo);
+
+	glBindVertexArray(_boxVao);
+	glBindBuffer(GL_ARRAY_BUFFER, _boxVbo);
+
+	std::vector<float> vertices = {
+		-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f
+	};
+	std::vector<unsigned int> order = {
+		// Front face
+		0, 1, 2,
+		2, 3, 0,
+
+		// Back face
+		5, 4, 7,
+		7, 6, 5,
+
+		// Top face
+		3, 2, 6,
+		6, 7, 3,
+
+		// Bottom face
+		4, 5, 1,
+		1, 0, 4,
+
+		// Right face
+		1, 5, 6,
+		6, 2, 1,
+
+		// Left face
+		4, 0, 3,
+		3, 7, 4
+	};
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), reinterpret_cast<void*>(vertices.data()), GL_STATIC_DRAW);
+	//copying data to EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _boxEbo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * order.size(), reinterpret_cast<void*>(order.data()), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(VertexAttributes::Position, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+	glEnableVertexAttribArray(VertexAttributes::Position);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 Renderer::~Renderer()
 {
 	glUseProgram(0);
@@ -82,6 +148,18 @@ Renderer::~Renderer()
 	glBindVertexArray(_rayVao);
 
 	glDisableVertexAttribArray(VertexAttributes::Position);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &_rayVbo);
+
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &_rayVao);
+
+	//Cleaning up box primitive
+	glBindVertexArray(_boxVao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glDisableVertexAttribArray(VertexAttributes::Position);
+	glDeleteBuffers(1, &_boxEbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &_rayVbo);
@@ -202,13 +280,13 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 		_shadowBuffer->SetDepthTexture2D(_directionalShadowMap);
 		_directionalShadowsShader->SetVariable(shadowCasterPosition, lightPosition);
 
-		auto shadowProjection = glm::ortho(-_directionalShadowSize / 2.f, 
-										   _directionalShadowSize / 2.f, 
-										   _directionalShadowSize / 2.f,  
+		auto shadowProjection = glm::ortho(-_directionalShadowSize / 2.f,
+										   _directionalShadowSize / 2.f,
+										   _directionalShadowSize / 2.f,
 										   -_directionalShadowSize / 2.f,
 										   _shadowNearPlane,
 										   _shadowFarPlane);
-		
+
 		auto upVector = glm::vec3(0.f, 1.f, 0.f);
 		if (glm::epsilonEqual(glm::abs(glm::dot(upVector, glm::normalize(lightPosition))), 1.f, EPSILON)) {
 			upVector = glm::normalize(upVector + glm::vec3(0.1f, 0.f, 0.1f));
@@ -358,6 +436,37 @@ void Renderer::DrawRayAtPosition(glm::vec3 p_position, glm::vec3 p_ray, glm::vec
 
 	glUseProgram(0);
 
+}
+
+void Renderer::DrawBox(glm::vec3 p_color, glm::vec3 p_position, glm::vec3 p_scaling, glm::quat p_rotation)
+{
+
+	glm::mat4 modelTransformation = glm::translate(glm::identity<glm::mat4>(), p_position);
+
+	modelTransformation = modelTransformation * glm::mat4_cast(p_rotation);
+
+	modelTransformation = glm::scale(modelTransformation, p_scaling);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glUseProgram(_wireframeShader->_id);
+	_wireframeShader->SetVariable(UniformVariables::color, p_color);
+	_wireframeShader->SetVariable(UniformVariables::viewMatrix, _mainCamera.GetViewTransformation());
+	_wireframeShader->SetVariable(UniformVariables::modelMatrix, modelTransformation);
+
+	glBindVertexArray(_boxVao);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glUseProgram(0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Renderer::DrawBoxFromExtents(glm::vec3 p_color, glm::vec3 p_min, glm::vec3 p_max)
+{
+	glm::vec3 center = 0.5f * (p_min + p_max);
+	glm::vec3 size = glm::abs(p_max - p_min);
+
+	DrawBox(p_color, center, size);
 }
 
 void Renderer::DisplayScene()
@@ -700,10 +809,10 @@ void Renderer::AddLightSource(const Entity& p_object)
 	_lightSources.push_back(lightSource);
 }
 
-void Renderer::SetShadowCaster(const Entity& p_object, 
-							   float p_shadowFarPlane, 
-							   float p_directionalShadowHeight, 
-							   float p_directionalShadowSize, 
+void Renderer::SetShadowCaster(const Entity& p_object,
+							   float p_shadowFarPlane,
+							   float p_directionalShadowHeight,
+							   float p_directionalShadowSize,
 							   float p_shadowNearPlane)
 {
 	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();

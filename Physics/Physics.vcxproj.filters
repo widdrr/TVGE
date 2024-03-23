@@ -25,22 +25,16 @@
     <Filter Include="Implementations\Functions">
       <UniqueIdentifier>{51fa72cc-886a-4698-893b-d2d5da8d9212}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interfaces\Classes">
+      <UniqueIdentifier>{8909a259-ae9c-431a-8331-2ac340293ce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Implementations\Classes">
+      <UniqueIdentifier>{7b35c979-d925-437d-beb2-3cbf7a61251c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Simulator.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Simulator.cpp">
-      <Filter>Implementations</Filter>
-    </ClCompile>
     <ClCompile Include="Physics.ixx">
       <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionHandler.ixx">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionHandler.cpp">
-      <Filter>Implementations</Filter>
     </ClCompile>
     <ClCompile Include="BodyComponent.ixx">
       <Filter>Interfaces\Components</Filter>
@@ -66,10 +60,10 @@
     <ClCompile Include="PhysicsResources.ixx">
       <Filter>Interfaces\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.ixx">
+    <ClCompile Include="CollisionEvent.ixx">
       <Filter>Interfaces\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.cpp">
+    <ClCompile Include="CollisionEvent.cpp">
       <Filter>Implementations\Resources</Filter>
     </ClCompile>
     <ClCompile Include="SphereColliderComponent.ixx">
@@ -92,6 +86,30 @@
     </ClCompile>
     <ClCompile Include="BoundingBox.ixx">
       <Filter>Interfaces\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="NaiveCollisionHandler.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Simulator.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionHandler.cpp">
+      <Filter>Implementations\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Simulator.cpp">
+      <Filter>Implementations\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionHandler.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="NaiveCollisionHandler.cpp">
+      <Filter>Implementations\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SweepCollisionHandler.ixx">
+      <Filter>Interfaces\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SweepCollisionHandler.cpp">
+      <Filter>Implementations\Classes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,19 +21,20 @@ void BoxColliderComponent::ApplyTransformations()
 	_extents = glm::abs(_extents);
 
 	_axes = glm::mat3_cast(entity.rotation) * localAxes;
+
+	_boundingBox = ResizeBoundingBox();
 }
 
-const BoundingBox BoxColliderComponent::GetBoundingBox()
+const BoundingBox BoxColliderComponent::ResizeBoundingBox()
 {
 	glm::vec3 axisExtents(0);
 	for (int i = 0; i < 3; ++i) {
 		for (int j = 0; j < 3; ++j) {
-			axisExtents[i] += _axes[i][j] * _extents[j];
+			axisExtents[i] += glm::abs(_axes[i][j]) * _extents[j];
 		}
 	}
 
-
-	return BoundingBox(_center, axisExtents);
+	return BoundingBox(-axisExtents + _center, axisExtents + _center);
 }
 
 glm::mat3 BoxColliderComponent::ComputeInertiaMatrix(float p_mass)

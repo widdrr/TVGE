@@ -1,4 +1,4 @@
 export module Physics.Resources;
 
-export import :Collision;
+export import :CollisionEvent;
 export import :BoundingBox;

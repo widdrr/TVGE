@@ -88,8 +88,6 @@ void BodyComponent::Update(float p_deltaTime)
 {
 	glm::vec3 acceleration = _force * _inverseMass;
 	glm::vec3 displacement = velocity * p_deltaTime + acceleration * p_deltaTime * p_deltaTime * 0.5f;
-	
-	bool test = glm::all(glm::isnan(displacement));
 
 	velocity = displacement / p_deltaTime;
 	entity.Translate(displacement);

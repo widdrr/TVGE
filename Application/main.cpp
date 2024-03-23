@@ -196,19 +196,20 @@ int main()
 	Entity collisionSphere(sphere);
 	collisionSphere.Scale(0.05f);
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
-	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(100.f).lock();
+	auto sphereBody = sphere.CreateComponentOfType<BodyComponent>(1.f).lock();
 
 	std::vector<Entity> cubeTower;
 
 	Simulator simulator;
-	cubeTower.reserve(30);
-	for (int i = 0; i < 30; ++i) {
+	cubeTower.reserve(3000);
+	for (int i = 0; i < 3000; ++i) {
 		cubeTower.push_back(cube);
 		auto&& newCube = cubeTower.back();
-		newCube.CreateComponentOfType<BodyComponent>(1.f);
+		auto&& tempComp = newCube.CreateComponentOfType<BodyComponent>(1.f).lock();
+		tempComp->gravity = false;
 		newCube.Scale(2.f);
 		newCube.Translate(0.f, i*4, -10.f);
-		renderer.AddObject(newCube);
+		//renderer.AddObject(newCube);
 		simulator.AddObject(newCube);
 	}
 
@@ -280,27 +281,29 @@ int main()
 	
 	std::vector<Entity> cols;
 	bool stopSimulation = true;
-	glm::vec3 contact, normal, angularVec;
+	glm::vec3 contact(0), normal(0), angularVec(0);
 	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
 	bool enableAutostop = false;
 	input.AddKeyPressEventHandler(Keys::V, [&]() {enableAutostop = !enableAutostop; });
-	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const Collision c) {
-		if (enableAutostop) {
-			stopSimulation = true;
-		}
-		cols.push_back(collisionSphere);
-		auto&& col = cols.back();
-		col.position = c.contactPoint1;
-		renderer.AddObject(col);
-		contact = c.contactPoint1;
-		normal = glm::normalize(c.collisionNormal);
-		angularVec = glm::cross(contact - e.position, normal);
-		//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
-		//std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
-																						 });
+	//testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const CollisionEvent c) {
+	//	if (enableAutostop) {
+	//		stopSimulation = true;
+	//	}
+	//	cols.push_back(collisionSphere);
+	//	auto&& col = cols.back();
+	//	col.position = c.contactPoint1;
+	//	renderer.AddObject(col);
+	//	contact = c.contactPoint1;
+	//	normal = glm::normalize(c.collisionNormal);
+	//	angularVec = glm::cross(contact - e.position, normal);
+	//	//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
+	//	//std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
+	//																					 });
 
 	bool showAxes = false;
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
+
+	auto test1 = ramp2.TryGetComponentOfType<ColliderComponent>().lock();
 
 	window.InitializeTime();
 	int frameCounter = 0;
@@ -322,7 +325,6 @@ int main()
 		if (showAxes) {
 			renderer.RenderFrame(*axes);
 		}
-		renderer.DisplayScene();
 
 		renderer.DrawRayAtPosition(testCube.position, cubeBody->angularVelocity, glm::vec3(1.f, 1.f, 0.f));
 		if (!stopSimulation) {
@@ -334,7 +336,15 @@ int main()
 			renderer.DrawRayAtPosition(testCube.position, angularVec, glm::vec3(0.f, 1.f, 1.f));
 		}
 
+		//auto&& box = test1->GetBoundingBox();
+		//auto&& sphereBox = sphereCollider->GetBoundingBox();
+		//renderer.DrawBoxFromExtents(glm::vec3(1.f, 0.f, 0.f), box.min, box.max);
+		//renderer.DrawBoxFromExtents(glm::vec3(1.f, 0.f, 0.f), sphereBox.min, sphereBox.max);
+
+		renderer.DisplayScene();
+
 		if (frameCounter >= 3000) {
+			std::cout << "cleaned\n";
 			renderer.CleanDanglingPointers();
 			simulator.CleanDanglingPointers();
 			frameCounter = 0;

@@ -7,7 +7,7 @@ import <glm/gtc/epsilon.hpp>;
 import <numeric>;
 import <iostream>;
 
-std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
+std::optional<CollisionEvent> CollisionFunctions::IntersectBox_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
 	const BoxColliderComponent& firstBox = static_cast<const BoxColliderComponent&>(p_firstCollider);
 	const BoxColliderComponent& secondBox = static_cast<const BoxColliderComponent&>(p_secondCollider);
@@ -73,8 +73,7 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 			int j0 = (j + 1) % 3;
 			int j1 = (j + 2) % 3;
 
-			if (glm::epsilonEqual(glm::abs(glm::dot(firstBoxAxes[i], secondBoxAxes[j])), 1.f, EPSILON))
-			{
+			if (glm::epsilonEqual(glm::abs(glm::dot(firstBoxAxes[i], secondBoxAxes[j])), 1.f, EPSILON)) {
 				continue;
 			}
 
@@ -116,14 +115,12 @@ std::optional<Collision> CollisionFunctions::IntersectBox_Box(const ColliderComp
 		normal *= -1.f;
 	}
 
-	bool test = glm::all(glm::isnan(normal));
-
 	auto&& [contactPoint1, contactPoint2] = ContactPoints::GetBox_BoxContacts(firstBox, secondBox, normal);
 
-	return Collision(p_firstCollider.entity, p_secondCollider.entity, contactPoint1, contactPoint2, normal);
+	return CollisionEvent(p_firstCollider.entity, p_secondCollider.entity, contactPoint1, contactPoint2, normal);
 }
 
-std::optional<Collision> CollisionFunctions::IntersectSphere_Sphere(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
+std::optional<CollisionEvent> CollisionFunctions::IntersectSphere_Sphere(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
 	const SphereColliderComponent& firstSphere = static_cast<const SphereColliderComponent&>(p_firstCollider);
 	const SphereColliderComponent& secondSphere = static_cast<const SphereColliderComponent&>(p_secondCollider);
@@ -135,13 +132,13 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Sphere(const Collid
 		glm::vec3 point1 = glm::normalize(centerDifference) * firstSphere.GetRadius() + firstSphere.GetCenter();
 		glm::vec3 point2 = glm::normalize(-centerDifference) * secondSphere.GetRadius() + secondSphere.GetCenter();
 
-		return Collision(p_firstCollider.entity, p_secondCollider.entity, point1, point2, point2 - point1);
+		return CollisionEvent(p_firstCollider.entity, p_secondCollider.entity, point1, point2, point2 - point1);
 	}
 
 	return std::nullopt;
 }
 
-std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
+std::optional<CollisionEvent> CollisionFunctions::IntersectSphere_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
 	const SphereColliderComponent* spherePointer;
 	const BoxColliderComponent* boxPointer;
@@ -169,7 +166,7 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 	float distance = glm::length(vectorToPoint);
 	if (sphere.GetRadius() > distance) {
 		float centerInBox = 1.f;
-		
+
 		if (glm::epsilonEqual(distance, 0.f, EPSILON)) {
 			centerInBox = -1.f;
 
@@ -178,7 +175,7 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 			float absDif = std::numeric_limits<float>().max();
 			glm::vec3 extents = box.GetExtents();
 
-			for (int i = 0; i < 3; ++i){
+			for (int i = 0; i < 3; ++i) {
 				float posDif = glm::abs(closestPointLocal[i] - extents[i]);
 				if (posDif < absDif) {
 					absDif = posDif;
@@ -200,15 +197,23 @@ std::optional<Collision> CollisionFunctions::IntersectSphere_Box(const ColliderC
 		glm::vec3 boxPoint = box.GetAxes() * closestPointLocal + box.GetCenter();
 
 		glm::vec3 spherePoint = centerInBox * glm::normalize(boxPoint - sphere.GetCenter()) * sphere.GetRadius() + sphere.GetCenter();
-		
-		bool test1 = glm::all(glm::isnan(boxPoint));
-		bool test2 = glm::all(glm::isnan(spherePoint));
-		
+
 		if (swap) {
-			Collision(box.entity, sphere.entity, boxPoint, spherePoint, spherePoint - boxPoint);
+			CollisionEvent(box.entity, sphere.entity, boxPoint, spherePoint, spherePoint - boxPoint);
 		}
-		return Collision(sphere.entity, box.entity, spherePoint, boxPoint, boxPoint - spherePoint);
+		return CollisionEvent(sphere.entity, box.entity, spherePoint, boxPoint, boxPoint - spherePoint);
 	}
 
 	return std::nullopt;
+}
+
+bool CollisionFunctions::BoundingBoxOverlap(const BoundingBox& b1, const BoundingBox& b2)
+{
+	return
+		b1.min.x <= b2.max.x &&
+		b1.max.x >= b2.min.x &&
+		b1.min.y <= b2.max.y &&
+		b1.max.y >= b2.min.y &&
+		b1.min.z <= b2.max.z &&
+		b1.max.z >= b2.min.z;
 }

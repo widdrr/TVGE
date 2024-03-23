@@ -14,7 +14,6 @@ public:
 							const bool p_physical = true);
 
 	void ApplyTransformations() override;
-	const BoundingBox GetBoundingBox() override;
 	glm::mat3 ComputeInertiaMatrix(float p_mass) override;
 
 	float GetRadius() const;
@@ -24,6 +23,7 @@ public:
 	glm::vec3 localCenter;
 
 protected:
+	const BoundingBox ResizeBoundingBox() override;
 	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
 
 private:

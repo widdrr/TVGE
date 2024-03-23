@@ -27,6 +27,7 @@ import <glm/geometric.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 import <glm/gtc/type_ptr.hpp>;
 import <glm/gtc/epsilon.hpp>;
+import <glm/gtc/quaternion.hpp>;
 import <glm/gtx/norm.hpp>;
 import <glm/gtx/matrix_cross_product.hpp>;
 import <glm/glm.hpp>;

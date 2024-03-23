@@ -18,12 +18,12 @@ export enum ColliderTypes
 
 export class ColliderComponent : public Component
 {
-	using Callback = std::function<void(Entity&, const Collision)>;
+	using Callback = std::function<void(Entity&, const CollisionEvent)>;
 
 public:
 	virtual void ApplyTransformations() = 0;
-	const virtual BoundingBox GetBoundingBox() = 0;
-	void SendCollisionEvent(Entity& p_other, const Collision p_info);
+	const BoundingBox GetBoundingBox() const;
+	void SendCollisionEvent(Entity& p_other, const CollisionEvent p_info);
 	void AddCollisionEventHandler(Callback p_callback);
 	virtual glm::mat3 ComputeInertiaMatrix(float p_mass) = 0;
 
@@ -32,5 +32,7 @@ public:
 
 protected:
 	ColliderComponent(Entity& p_entity, ColliderTypes p_type, const bool p_physical = true);
+	virtual const BoundingBox ResizeBoundingBox() = 0;
 	std::vector<Callback> _collisionCallbacks;
+	BoundingBox _boundingBox;
 };

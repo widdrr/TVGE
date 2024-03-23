@@ -1,5 +1,8 @@
 module Physics:Simulator;
 
+import :NaiveCollisionHandler;
+import :SweepCollisionHandler;
+
 import <glm/vec3.hpp>;
 import <glm/geometric.hpp>;
 import <glm/gtx/norm.hpp>;
@@ -9,13 +12,14 @@ import <iostream>;
 float Simulator::gravityStrength = 9.8f;
 float Simulator::airDynamicFriction = 0.5f;
 
-Simulator::Simulator() :
-	_collisionHandler()
-{}
+Simulator::Simulator()
+{
+	_collisionHandler = std::make_unique<SweepCollisionHandler>();
+}
 
 void Simulator::SimulateStep(float p_delta)
 {
-	auto collisions = _collisionHandler.DetectCollisions();
+	auto collisions = _collisionHandler->DetectCollisions();
 	ResolveCollisions(collisions);
 	UpdateBodies(p_delta);
 }
@@ -33,7 +37,7 @@ void Simulator::UpdateBodies(float p_delta)
 			if (glm::length2(linearFriction) <= 0.01f) {
 				linearFriction *= 10;
 			}
-			bool test = glm::all(glm::isnan(linearFriction));
+
 			body->AddForce(linearFriction);
 
 			glm::vec3 angularFriction = -body->angularVelocity * airDynamicFriction;
@@ -60,7 +64,7 @@ void Simulator::AddObject(const Entity& p_object)
 
 	auto collider = p_object.TryGetComponentOfType<ColliderComponent>();
 	if (!collider.expired()) {
-		_collisionHandler.AddCollider(collider);
+		_collisionHandler->AddCollider(collider);
 	}
 }
 
@@ -76,10 +80,10 @@ void Simulator::CleanDanglingPointers()
 
 	_bodies = validBodies;
 
-	_collisionHandler.CleanDanglingPointers();
+	_collisionHandler->CleanDanglingPointers();
 }
 
-void Simulator::ResolveCollisions(std::vector<Collision> p_collisions)
+void Simulator::ResolveCollisions(std::vector<CollisionEvent> p_collisions)
 {
 	for (auto&& collision : p_collisions) {
 		auto wbody1 = collision.entity1.TryGetComponentOfType<BodyComponent>();
@@ -146,7 +150,6 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 	float impulse = numerator / denominator;
 
 	p_body.velocity += collisionNormal * impulse * p_body._inverseMass;
-	bool test = glm::all(glm::isnan(p_body.velocity));
 	p_other.velocity -= collisionNormal * impulse * p_other._inverseMass;
 
 	p_body.angularVelocity += p_body._inverseInertiaMatrix * glm::cross(support, impulse * collisionNormal);

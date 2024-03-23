@@ -152,12 +152,14 @@
     <ClCompile Include="BoxColliderComponent.ixx" />
     <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="ColliderComponent.ixx" />
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="Collision.ixx" />
+    <ClCompile Include="CollisionEvent.cpp" />
+    <ClCompile Include="CollisionEvent.ixx" />
     <ClCompile Include="CollisionFunctions.cpp" />
     <ClCompile Include="CollisionFunctions.ixx" />
     <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="CollisionHandler.ixx" />
+    <ClCompile Include="NaiveCollisionHandler.cpp" />
+    <ClCompile Include="NaiveCollisionHandler.ixx" />
     <ClCompile Include="ContactPoints.cpp" />
     <ClCompile Include="ContactPoints.ixx" />
     <ClCompile Include="Physics.ixx" />
@@ -167,6 +169,8 @@
     <ClCompile Include="Simulator.ixx" />
     <ClCompile Include="SphereColliderComponent.cpp" />
     <ClCompile Include="SphereColliderComponent.ixx" />
+    <ClCompile Include="SweepCollisionHandler.cpp" />
+    <ClCompile Include="SweepCollisionHandler.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
