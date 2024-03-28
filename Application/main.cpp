@@ -201,15 +201,14 @@ int main()
 	std::vector<Entity> cubeTower;
 
 	Simulator simulator;
-	cubeTower.reserve(3000);
-	for (int i = 0; i < 3000; ++i) {
+	cubeTower.reserve(30);
+	for (int i = 0; i < 30; ++i) {
 		cubeTower.push_back(cube);
 		auto&& newCube = cubeTower.back();
 		auto&& tempComp = newCube.CreateComponentOfType<BodyComponent>(1.f).lock();
-		tempComp->gravity = false;
 		newCube.Scale(2.f);
 		newCube.Translate(0.f, i*4, -10.f);
-		//renderer.AddObject(newCube);
+		renderer.AddObject(newCube);
 		simulator.AddObject(newCube);
 	}
 
@@ -285,20 +284,20 @@ int main()
 	input.AddKeyPressEventHandler(Keys::C, [&]() {stopSimulation = !stopSimulation; });
 	bool enableAutostop = false;
 	input.AddKeyPressEventHandler(Keys::V, [&]() {enableAutostop = !enableAutostop; });
-	//testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const CollisionEvent c) {
-	//	if (enableAutostop) {
-	//		stopSimulation = true;
-	//	}
-	//	cols.push_back(collisionSphere);
-	//	auto&& col = cols.back();
-	//	col.position = c.contactPoint1;
-	//	renderer.AddObject(col);
-	//	contact = c.contactPoint1;
-	//	normal = glm::normalize(c.collisionNormal);
-	//	angularVec = glm::cross(contact - e.position, normal);
-	//	//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
-	//	//std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
-	//																					 });
+	testCube.TryGetComponentOfType<ColliderComponent>().lock()->AddCollisionEventHandler([&](Entity& e, const CollisionEvent c) {
+		if (enableAutostop) {
+			stopSimulation = true;
+		}
+		cols.push_back(collisionSphere);
+		auto&& col = cols.back();
+		col.position = c.contactPoint1;
+		renderer.AddObject(col);
+		contact = c.contactPoint1;
+		normal = glm::normalize(c.collisionNormal);
+		angularVec = glm::cross(contact - e.position, normal);
+		//std::cout << std::format("Position: {}, {}, {}\n", e.position.x, e.position.y, e.position.z);
+		//std::cout << std::format("Normal: {}, {}, {}\n", c.collisionNormal.x, c.collisionNormal.y, c.collisionNormal.z); 
+																						 });
 
 	bool showAxes = false;
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });

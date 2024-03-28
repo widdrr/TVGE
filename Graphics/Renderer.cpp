@@ -641,12 +641,12 @@ void Renderer::SetShadowVariables(ShaderProgram& p_shader)
 
 		if (position.w == 1.f) {
 			p_shader.SetVariable(shadowCasterPosition, position);
-			_shadowBuffer->_depthTexture->Bind(TextureUnits::Shadow, GL_TEXTURE_CUBE_MAP);
+			_shadowBuffer->_depthTexture->Bind(TextureUnits::PointShadows, GL_TEXTURE_CUBE_MAP);
 
 		}
 		else {
 			p_shader.SetVariable(shadowCasterPosition, position);
-			_shadowBuffer->_depthTexture->Bind(TextureUnits::Shadow, GL_TEXTURE_2D);
+			_shadowBuffer->_depthTexture->Bind(TextureUnits::DirectionalShadows, GL_TEXTURE_2D);
 		}
 	}
 }

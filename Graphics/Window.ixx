@@ -1,6 +1,4 @@
 module;
-
-#define GLFW_DLL
 #include <GL/glfw3.h>
 
 export module Graphics:Window;

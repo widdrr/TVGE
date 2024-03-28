@@ -15,7 +15,6 @@ import <glm/gtc/quaternion.hpp>;
 import <string>;
 import <memory>;
 import <vector>;
-import <thread>;
 import <unordered_map>;
 
 export class Renderer

@@ -13,7 +13,8 @@ export enum VertexAttributes
 export enum TextureUnits
 {
 	Skybox,
-	Shadow,
+	PointShadows,
+	DirectionalShadows,
 	Ambient,
 	Diffuse,
 	Specular

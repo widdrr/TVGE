@@ -8,7 +8,6 @@ module Graphics:Window;
 
 import <iostream>;
 
-
 std::unique_ptr<Window> Window::_instance = nullptr;
 
 Window& Window::Initialize(const std::string_view& p_title, const unsigned int p_windowHeight, const unsigned int p_windowWidth)
