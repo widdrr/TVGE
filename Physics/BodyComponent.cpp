@@ -90,13 +90,14 @@ void BodyComponent::Update(float p_deltaTime)
 	glm::vec3 displacement = velocity * p_deltaTime + acceleration * p_deltaTime * p_deltaTime * 0.5f;
 
 	velocity = displacement / p_deltaTime;
+
 	entity.Translate(displacement);
 
 	glm::vec3 angularAcceleration = _inverseInertiaMatrix * _torque;
 	glm::vec3 rotation = angularVelocity * p_deltaTime + angularAcceleration * p_deltaTime * p_deltaTime * 0.5f;
 	
 	angularVelocity += angularAcceleration * p_deltaTime;
-	if (glm::length(rotation) > 0) {
+	if (glm::length2(rotation) > 0) {
 		entity.Rotate(rotation);
 	}
 

@@ -10,7 +10,7 @@ import <glm/gtx/norm.hpp>;
 import <iostream>;
 
 float Simulator::gravityStrength = 9.8f;
-float Simulator::airDynamicFriction = 0.5f;
+float Simulator::airDynamicFriction = 0.75f;
 
 Simulator::Simulator()
 {
@@ -33,16 +33,18 @@ void Simulator::UpdateBodies(float p_delta)
 		auto body = wbody.lock();
 		if (body->gravity) {
 			body->AddForce(glm::vec3(0.f, -1.f, 0.f) * body->_mass * gravityStrength);
+			
 			glm::vec3 linearFriction = -body->velocity * airDynamicFriction;
-			if (glm::length2(linearFriction) <= 0.01f) {
-				linearFriction *= 10;
+			auto frictionMag = glm::length2(linearFriction);
+			if (frictionMag != 0.f && frictionMag <= EPSILON) {
+				linearFriction = -body->_force;
 			}
-
 			body->AddForce(linearFriction);
 
 			glm::vec3 angularFriction = -body->angularVelocity * airDynamicFriction;
-			if (glm::length2(angularFriction) <= 0.01f) {
-				angularFriction *= 10;
+			frictionMag = glm::length2(angularFriction);
+			if (frictionMag != 0.f && frictionMag <= EPSILON) {
+				angularFriction = -body->_torque;
 			}
 			body->AddTorque(angularFriction);
 		}
@@ -119,7 +121,7 @@ void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, g
 
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 
-	float impulse = -1.75f * glm::dot(collisionVelocity, collisionNormal) /
+	float impulse = -1.5f * glm::dot(collisionVelocity, collisionNormal) /
 		(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
 	glm::vec3 velocityChange = collisionNormal * impulse * p_body._inverseMass;
@@ -142,7 +144,7 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 	p_body.entity.Translate(p_normal * p_body._mass / ( p_body._mass + p_other._mass)	);
 	p_other.entity.Translate(p_normal * -p_other._mass / (p_body._mass + p_other._mass));
 
-	float numerator = glm::dot(-1.75f * relativeVelocity, collisionNormal);
+	float numerator = glm::dot(-1.5f * relativeVelocity, collisionNormal);
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 	glm::vec3 otherScaledAngularVel = glm::cross(p_other._inverseInertiaMatrix * glm::cross(otherSupport, collisionNormal), otherSupport);
 
