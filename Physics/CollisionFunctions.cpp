@@ -7,6 +7,8 @@ import <glm/gtc/epsilon.hpp>;
 import <numeric>;
 import <iostream>;
 
+using namespace TVGE::Physics;
+
 std::optional<CollisionEvent> CollisionFunctions::IntersectBox_Box(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider)
 {
 	const BoxColliderComponent& firstBox = static_cast<const BoxColliderComponent&>(p_firstCollider);

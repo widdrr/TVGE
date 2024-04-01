@@ -2,6 +2,8 @@ module Physics:CollisionHandler;
 
 import <iostream>;
 
+using namespace TVGE::Physics;
+
 CollisionHandler::CollisionHandler() :
 	_colliders(),
 	_collisionFunctions()

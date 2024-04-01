@@ -11,14 +11,14 @@ import <memory>;
 
 export constexpr float PI = 3.141529f;
 
-export namespace Common2DMeshes 
+export namespace TVGE::Common2DMeshes 
 {
-	std::pair<std::vector<Vertex>, std::vector<unsigned int>> Circle(
+	std::pair<std::vector<TVGE::Graphics::Vertex>, std::vector<unsigned int>> Circle(
 		unsigned int p_radius, 
 		unsigned int p_vertexCount);
 }
 
-export namespace CommonMeshes 
+export namespace TVGE::Common3DMeshes
 {
-	std::pair<std::vector<Vertex>, std::vector<unsigned int>> Cube();
+	std::pair<std::vector<TVGE::Graphics::Vertex>, std::vector<unsigned int>> Cube();
 }

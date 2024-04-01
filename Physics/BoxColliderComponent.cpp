@@ -1,5 +1,8 @@
 module Physics.Components:BoxColliderComponent;
 
+using namespace TVGE;
+using namespace TVGE::Physics;
+
 BoxColliderComponent::BoxColliderComponent(Entity& p_entity, glm::vec3 p_extents, glm::vec3 p_center, glm::mat3 p_axes, const bool p_physical) :
 	ColliderComponent(p_entity, Box, p_physical),
 	localExtents(p_extents),

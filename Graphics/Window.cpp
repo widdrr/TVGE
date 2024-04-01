@@ -8,6 +8,8 @@ module Graphics:Window;
 
 import <iostream>;
 
+using namespace TVGE;
+
 std::unique_ptr<Window> Window::_instance = nullptr;
 
 Window& Window::Initialize(const std::string_view& p_title, const unsigned int p_windowHeight, const unsigned int p_windowWidth)
@@ -19,12 +21,12 @@ Window& Window::Initialize(const std::string_view& p_title, const unsigned int p
 	return *_instance;
 }
 
-Renderer& Window::GetRenderer() const
+Graphics::Renderer& Window::GetRenderer() const
 {
 	return *_renderer;
 }
 
-Input& Window::GetInput() const
+Input::Input& Window::GetInput() const
 {
 	return *_input;
 }
@@ -149,8 +151,8 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 							 }
 	);
 
-	_renderer = std::unique_ptr<Renderer>(new Renderer(_window));
-	_input = std::unique_ptr<Input>(new Input(_window));
+	_renderer = std::unique_ptr<Graphics::Renderer>(new Graphics::Renderer(_window));
+	_input = std::unique_ptr<Input::Input>(new Input::Input(_window));
 }
 
 Window::~Window()

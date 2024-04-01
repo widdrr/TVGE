@@ -3,24 +3,28 @@ export module Graphics.Resources:Utilities;
 import <string_view>;
 import <format>;
 
-export enum VertexAttributes
-{
-	Position,
-	TextureCoordinates,
-	Normal
-};
 
-export enum TextureUnits
+namespace TVGE::Graphics
 {
-	Skybox,
-	PointShadows,
-	DirectionalShadows,
-	Ambient,
-	Diffuse,
-	Specular
-};
+	export enum VertexAttributes
+	{
+		Position,
+		TextureCoordinates,
+		Normal
+	};
 
-export namespace UniformVariables
+	export enum TextureUnits
+	{
+		Skybox,
+		PointShadows,
+		DirectionalShadows,
+		Ambient,
+		Diffuse,
+		Specular
+	};
+}
+
+export namespace TVGE::Graphics::UniformVariables
 {
 	constexpr std::string_view projectionMatrix = "glProjectionMatrix";
 	constexpr std::string_view modelMatrix = "glModelMatrix";

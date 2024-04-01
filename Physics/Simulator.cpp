@@ -9,6 +9,8 @@ import <glm/gtx/norm.hpp>;
 
 import <iostream>;
 
+using namespace TVGE::Physics;
+
 float Simulator::gravityStrength = 9.8f;
 float Simulator::airDynamicFriction = 1.f;
 float Simulator::efRestCoef = -1.5;

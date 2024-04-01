@@ -8,15 +8,18 @@ import <glm/mat4x4.hpp>;
 import <vector>;
 import <memory>;
 
-export class ModelComponent : public Component 
+export namespace TVGE::Graphics
 {
-public:
-	ModelComponent(Entity& p_entity);
+	export class ModelComponent : public Component
+	{
+	public:
+		ModelComponent(Entity& p_entity);
 
-	glm::mat4 GetModelTransformation() const;
-	
-	std::vector<std::weak_ptr<Mesh>> _meshes;
+		glm::mat4 GetModelTransformation() const;
 
-protected:
-	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
-};
+		std::vector<std::weak_ptr<Mesh>> _meshes;
+
+	protected:
+		std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+	};
+}

@@ -4,6 +4,8 @@ module;
 
 module Graphics.Resources.Textures:Texture;
 
+using namespace TVGE::Graphics;
+
 Texture::Texture(const std::string& p_texturePath) :
 	_texturePath(p_texturePath),
 	_id()

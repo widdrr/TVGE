@@ -8,6 +8,8 @@ import <glm/gtc/epsilon.hpp>;
 import <iostream>;
 import <algorithm>;
 
+using namespace TVGE::Physics;
+
 std::pair<glm::vec3, glm::vec3> ContactPoints::GetBox_BoxContacts(const BoxColliderComponent& p_firstCollider, const BoxColliderComponent& p_secondCollider, glm::vec3 p_normal)
 {
 	glm::vec3 normal = glm::normalize(p_normal);

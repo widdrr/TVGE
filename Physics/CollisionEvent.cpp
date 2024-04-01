@@ -1,5 +1,8 @@
 module Physics.Resources:CollisionEvent;
 
+using namespace TVGE;
+using namespace TVGE::Physics;
+
 CollisionEvent::CollisionEvent(Entity& p_entity1, Entity& p_entity2, glm::vec3 p_point1, glm::vec3 p_point2, glm::vec3 p_normal):
 	entity1(p_entity1),
 	entity2(p_entity2),

@@ -2,6 +2,9 @@ module Physics.Components:SphereColliderComponent;
 
 import <glm/mat3x3.hpp>;
 
+using namespace TVGE;
+using namespace TVGE::Physics;
+
 SphereColliderComponent::SphereColliderComponent(Entity& p_entity, float p_radius, glm::vec3 p_center, const bool p_physical):
 	ColliderComponent(p_entity, Sphere, p_physical),
 	localRadius(glm::abs(p_radius)),

@@ -7,7 +7,7 @@ import <glm/vec3.hpp>;
 import <vector>;
 import <functional>;
 
-export namespace ContactPoints
+export namespace TVGE::Physics::ContactPoints
 {
 	using ContactFunction = std::function<std::pair<glm::vec3, glm::vec3>(std::vector<glm::vec3>, std::vector<glm::vec3>)>;
 

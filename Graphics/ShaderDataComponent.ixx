@@ -12,28 +12,31 @@ import <any>;
 import <concepts>;
 import <optional>;
 
-template <typename T>
-concept Hashable = requires(T a)
+namespace TVGE::Graphics
 {
-	{ std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
-};
+	template <typename T>
+	concept Hashable = requires(T a)
+	{
+		{ std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
+	};
 
-export class ShaderDataComponent : public Component
-{
-public:
-	ShaderDataComponent(Entity& p_entity);
-	
-	template <Hashable T>
-	void SetUniformVariable(const std::string_view key,  const T value);
-	
-	template <Hashable T>
-	std::optional<T> GetUniformVariable(const std::string_view key);
+	export class ShaderDataComponent : public Component
+	{
+	public:
+		ShaderDataComponent(Entity& p_entity);
 
-	void SetUniformsInShader(ShaderProgram& p_shader);
+		template <Hashable T>
+		void SetUniformVariable(const std::string_view key, const T value);
 
-protected:
-	std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+		template <Hashable T>
+		std::optional<T> GetUniformVariable(const std::string_view key);
 
-private:
-	std::unordered_map<std::string_view, std::any> _uniforms;
-};
+		void SetUniformsInShader(ShaderProgram& p_shader);
+
+	protected:
+		std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+
+	private:
+		std::unordered_map<std::string_view, std::any> _uniforms;
+	};
+}

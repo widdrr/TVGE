@@ -13,6 +13,10 @@ import <memory>;
 import <random>;
 import <format>;
 
+using namespace TVGE;
+using namespace TVGE::Graphics;
+using namespace TVGE::Physics;
+using namespace TVGE::Input;
 
 //for some ungodly reason, main does not compile without this
 static void DontDeleteThis(Entity& obj)
@@ -129,7 +133,7 @@ int main()
 		22, 23, 20,
 	};
 
-	auto& window = Window::Initialize("TVGE v0.7A", 1024, 720);
+	auto& window = Window::Initialize("TVGE v1.0A", 1024, 720);
 
 	auto& renderer = window.GetRenderer();
 	auto& input = window.GetInput();

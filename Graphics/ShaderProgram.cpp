@@ -11,6 +11,8 @@ import <glm/gtc/type_ptr.hpp>;
 import <fstream>;
 import <iostream>;
 
+using namespace TVGE::Graphics;
+
 ShaderProgram::ShaderProgram(const std::string& p_vertexShader,
 							 const std::string& p_fragmentShader,
 							 const std::string& p_geometryShader,

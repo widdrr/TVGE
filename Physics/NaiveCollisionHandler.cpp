@@ -2,6 +2,9 @@ module Physics:NaiveCollisionHandler;
 
 import <vector>;
 
+using namespace TVGE;
+using namespace TVGE::Physics;
+
 std::vector<CollisionEvent> NaiveCollisionHandler::DetectCollisions()
 {
 	std::vector<CollisionEvent> _collisions;

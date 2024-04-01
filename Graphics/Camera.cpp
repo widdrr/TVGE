@@ -6,6 +6,9 @@ import <cctype>;
 import <algorithm>;
 import <iostream>;
 
+using namespace TVGE;
+using namespace TVGE::Graphics;
+
 Camera::Camera(float p_posX, float p_posY, float p_posZ, float p_frontX, float p_frontY, float p_frontZ) :
 	_position(p_posX, p_posY, p_posZ),
 	//roll not yet supported, not really needed

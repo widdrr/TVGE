@@ -6,38 +6,42 @@ import :ColliderComponent;
 import <glm/vec3.hpp>;
 import <glm/mat3x3.hpp>;
 
-export class BodyComponent : public Component 
+
+namespace TVGE::Physics
 {
-	friend class Simulator;
-public:
-	BodyComponent(Entity& p_entity,
-				  const float p_mass = 1.f);
+	export class BodyComponent : public Component
+	{
+		friend class Simulator;
+	public:
+		BodyComponent(Entity& p_entity,
+					  const float p_mass = 1.f);
 
-	void AddForce(glm::vec3 p_force);
-	void AddForce(float p_forceX, float p_forceY, float p_forceZ);
-	void AddTorque(glm::vec3 p_torque);
-	void AddTorque(float p_torqueX, float p_torqueY, float p_torqueZ);
-	float GetMass() const;
-	void SetMass(float p_mass);
-	void RegisterCollider();
-	void UpdateInertiaMatrix();
-	
-	bool gravity = true;
-	glm::vec3 velocity;
-	glm::vec3 angularVelocity;
+		void AddForce(glm::vec3 p_force);
+		void AddForce(float p_forceX, float p_forceY, float p_forceZ);
+		void AddTorque(glm::vec3 p_torque);
+		void AddTorque(float p_torqueX, float p_torqueY, float p_torqueZ);
+		float GetMass() const;
+		void SetMass(float p_mass);
+		void RegisterCollider();
+		void UpdateInertiaMatrix();
 
-protected:
-	virtual std::shared_ptr<Component> Clone(Entity& p_entity) const override;
+		bool gravity = true;
+		glm::vec3 velocity;
+		glm::vec3 angularVelocity;
 
-private:
-	void Update(float p_deltaTime);
+	protected:
+		virtual std::shared_ptr<Component> Clone(Entity& p_entity) const override;
 
-	float _mass;
-	float _inverseMass;
-	glm::mat3 _inertiaMatrix;
-	glm::mat3 _inverseInertiaMatrix;
-	glm::vec3 _force;
-	glm::vec3 _torque;
+	private:
+		void Update(float p_deltaTime);
 
-	std::weak_ptr<ColliderComponent> _collider;
-};
+		float _mass;
+		float _inverseMass;
+		glm::mat3 _inertiaMatrix;
+		glm::mat3 _inverseInertiaMatrix;
+		glm::vec3 _force;
+		glm::vec3 _torque;
+
+		std::weak_ptr<ColliderComponent> _collider;
+	};
+}

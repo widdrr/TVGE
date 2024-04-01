@@ -1,6 +1,8 @@
 module MeshHelpers;
 
-std::pair<std::vector<Vertex>, std::vector<unsigned int>> Common2DMeshes::Circle(
+using namespace TVGE::Graphics;
+
+std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common2DMeshes::Circle(
 	unsigned int p_radius,
 	unsigned int p_vertexCount)
 {
@@ -27,8 +29,7 @@ std::pair<std::vector<Vertex>, std::vector<unsigned int>> Common2DMeshes::Circle
 
 }
 
-
-std::pair<std::vector<Vertex>, std::vector<unsigned int>> CommonMeshes::Cube()
+std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common3DMeshes::Cube()
 {
 	std::vector<Vertex> vertices = {
 		Vertex(-1,-1,1),

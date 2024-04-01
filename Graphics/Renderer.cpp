@@ -17,6 +17,8 @@ import <glm/gtx/matrix_cross_product.hpp>;
 import <iostream>;
 import <fstream>;
 
+using namespace TVGE::Graphics;
+
 unsigned int Renderer::_shadowWidth = 4096;
 unsigned int Renderer::_shadowHeight = 4096;
 
@@ -844,7 +846,7 @@ void Renderer::SetSkybox(const std::string& p_frontPath,
 	if (skyboxComp.expired()) {
 		auto&& shader = *GenerateShaderFromFiles("skybox.vert", "skybox.frag");
 		skyboxComp = _skybox.CreateComponentOfType<SkyboxComponent>(std::ref(shader));
-		auto&& [vertices, indices] = CommonMeshes::Cube();
+		auto&& [vertices, indices] = TVGE::Common3DMeshes::Cube();
 
 		skyboxComp.lock()->mesh = GenerateMesh("skybox", vertices, indices, nullptr);
 	}

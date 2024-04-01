@@ -2,6 +2,9 @@ module Graphics.Components:ModelComponent;
 
 import <glm/gtc/matrix_transform.hpp>;
 
+using namespace TVGE;
+using namespace TVGE::Graphics;
+
 ModelComponent::ModelComponent(Entity& p_entity) :
 	Component(p_entity)
 {}

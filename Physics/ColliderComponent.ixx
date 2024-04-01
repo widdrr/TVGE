@@ -9,30 +9,33 @@ import <functional>;
 import <vector>;
 import <optional>;
 
-export enum ColliderTypes
+namespace TVGE::Physics
 {
-	Undefined = 0,
-	Box,
-	Sphere
-};
+	export enum ColliderTypes
+	{
+		Undefined = 0,
+		Box,
+		Sphere
+	};
 
-export class ColliderComponent : public Component
-{
-	using Callback = std::function<void(Entity&, const CollisionEvent)>;
+	export class ColliderComponent : public Component
+	{
+		using Callback = std::function<void(Entity&, const CollisionEvent)>;
 
-public:
-	virtual void ApplyTransformations() = 0;
-	const BoundingBox GetBoundingBox() const;
-	void SendCollisionEvent(Entity& p_other, const CollisionEvent p_info);
-	void AddCollisionEventHandler(Callback p_callback);
-	virtual glm::mat3 ComputeInertiaMatrix(float p_mass) = 0;
+	public:
+		virtual void ApplyTransformations() = 0;
+		const BoundingBox GetBoundingBox() const;
+		void SendCollisionEvent(Entity& p_other, const CollisionEvent p_info);
+		void AddCollisionEventHandler(Callback p_callback);
+		virtual glm::mat3 ComputeInertiaMatrix(float p_mass) = 0;
 
-	const ColliderTypes type;
-	bool physical;
+		const ColliderTypes type;
+		bool physical;
 
-protected:
-	ColliderComponent(Entity& p_entity, ColliderTypes p_type, const bool p_physical = true);
-	virtual const BoundingBox ResizeBoundingBox() = 0;
-	std::vector<Callback> _collisionCallbacks;
-	BoundingBox _boundingBox;
-};
+	protected:
+		ColliderComponent(Entity& p_entity, ColliderTypes p_type, const bool p_physical = true);
+		virtual const BoundingBox ResizeBoundingBox() = 0;
+		std::vector<Callback> _collisionCallbacks;
+		BoundingBox _boundingBox;
+	};
+}

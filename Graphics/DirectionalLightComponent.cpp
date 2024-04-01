@@ -1,5 +1,8 @@
 module Graphics.Components:LightSourceComponent;
 
+using namespace TVGE;
+using namespace TVGE::Graphics;
+
 const glm::vec3 DirectionalLightComponent::_defaultDirection = glm::vec3(0.f, 1.f, 0.f);
 
 DirectionalLightComponent::DirectionalLightComponent(Entity& p_entity, const glm::vec3& p_ambient, const glm::vec3& p_diffuse, const glm::vec3& p_specular) :

@@ -4,6 +4,8 @@ module;
 
 module Graphics.Resources:FrameBuffer;
 
+using namespace TVGE::Graphics;
+
 FrameBuffer::FrameBuffer()
 {
 	glGenFramebuffers(1, &_id);

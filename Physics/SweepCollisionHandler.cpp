@@ -8,6 +8,8 @@ import <ranges>;
 import <algorithm>;
 import <iostream>;
 
+using namespace TVGE::Physics;
+
 std::vector<CollisionEvent> SweepCollisionHandler::DetectCollisions()
 {
 	std::vector<CollisionEvent> _collisions;

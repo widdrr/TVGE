@@ -7,6 +7,8 @@ module Graphics:Input;
 import <algorithm>;
 import <iostream>;
 
+using namespace TVGE::Input;
+
 void Input::ProcessInput()
 {
 	glfwPollEvents();

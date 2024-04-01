@@ -8,6 +8,8 @@ import :Utilities;
 
 import <glm/geometric.hpp>;
 
+using namespace TVGE::Graphics;
+
 Mesh::Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool genNormals) :
 	_vertices(p_vertices),
 	_indices(p_indices),

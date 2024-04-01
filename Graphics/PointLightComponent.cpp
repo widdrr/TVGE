@@ -1,5 +1,8 @@
 module Graphics.Components:LightSourceComponent;
 
+using namespace TVGE;
+using namespace TVGE::Graphics;
+
 PointLightComponent::PointLightComponent(Entity& p_entity,
 										 const glm::vec3& p_ambient,
 										 const glm::vec3& p_diffuse,

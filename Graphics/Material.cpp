@@ -2,6 +2,8 @@ module Graphics.Resources:Material;
 
 import :Utilities;
 
+using namespace TVGE::Graphics;
+
 LightProperties::LightProperties():
 	ambient(0),
 	diffuse(0),

@@ -3,6 +3,8 @@ module Physics.Components:ColliderComponent;
 import <iostream>;
 import :BodyComponent;
 
+using namespace TVGE::Physics;
+
 ColliderComponent::ColliderComponent(Entity& p_entity, ColliderTypes p_type, const bool p_physical) :
 	Component(p_entity),
 	type(p_type),

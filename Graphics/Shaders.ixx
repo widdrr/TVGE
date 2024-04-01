@@ -2,7 +2,7 @@ export module Graphics:Shaders;
 
 import <string_view>;
 
-export namespace ShaderSources
+export namespace TVGE::Graphics::ShaderSources
 {
     constexpr std::string_view defaultVertex = { R"(
 	

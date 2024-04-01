@@ -1,5 +1,8 @@
 module Physics.Components:BodyComponent;
 
+using namespace TVGE;
+using namespace TVGE::Physics;
+
 BodyComponent::BodyComponent(Entity& p_entity, const float p_mass)
 	:
 	Component(p_entity),

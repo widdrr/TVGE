@@ -1,6 +1,7 @@
 module Graphics.Components:ShaderDataComponent;
 
-
+using namespace TVGE;
+using namespace TVGE::Graphics;
 
 ShaderDataComponent::ShaderDataComponent(Entity& p_entity) : 
 	Component(p_entity)

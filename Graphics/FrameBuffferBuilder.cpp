@@ -6,6 +6,8 @@ module Graphics.Resources:FrameBuffer;
 
 import <iostream>;
 
+using namespace TVGE::Graphics;
+
 FrameBufferBuilder FrameBufferBuilder::Init()
 {
 	return FrameBufferBuilder();

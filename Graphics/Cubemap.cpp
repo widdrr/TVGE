@@ -10,6 +10,8 @@ import <string>;
 import <vector>; 
 import <iostream>;
 
+using namespace TVGE::Graphics;
+
 //TODO: improve this
 Cubemap::Cubemap(const std::string& p_frontPath,
 				 const std::string& p_rightPath,

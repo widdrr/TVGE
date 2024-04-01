@@ -8,7 +8,7 @@ import <glm/gtx/norm.hpp>;
 
 export constexpr float EPSILON = 0.00001f;
 
-export namespace GeometryHelpers
+export namespace TVGE::GeometryHelpers
 {
 	glm::vec3 ProjectOnLine(glm::vec3 p_point, glm::vec3 p_end1, glm::vec3 p_end2);
 	glm::vec3 ProjectOnPlane(glm::vec3 p_point, glm::vec3 p_plane1, glm::vec3 p_plane2, glm::vec3 p_plane3);

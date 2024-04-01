@@ -1,5 +1,8 @@
 module Graphics.Components:SkyboxComponent;
 
+using namespace TVGE;
+using namespace TVGE::Graphics;
+
 SkyboxComponent::SkyboxComponent(Entity& p_entity, ShaderProgram& p_shader) :
 	Component(p_entity),
 	shader(p_shader)

@@ -9,6 +9,8 @@ module Graphics.Resources.Textures:Texture2D;
 
 import <iostream>;
 
+using namespace TVGE::Graphics;
+
 Texture2D::Texture2D(const std::string& p_texturePath, bool p_repeat) :
 	Texture(p_texturePath),
 	_width(),
