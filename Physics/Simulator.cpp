@@ -10,7 +10,8 @@ import <glm/gtx/norm.hpp>;
 import <iostream>;
 
 float Simulator::gravityStrength = 9.8f;
-float Simulator::airDynamicFriction = 0.75f;
+float Simulator::airDynamicFriction = 1.f;
+float Simulator::efRestCoef = -1.5;
 
 Simulator::Simulator()
 {
@@ -37,14 +38,14 @@ void Simulator::UpdateBodies(float p_delta)
 			glm::vec3 linearFriction = -body->velocity * airDynamicFriction;
 			auto frictionMag = glm::length2(linearFriction);
 			if (frictionMag != 0.f && frictionMag <= EPSILON) {
-				linearFriction = -body->_force;
+				linearFriction *= 10.f;
 			}
 			body->AddForce(linearFriction);
 
 			glm::vec3 angularFriction = -body->angularVelocity * airDynamicFriction;
 			frictionMag = glm::length2(angularFriction);
 			if (frictionMag != 0.f && frictionMag <= EPSILON) {
-				angularFriction = -body->_torque;
+				angularFriction *= 10.f;
 			}
 			body->AddTorque(angularFriction);
 		}
@@ -121,7 +122,7 @@ void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, g
 
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 
-	float impulse = -1.5f * glm::dot(collisionVelocity, collisionNormal) /
+	float impulse = efRestCoef * glm::dot(collisionVelocity, collisionNormal) /
 		(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
 	glm::vec3 velocityChange = collisionNormal * impulse * p_body._inverseMass;
@@ -144,7 +145,7 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 	p_body.entity.Translate(p_normal * p_body._mass / ( p_body._mass + p_other._mass)	);
 	p_other.entity.Translate(p_normal * -p_other._mass / (p_body._mass + p_other._mass));
 
-	float numerator = glm::dot(-1.5f * relativeVelocity, collisionNormal);
+	float numerator = glm::dot(efRestCoef * relativeVelocity, collisionNormal);
 	glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 	glm::vec3 otherScaledAngularVel = glm::cross(p_other._inverseInertiaMatrix * glm::cross(otherSupport, collisionNormal), otherSupport);
 

@@ -23,6 +23,7 @@ public:
 	static float gravityStrength;
 	static float airDynamicFriction;
 	static float airStaticFriction;
+	static float efRestCoef;
 
 
 private:
