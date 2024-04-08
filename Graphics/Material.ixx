@@ -29,11 +29,11 @@ namespace TVGE::Graphics
 		void SetMaterialVariables();
 
 		//TODO: multiple textures per type, more generic
-		std::weak_ptr<Texture2D> _ambientMap;
-		std::weak_ptr<Texture2D> _diffuseMap;
-		std::weak_ptr<Texture2D> _specularMap;
+		std::weak_ptr<Texture2D> ambientMap;
+		std::weak_ptr<Texture2D> diffuseMap;
+		std::weak_ptr<Texture2D> specularMap;
 		ShaderProgram& _shader;
 		//TODO: per-vertex coloring?
-		LightProperties _lightProperties;
+		LightProperties lightProperties;
 	};
 }

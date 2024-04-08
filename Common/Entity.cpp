@@ -25,7 +25,12 @@ Entity::Entity(const Entity& p_other) :
 	}
 }
 
-void Entity::Scale(float p_scaleX, float p_scaleY, float p_scaleZ) 
+unsigned int TVGE::Entity::GetId() const
+{
+	return _id;
+}
+
+void Entity::Scale(float p_scaleX, float p_scaleY, float p_scaleZ)
 {
 	Scale(glm::vec3(p_scaleX, p_scaleY, p_scaleZ));
 }

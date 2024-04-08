@@ -61,6 +61,8 @@ namespace TVGE
 			return std::weak_ptr<TComponent>();
 		}
 
+		unsigned int GetId() const; 
+
 		void Scale(float p_scaleX, float p_scaleY, float p_scaleZ);
 		void Scale(const glm::vec3& p_scaling);
 		void Scale(float p_scaling);

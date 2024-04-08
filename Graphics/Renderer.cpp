@@ -204,7 +204,7 @@ void Renderer::RenderFrame()
 
 			//If there is a shader associated we use it
 			//else fallback to the default shader
-			auto& shader = mesh->_material->_shader;
+			auto& shader = mesh->material->_shader;
 
 			auto modelMatrix = component->GetModelTransformation();
 
@@ -228,7 +228,7 @@ void Renderer::RenderFrame()
 			}
 			shader.SetVariable(UniformVariables::Lights::lightCount, static_cast<int>(_lightSources.size() - deadLights));
 
-			mesh->_material->SetMaterialVariables();
+			mesh->material->SetMaterialVariables();
 
 			glUseProgram(shader._id);
 
@@ -313,8 +313,8 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 		if (model.expired()) {
 			continue;
 		}
-		auto&& component = model.lock();
 
+		auto&& component = model.lock();
 		for (auto&& weakMesh : component->_meshes) {
 
 			if (weakMesh.expired()) {
@@ -701,32 +701,32 @@ std::shared_ptr<Mesh> Renderer::GenerateMesh(aiMesh* p_mesh, const aiScene* p_sc
 	aiColor3D output;
 
 	assimpMaterial->Get(AI_MATKEY_COLOR_AMBIENT, output);
-	material->_lightProperties.ambient = glm::vec3(output.r, output.g, output.b);
+	material->lightProperties.ambient = glm::vec3(output.r, output.g, output.b);
 
 	assimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, output);
-	material->_lightProperties.diffuse = glm::vec3(output.r, output.g, output.b);
+	material->lightProperties.diffuse = glm::vec3(output.r, output.g, output.b);
 
 	assimpMaterial->Get(AI_MATKEY_COLOR_SPECULAR, output);
-	material->_lightProperties.specular = glm::vec3(output.r, output.g, output.b);
-	assimpMaterial->Get(AI_MATKEY_SHININESS, material->_lightProperties.shininess);
+	material->lightProperties.specular = glm::vec3(output.r, output.g, output.b);
+	assimpMaterial->Get(AI_MATKEY_SHININESS, material->lightProperties.shininess);
 
 	assimpMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, output);
-	material->_lightProperties.emissive = glm::vec3(output.r, output.g, output.b);
+	material->lightProperties.emissive = glm::vec3(output.r, output.g, output.b);
 
 	aiString texture_path;
 	if (assimpMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_AMBIENT, 0, &texture_path);
-		material->_ambientMap = GenerateTexture2D(texture_path.C_Str());
+		material->ambientMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
 	if (assimpMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texture_path);
-		material->_diffuseMap = GenerateTexture2D(texture_path.C_Str());
+		material->diffuseMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
 	if (assimpMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0) {
 		assimpMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texture_path);
-		material->_specularMap = GenerateTexture2D(texture_path.C_Str());
+		material->specularMap = GenerateTexture2D(texture_path.C_Str());
 	}
 
 	return GenerateMesh(p_name, vertices, indices, material);

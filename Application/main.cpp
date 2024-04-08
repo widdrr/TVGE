@@ -143,10 +143,10 @@ int main()
 	auto axes = renderer.GenerateShaderFromFiles("axis.vert", "axis.frag", "axis.geom");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
-	basicMaterial->_lightProperties.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	basicMaterial->_lightProperties.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-	basicMaterial->_lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
-	basicMaterial->_lightProperties.shininess = 10.f;
+	basicMaterial->lightProperties.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
+	basicMaterial->lightProperties.diffuse = glm::vec3(0.7f, 0.7f, 0.7f);
+	basicMaterial->lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
+	basicMaterial->lightProperties.shininess = 10.f;
 
 	Entity moon;
 	//moon.Rotate(1.f, 0.f, 0.f, 15.f);
@@ -197,6 +197,7 @@ int main()
 	sphere.Translate(0.f, 15.f, -10.f);
 	auto sphereModel = sphere.CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*sphereModel, "sphere.dae");
+	sphereModel->_meshes[0].lock()->material->lightProperties.emissive = glm::vec3(1.f,1.f,1.f);
 	Entity collisionSphere(sphere);
 	collisionSphere.Scale(0.05f);
 	auto sphereCollider = sphere.CreateComponentOfType<SphereColliderComponent>(1.f).lock();
@@ -217,6 +218,9 @@ int main()
 	}
 
 	sphere.Translate(-5.f, 0.f, 0.f);
+	sphere.CreateComponentOfType<PointLightComponent>(glm::vec3(1.f, 1.f, 1.f), 
+													  glm::vec3(0.9f, 0.9f, 0.9f), 
+													  glm::vec3(0.f, 0.f, 0.f));
 
 	renderer.AddObject(ramp1);
 	renderer.AddObject(ramp2);
@@ -225,8 +229,8 @@ int main()
 	renderer.AddObject(floor);
 	renderer.AddObject(sphere);
 	renderer.AddObject(moon);
-	renderer.AddLightSource(moon);
-	renderer.SetShadowCaster(moon);
+	renderer.AddLightSource(sphere);
+	renderer.SetShadowCaster(sphere);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 
