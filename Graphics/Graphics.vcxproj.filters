@@ -74,13 +74,13 @@
     <ClCompile Include="ModelComponent.ixx">
       <Filter>Interfaces\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.ixx">
+    <ClCompile Include="CameraComponent.ixx">
       <Filter>Interfaces\Components</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLightComponent.cpp">
       <Filter>Implementations\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="CameraComponent.cpp">
       <Filter>Implementations\Components</Filter>
     </ClCompile>
     <ClCompile Include="LightSourceComponent.cpp">

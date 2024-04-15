@@ -9,7 +9,6 @@ namespace TVGE::Graphics
 {
 	export class SkyboxComponent : public Component
 	{
-
 	public:
 		SkyboxComponent(Entity& p_entity, ShaderProgram& p_shader);
 

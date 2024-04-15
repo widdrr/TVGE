@@ -148,8 +148,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Camera.ixx" />
+    <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CameraComponent.ixx" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Cubemap.ixx" />
     <ClCompile Include="DirectionalLightComponent.cpp" />

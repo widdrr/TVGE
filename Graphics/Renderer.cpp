@@ -24,7 +24,7 @@ unsigned int Renderer::_shadowHeight = 4096;
 
 Renderer::Renderer(GLFWwindow* p_window) :
 	_window(p_window),
-	_mainCamera()
+	_cameraEntity()
 {
 	//VSync 1 = set to Refresh Rate 0 = Unbound
 	glfwSwapInterval(1);
@@ -45,7 +45,9 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	_wireframeShader = GenerateShaderFromText(ShaderSources::wireframeVertex.data(),
 											  ShaderSources::wireframeFragment.data());
 
-	_mainCamera.SetCameraDirection(0, 0, -1);
+	_mainCamera = _cameraEntity.CreateComponentOfType<CameraComponent>().lock();
+
+	_mainCamera->SetCameraDirection(0, 0, -1);
 
 	//initializing shadow framebuffer and shader
 	_pointShadowsShader = GenerateShaderFromText(ShaderSources::pointShadowVertex.data(),
@@ -183,7 +185,7 @@ void Renderer::RenderFrame()
 		RenderShadows(_shadowCaster.lock());
 	}
 
-	auto viewMatrix = _mainCamera.GetViewTransformation();
+	auto viewMatrix = _mainCamera->GetViewTransformation();
 
 	for (auto&& model : _models) {
 
@@ -212,7 +214,7 @@ void Renderer::RenderFrame()
 
 			shader.SetVariable(UniformVariables::modelMatrix, modelMatrix);
 			shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
-			shader.SetVariable(UniformVariables::cameraPosition, _mainCamera.GetPosition());
+			shader.SetVariable(UniformVariables::cameraPosition, _mainCamera->GetPosition());
 			shader.SetVariable(UniformVariables::lightMatrix, _shadowLightMatrix);
 
 			//the model matrix to apply to normal vectors to correctly transform to view space
@@ -343,8 +345,8 @@ void Renderer::RenderFrame(ShaderProgram& p_shader)
 {
 	//TODO: fix this one
 	glUseProgram(p_shader._id);
-	p_shader.SetVariable(UniformVariables::viewMatrix, _mainCamera.GetViewTransformation());
-	p_shader.SetVariable(UniformVariables::cameraPosition, _mainCamera.GetPosition());
+	p_shader.SetVariable(UniformVariables::viewMatrix, _mainCamera->GetViewTransformation());
+	p_shader.SetVariable(UniformVariables::cameraPosition, _mainCamera->GetPosition());
 
 	unsigned int deadLights = 0;
 	for (unsigned int i = 0; i < _lightSources.size(); ++i) {
@@ -429,7 +431,7 @@ void Renderer::DrawRayAtPosition(glm::vec3 p_position, glm::vec3 p_ray, glm::vec
 
 	glUseProgram(_wireframeShader->_id);
 	_wireframeShader->SetVariable(UniformVariables::color, p_color);
-	_wireframeShader->SetVariable(UniformVariables::viewMatrix, _mainCamera.GetViewTransformation());
+	_wireframeShader->SetVariable(UniformVariables::viewMatrix, _mainCamera->GetViewTransformation());
 	_wireframeShader->SetVariable(UniformVariables::modelMatrix, modelMatrix);
 
 	glBindVertexArray(_rayVao);
@@ -452,7 +454,7 @@ void Renderer::DrawBox(glm::vec3 p_color, glm::vec3 p_position, glm::vec3 p_scal
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUseProgram(_wireframeShader->_id);
 	_wireframeShader->SetVariable(UniformVariables::color, p_color);
-	_wireframeShader->SetVariable(UniformVariables::viewMatrix, _mainCamera.GetViewTransformation());
+	_wireframeShader->SetVariable(UniformVariables::viewMatrix, _mainCamera->GetViewTransformation());
 	_wireframeShader->SetVariable(UniformVariables::modelMatrix, modelTransformation);
 
 	glBindVertexArray(_boxVao);
@@ -477,9 +479,9 @@ void Renderer::DisplayScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-Camera& Renderer::GetMainCamera()
+CameraComponent& Renderer::GetMainCamera()
 {
-	return _mainCamera;
+	return *_mainCamera;
 }
 
 std::shared_ptr<ShaderProgram> Renderer::GenerateShaderFromFiles(const std::string& p_vertexShaderPath,
@@ -619,7 +621,7 @@ void Renderer::DrawSkybox()
 		glBindVertexArray(skybox->mesh->_vao);
 		glUseProgram(skybox->shader._id);
 
-		auto viewMatrix = glm::mat4(glm::mat3(_mainCamera.GetViewTransformation()));
+		auto viewMatrix = glm::mat4(glm::mat3(_mainCamera->GetViewTransformation()));
 		skybox->shader.SetVariable(UniformVariables::viewMatrix, viewMatrix);
 
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skybox->mesh->_indices.size()), GL_UNSIGNED_INT, 0);
@@ -751,8 +753,8 @@ void Renderer::AddObject(const Entity& p_object)
 
 void Renderer::Set2DMode(float p_width, float p_height)
 {
-	_mainCamera.SetCameraPosition(0.f, 0.f, 1.f);
-	_mainCamera.SetCameraDirection(0.f, 0.f, -1.f);
+	_mainCamera->SetCameraPosition(0.f, 0.f, 1.f);
+	_mainCamera->SetCameraDirection(0.f, 0.f, -1.f);
 	LockCamera(true);
 	_projectionMatrix = glm::ortho(-p_width / 2, p_width / 2,
 								   -p_height / 2, p_height / 2,

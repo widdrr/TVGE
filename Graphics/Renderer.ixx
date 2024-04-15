@@ -50,7 +50,7 @@ namespace TVGE::Graphics
 
 		void DisplayScene();
 
-		Camera& GetMainCamera();
+		CameraComponent& GetMainCamera();
 
 		void SetBackgroundColor(float p_red, float p_green, float p_blue, float p_alpha = 1.f);
 		void SetSkybox(const std::string& p_frontPath,
@@ -147,7 +147,8 @@ namespace TVGE::Graphics
 		//TODO: add to camera?
 		glm::mat4 _projectionMatrix;
 		//TODO: multicamera?
-		Camera _mainCamera;
+		Entity _cameraEntity;
+		std::shared_ptr<CameraComponent> _mainCamera;
 
 		double _lastTime;
 		float _deltaTime;

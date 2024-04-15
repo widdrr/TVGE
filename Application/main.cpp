@@ -250,7 +250,7 @@ int main()
 	input.AddKeyPressEventHandler(Keys::ESCAPE, [&]() {window.Unfocus(); });
 
 	input.AddMouseButtonPressEventHandler(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
-	Camera::Movement movement{};
+	CameraComponent::Movement movement{};
 
 	input.AddCursorPositionEventHandler([&](double p_crtX, double p_crtY) {
 		if (window.IsFocused()) {

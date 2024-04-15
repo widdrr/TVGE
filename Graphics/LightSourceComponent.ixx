@@ -1,7 +1,7 @@
 export module Graphics.Components:LightSourceComponent;
 
 import Common;
-import :Camera;
+import :CameraComponent;
 import Graphics.Resources;
 
 import <glm/vec3.hpp>;
