@@ -127,13 +127,8 @@ void Simulator::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, g
 	float impulse = efRestCoef * glm::dot(collisionVelocity, collisionNormal) /
 		(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
-	glm::vec3 velocityChange = collisionNormal * impulse * p_body._inverseMass;
-
-	p_body.velocity += velocityChange;
-
-	glm::vec3 angularVelocityChange = p_body._inverseInertiaMatrix * impulse * glm::cross(support, collisionNormal);
-
-	p_body.angularVelocity += angularVelocityChange;
+	p_body.AddForceInstant(collisionNormal * impulse);
+	p_body.AddTorqueInstant(impulse * glm::cross(support, collisionNormal));
 }
 
 void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint, glm::vec3 p_normal)
@@ -154,9 +149,9 @@ void Simulator::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_ot
 	float denominator = p_body._inverseMass + p_other._inverseMass + glm::dot(scaledAngularVel + otherScaledAngularVel, collisionNormal);						
 	float impulse = numerator / denominator;
 
-	p_body.velocity += collisionNormal * impulse * p_body._inverseMass;
-	p_other.velocity -= collisionNormal * impulse * p_other._inverseMass;
+	p_body.AddForceInstant(collisionNormal * impulse);
+	p_other.AddForceInstant(-collisionNormal * impulse);
 
-	p_body.angularVelocity += p_body._inverseInertiaMatrix * glm::cross(support, impulse * collisionNormal);
-	p_other.angularVelocity -= p_other._inverseInertiaMatrix * glm::cross(otherSupport, impulse * collisionNormal);
+	p_body.AddTorqueInstant(glm::cross(support, impulse * collisionNormal));
+	p_other.AddTorqueInstant(-glm::cross(otherSupport, impulse * collisionNormal));
 }

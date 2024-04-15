@@ -28,6 +28,16 @@ void BodyComponent::AddForce(float p_forceX, float p_forceY, float p_forceZ)
 	AddForce(glm::vec3(p_forceX, p_forceY, p_forceZ));
 }
 
+void BodyComponent::AddForceInstant(glm::vec3 p_force)
+{
+	velocity += _inverseMass * p_force;
+}
+
+void BodyComponent::AddForceInstant(float p_forceX, float p_forceY, float p_forceZ)
+{
+	AddForceInstant(glm::vec3(p_forceX, p_forceY, p_forceZ));
+}
+
 void BodyComponent::AddTorque(glm::vec3 p_torque)
 {
 	_torque += p_torque;
@@ -36,6 +46,16 @@ void BodyComponent::AddTorque(glm::vec3 p_torque)
 void BodyComponent::AddTorque(float p_torqueX, float p_torqueY, float p_torqueZ)
 {
 	AddTorque(glm::vec3(p_torqueX, p_torqueY, p_torqueZ));
+}
+
+void BodyComponent::AddTorqueInstant(glm::vec3 p_torque)
+{
+	angularVelocity += _inverseInertiaMatrix * p_torque;
+}
+
+void BodyComponent::AddTorqueInstant(float p_torqueX, float p_torqueY, float p_torqueZ)
+{
+	AddTorqueInstant(glm::vec3(p_torqueX, p_torqueY, p_torqueZ));
 }
 
 float BodyComponent::GetMass() const

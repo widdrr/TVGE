@@ -18,8 +18,12 @@ namespace TVGE::Physics
 
 		void AddForce(glm::vec3 p_force);
 		void AddForce(float p_forceX, float p_forceY, float p_forceZ);
+		void AddForceInstant(glm::vec3 p_force);
+		void AddForceInstant(float p_forceX, float p_forceY, float p_forceZ);
 		void AddTorque(glm::vec3 p_torque);
 		void AddTorque(float p_torqueX, float p_torqueY, float p_torqueZ);
+		void AddTorqueInstant(glm::vec3 p_torque);
+		void AddTorqueInstant(float p_torqueX, float p_torqueY, float p_torqueZ);
 		float GetMass() const;
 		void SetMass(float p_mass);
 		void RegisterCollider();
