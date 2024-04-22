@@ -80,7 +80,7 @@ void CameraComponent::SetCameraDirection(float p_frontX, float p_frontY, float p
 	DetermineAngles();
 }
 
-std::shared_ptr<Component> TVGE::Graphics::CameraComponent::Clone(Entity& p_entity) const
+std::shared_ptr<Component> CameraComponent::Clone(Entity& p_entity) const
 {
 	auto component = p_entity.CreateComponentOfType<CameraComponent>().lock();
 	component->_relPosition = _relPosition;
