@@ -1,6 +1,5 @@
 export module MeshHelpers;
 
-import Graphics.Resources;
 import Graphics;
 
 import <glm/vec2.hpp>;

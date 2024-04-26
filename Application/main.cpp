@@ -1,10 +1,6 @@
-import Common;
 import Graphics;
-import Graphics.Resources;
-import Graphics.Components;
 import MeshHelpers;
 import Physics;
-import Physics.Components;
 
 import <iostream>;
 import <thread>;

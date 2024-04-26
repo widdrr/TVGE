@@ -6,8 +6,8 @@ module;
 export module Graphics:Renderer;
 
 import Common;
-import Graphics.Components;
 import Graphics.Resources;
+import Graphics.Components;
 
 import <glm/mat4x4.hpp>;
 import <glm/gtc/quaternion.hpp>;
