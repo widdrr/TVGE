@@ -1,7 +1,10 @@
-export module Graphics.Resources:Vertex;
+module;
 
-import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
+//For some reason header unit imports are buggy here
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+
+export module Graphics.Resources:Vertex;
 
 namespace TVGE::Graphics
 {

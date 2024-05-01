@@ -23,7 +23,8 @@ namespace TVGE::Graphics
 
 	private:
 		Mesh(const std::vector<Vertex>& p_vertices, const std::vector<unsigned int>& p_indices, const std::shared_ptr<Material>& p_material, bool genNormals = false);
-
+		Mesh(const Mesh&) = delete;	
+		Mesh(Mesh&) = delete;	
 		std::vector<Vertex> _vertices;
 		std::vector<unsigned int> _indices;
 

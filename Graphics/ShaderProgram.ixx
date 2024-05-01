@@ -32,6 +32,8 @@ namespace TVGE::Graphics
 					  const std::string& p_fragmentShader,
 					  const std::string& p_geometryShader = "",
 					  bool p_files = true);
+		ShaderProgram(const ShaderProgram&) = delete;
+		ShaderProgram(ShaderProgram&) = delete;
 
 		void AddShader(std::string p_shaderText, unsigned int p_shaderType);
 		unsigned int GetUniformLocation(std::string_view p_variableName, bool p_debug);

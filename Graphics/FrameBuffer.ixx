@@ -20,6 +20,8 @@ namespace TVGE::Graphics
 
 	private:
 		FrameBuffer();
+		FrameBuffer(const FrameBuffer&) = delete;
+		FrameBuffer(FrameBuffer&) = delete;
 		unsigned int _id;
 		unsigned int _colorBufferId, _depthBufferId, _stencilBufferId;
 		std::shared_ptr<Texture> _colorTexture;

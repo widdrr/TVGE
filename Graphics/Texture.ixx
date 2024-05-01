@@ -18,6 +18,8 @@ namespace TVGE::Graphics
 
 	protected:
 		Texture(const std::string& p_texturePath);
+		Texture(const Texture&) = delete;
+		Texture(Texture&) = delete;
 		void Bind(unsigned int p_unit, unsigned int type) const;
 
 		unsigned int _id;

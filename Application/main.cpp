@@ -14,11 +14,6 @@ using namespace TVGE::Graphics;
 using namespace TVGE::Physics;
 using namespace TVGE::Input;
 
-//for some ungodly reason, main does not compile without this
-static void DontDeleteThis(Entity& obj)
-{
-	obj.Translate(0.f, 0.f, 0.f);
-}
 
 int main()
 {

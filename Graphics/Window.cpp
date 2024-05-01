@@ -1,6 +1,5 @@
 module;
 
-#include <Windows.h>
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 
@@ -103,11 +102,6 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 	_frames(),
 	_fpsDelta()
 {
-
-#ifdef _WIN32
-	timeBeginPeriod(1);
-#endif
-
 	GLenum res = glfwInit();
 	if (res == GLFW_FALSE) {
 		std::cerr << "GLFW initialization failed\n";
@@ -138,7 +132,7 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 	glfwSetFramebufferSizeCallback(_window,
 		[](GLFWwindow* p_window, int p_width, int p_height) {
 			glViewport(0, 0, p_width, p_height);
-			_instance->_renderer->SetPerspective(90,0.1f, 100);
+			_instance->_renderer->SetPerspective(90, 0.1f, 100);
 			_instance->_renderer->RenderFrame();
 		}
 	);
@@ -159,7 +153,4 @@ Window::~Window()
 {
 	glfwDestroyWindow(_window);
 	glfwTerminate();
-#ifdef _WIN32
-	timeBeginPeriod(0);
-#endif
 }
