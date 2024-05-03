@@ -113,16 +113,16 @@ int main()
 		input.ProcessInput();
 
 		if (!renderWireframe) {
-			renderer.RenderFrame();
+			renderer.RenderScene();
 		}
 		else {
 			renderer.RenderWireframe();
 		}
 		if (showNormals) {
-			renderer.RenderFrame(*normals);
+			renderer.RenderScene(*normals);
 		}
 		if (showAxes) {
-			renderer.RenderFrame(*axes);
+			renderer.RenderScene(*axes);
 		}
 		simulator.SimulateStep(deltaTime * 1.f);
 

@@ -175,14 +175,14 @@ Renderer::~Renderer()
 void Renderer::RenderAndDisplayScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	RenderFrame();
+	RenderScene();
 	glfwSwapBuffers(_window);
 }
 
-void Renderer::RenderFrame()
+void Renderer::RenderScene()
 {
-	if (!_shadowCaster.expired()) {
-		RenderShadows(_shadowCaster.lock());
+	if (!_shadowSource.expired()) {
+		RenderShadows(_shadowSource.lock());
 	}
 
 	auto viewMatrix = _mainCamera->GetViewTransformation();
@@ -341,7 +341,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	glViewport(0, 0, width, height);
 }
 
-void Renderer::RenderFrame(ShaderProgram& p_shader)
+void Renderer::RenderScene(ShaderProgram& p_shader)
 {
 	//TODO: fix this one
 	glUseProgram(p_shader._id);
@@ -394,7 +394,7 @@ void Renderer::RenderWireframe()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	_wireframeShader->SetVariable(UniformVariables::color, glm::vec3(1.f, 0.f, 0.f));
-	RenderFrame(*_wireframeShader);
+	RenderScene(*_wireframeShader);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
@@ -635,9 +635,9 @@ void Renderer::DrawSkybox()
 void Renderer::SetShadowVariables(ShaderProgram& p_shader)
 {
 	p_shader.SetVariable(UniformVariables::Shadows::hasShadows, false);
-	if (!_shadowCaster.expired()) {
+	if (!_shadowSource.expired()) {
 		using namespace UniformVariables::Shadows;
-		auto _shadow = _shadowCaster.lock();
+		auto _shadow = _shadowSource.lock();
 
 		glm::vec4 position = _shadow->GetPosition();
 		p_shader.SetVariable(hasShadows, true);
@@ -813,7 +813,7 @@ void Renderer::AddLightSource(const Entity& p_object)
 	_lightSources.push_back(lightSource);
 }
 
-void Renderer::SetShadowCaster(const Entity& p_object,
+void Renderer::SetShadowSource(const Entity& p_object,
 							   float p_shadowFarPlane,
 							   float p_directionalShadowHeight,
 							   float p_directionalShadowSize,
@@ -825,7 +825,7 @@ void Renderer::SetShadowCaster(const Entity& p_object,
 		return;
 	}
 
-	_shadowCaster = lightSource;
+	_shadowSource = lightSource;
 	_shadowFarPlane = p_shadowFarPlane;
 	_directionalShadowHeight = p_directionalShadowHeight;
 	_directionalShadowSize = p_directionalShadowSize;

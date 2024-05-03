@@ -133,7 +133,7 @@ Window::Window(const std::string_view& p_title, const unsigned int p_windowWidth
 		[](GLFWwindow* p_window, int p_width, int p_height) {
 			glViewport(0, 0, p_width, p_height);
 			_instance->_renderer->SetPerspective(90, 0.1f, 100);
-			_instance->_renderer->RenderFrame();
+			_instance->_renderer->RenderScene();
 		}
 	);
 	

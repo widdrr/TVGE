@@ -33,9 +33,9 @@ namespace TVGE::Graphics
 
 		void RenderAndDisplayScene();
 
-		void RenderFrame();
+		void RenderScene();
 		void RenderShadows(std::shared_ptr<LightSourceComponent> p_caster);
-		void RenderFrame(ShaderProgram& p_shader);
+		void RenderScene(ShaderProgram& p_shader);
 		void RenderWireframe();
 		void DrawRayBetweenPoints(glm::vec3 p_start, glm::vec3 p_end, glm::vec3 p_color);
 		void DrawRayAtPosition(glm::vec3 p_position, glm::vec3 p_ray, glm::vec3 p_color);
@@ -62,7 +62,7 @@ namespace TVGE::Graphics
 
 		void AddObject(const Entity& p_object);
 		void AddLightSource(const Entity& p_object);
-		void SetShadowCaster(const Entity& p_object,
+		void SetShadowSource(const Entity& p_object,
 							 float p_shadowFarPlane = 100.f,
 							 float p_directionalShadowHeight = 80.f,
 							 float p_directionalShadowSize = 100.f,
@@ -131,7 +131,7 @@ namespace TVGE::Graphics
 		std::unordered_map<std::string, std::shared_ptr<Texture>> _textures;
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> _meshes;
 
-		std::weak_ptr<LightSourceComponent> _shadowCaster;
+		std::weak_ptr<LightSourceComponent> _shadowSource;
 		std::shared_ptr<ShaderProgram> _pointShadowsShader;
 		std::shared_ptr<ShaderProgram> _directionalShadowsShader;
 		std::shared_ptr<Cubemap> _pointShadowMap;
