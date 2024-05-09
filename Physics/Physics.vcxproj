@@ -165,7 +165,6 @@
     <ClCompile Include="Physics.ixx" />
     <ClCompile Include="PhysicsComponents.ixx" />
     <ClCompile Include="PhysicsResources.ixx" />
-    <ClCompile Include="Simulator.cpp" />
     <ClCompile Include="Simulator.ixx" />
     <ClCompile Include="SphereColliderComponent.cpp" />
     <ClCompile Include="SphereColliderComponent.ixx" />

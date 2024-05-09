@@ -32,7 +32,7 @@ namespace TVGE::Physics
 		virtual void CleanDanglingPointers();
 
 	protected:
-		std::optional<CollisionEvent> Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
+		virtual std::optional<CollisionEvent> Intersect(const ColliderComponent& p_firstCollider, const ColliderComponent& p_secondCollider);
 
 		std::unordered_map<ColliderPair, CollisionFunction, PairHash> _collisionFunctions;
 		std::vector<std::weak_ptr<ColliderComponent>> _colliders;

@@ -37,7 +37,7 @@ namespace TVGE::Physics
 		virtual std::shared_ptr<Component> Clone(Entity& p_entity) const override;
 
 	private:
-		void Update(float p_deltaTime);
+		virtual void Update(float p_deltaTime);
 
 		float _mass;
 		float _inverseMass;

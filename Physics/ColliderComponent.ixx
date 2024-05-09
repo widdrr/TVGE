@@ -15,7 +15,8 @@ namespace TVGE::Physics
 	{
 		Undefined = 0,
 		Box,
-		Sphere
+		Sphere,
+		Custom
 	};
 
 	export class ColliderComponent : public Component

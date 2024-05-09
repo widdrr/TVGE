@@ -96,9 +96,6 @@
     <ClCompile Include="CollisionHandler.cpp">
       <Filter>Implementations\Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Simulator.cpp">
-      <Filter>Implementations\Classes</Filter>
-    </ClCompile>
     <ClCompile Include="CollisionHandler.ixx">
       <Filter>Interfaces\Classes</Filter>
     </ClCompile>
