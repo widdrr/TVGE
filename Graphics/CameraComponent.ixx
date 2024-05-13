@@ -30,6 +30,8 @@ namespace TVGE::Graphics
 
 		const glm::mat4 GetViewTransformation() const;
 		const glm::vec3 GetPosition() const;
+		const glm::vec3 GetCameraFront() const;
+		const glm::vec3 GetCameraUp() const;
 
 		void MoveCamera(Movement p_movement, float p_delta);
 		void SetCameraPosition(float p_posX, float p_posY, float p_posZ);

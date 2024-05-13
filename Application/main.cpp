@@ -47,26 +47,80 @@ int main()
 
 	floorComp->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
 
+	Entity sWall(floor);
+
 	floor.Scale(100.f, 1.f, 100.f);
 	floor.Translate(0.f, -8.f, 0.f);
 
-	renderer.AddObject(floor);
-	renderer.AddLightSource(light);
+	sWall.Scale(100.f, 4.f, 1.f);
+	sWall.Translate(0.f, -6.f, 0.f);
 
-	renderer.SetPerspective(90.f, 0.1f, 100.f);
+	Entity nWall(sWall);
+	Entity eWall(sWall);
 
-	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
+	eWall.Rotate(glm::vec3(0.f, 1.f, 0.f), 90.f);
+	Entity wWall(eWall);
+
+	sWall.Translate(0.f, 0.f, -50.f);
+	nWall.Translate(0.f, 0.f, +50.f);
+	eWall.Translate(-50.f, 0.f, 0);
+	wWall.Translate(50.f, 0.f, 0);
 
 	auto& camera = renderer.GetMainCamera();
+	camera.SetCameraPosition(0.f, 3.f, 0.f);
+	auto& player = camera.entity;
+	auto playerBody = player.CreateComponentOfType<BodyComponent>(100.f).lock();
+	player.CreateComponentOfType<BoxColliderComponent>(glm::vec3(0.5f, 2.f, 0.5f));
+
+	float playerSpeed = 10.f;
+	input.AddGenericInputBehaviour([&]() {
+		glm::vec3 _front = camera.GetCameraFront();
+		glm::vec3 _up = camera.GetCameraUp();
+		glm::vec3 _right = glm::normalize(glm::cross(_front, _up));
+		glm::vec3 _movementFront = glm::normalize(glm::cross(_up, _right));
+		
+		auto delta = window.GetDeltaTime();
+		float adjustedSpeed = playerSpeed * delta;
+
+		if(input.IsKeyPressed(W)){
+			camera.entity.position += _movementFront * adjustedSpeed;
+		};
+		if(input.IsKeyPressed(S)){
+			camera.entity.position -= _movementFront * adjustedSpeed;
+		}
+		if(input.IsKeyPressed(A)){
+			camera.entity.position -= _right * adjustedSpeed;
+		};
+		if(input.IsKeyPressed(D)){
+			camera.entity.position += _right * adjustedSpeed;
+		}
+								   });
+
+	
+
+	renderer.AddObject(floor);
+	renderer.AddLightSource(light);
+	renderer.AddObject(sWall);
+	renderer.AddObject(nWall);
+	renderer.AddObject(eWall);
+	renderer.AddObject(wWall);
+
+	renderer.SetPerspective(90.f, 0.1f, 100.f);
+	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
+
 
 	simulator.AddObject(floor);
+	simulator.AddObject(player);
+	simulator.AddObject(sWall);
+	simulator.AddObject(nWall);
+	simulator.AddObject(eWall);
+	simulator.AddObject(wWall);
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
 	input.AddKeyPressEventHandler(Keys::ESCAPE, [&]() {window.Unfocus(); });
 
 	input.AddMouseButtonPressEventHandler(MouseButtons::LEFT_CLICK, [&]() {window.Focus(); initialFocus = true; });
-	CameraComponent::Movement movement{};
 
 	input.AddCursorPositionEventHandler([&](double p_crtX, double p_crtY) {
 		if (window.IsFocused()) {
@@ -86,17 +140,6 @@ int main()
 			}
 		}});
 
-	input.AddGenericInputBehaviour([&]() {
-		movement.moveForward = input.IsKeyPressed(W);
-		movement.moveBackward = input.IsKeyPressed(S);
-		movement.moveLeft = input.IsKeyPressed(A);
-		movement.moveRight = input.IsKeyPressed(D);
-		movement.moveUp = input.IsKeyPressed(SPACE);
-		movement.moveDown = input.IsKeyPressed(LEFT_SHIFT);
-
-		auto delta = window.GetDeltaTime();
-		camera.MoveCamera(movement, delta);
-								   });
 	bool showNormals = false;
 	input.AddKeyPressEventHandler(Keys::N, [&]() {showNormals = !showNormals; });
 	bool renderWireframe = false;

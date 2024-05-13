@@ -35,6 +35,16 @@ const glm::vec3 CameraComponent::GetPosition() const
 	return entity.position + _relPosition;
 }
 
+const glm::vec3 TVGE::Graphics::CameraComponent::GetCameraFront() const
+{
+	return _front;
+}
+
+const glm::vec3 TVGE::Graphics::CameraComponent::GetCameraUp() const
+{
+	return _up;
+}
+
 void CameraComponent::MoveCamera(Movement p_movement, float p_delta) {
 	
 	float adjustedSpeed = _cameraSpeed * p_delta;
