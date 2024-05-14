@@ -21,7 +21,7 @@ PointLightComponent::PointLightComponent(Entity& p_entity,
 
 glm::vec4 PointLightComponent::GetPosition() const
 {
-	return glm::vec4(glm::vec4(entity.position + _offset, 1.f));
+	return glm::vec4(glm::vec4(entity.GetAbsolutePosition() + _offset, 1.f));
 }
 
 void PointLightComponent::SetLightVariables(ShaderProgram& p_shader, int p_index)

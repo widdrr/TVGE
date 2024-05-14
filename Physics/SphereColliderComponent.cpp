@@ -13,8 +13,8 @@ SphereColliderComponent::SphereColliderComponent(Entity& p_entity, float p_radiu
 
 void SphereColliderComponent::ApplyTransformations()
 {
-	_center = localCenter + entity.position;
-	glm::vec3 absScaling = glm::abs(entity.scaling);
+	_center = localCenter + entity.GetAbsolutePosition();
+	glm::vec3 absScaling = glm::abs(entity.GetAbsoluteScaling());
 	_radius = localRadius * glm::max(absScaling.x, glm::max(absScaling.y, absScaling.z));
 
 	_boundingBox = ResizeBoundingBox();

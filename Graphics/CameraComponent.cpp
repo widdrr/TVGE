@@ -26,13 +26,13 @@ CameraComponent::CameraComponent(Entity& p_entity,
 
 const glm::mat4 CameraComponent::GetViewTransformation() const
 {
-	glm::vec3 position = entity.position + _relPosition;
+	glm::vec3 position = entity.GetAbsolutePosition() + _relPosition;
 	return glm::lookAt(position, position + _front, _up);
 }
 
 const glm::vec3 CameraComponent::GetPosition() const
 {
-	return entity.position + _relPosition;
+	return entity.GetAbsolutePosition() + _relPosition;
 }
 
 const glm::vec3 TVGE::Graphics::CameraComponent::GetCameraFront() const
@@ -43,36 +43,6 @@ const glm::vec3 TVGE::Graphics::CameraComponent::GetCameraFront() const
 const glm::vec3 TVGE::Graphics::CameraComponent::GetCameraUp() const
 {
 	return _up;
-}
-
-void CameraComponent::MoveCamera(Movement p_movement, float p_delta) {
-	
-	float adjustedSpeed = _cameraSpeed * p_delta;
-
-	if (p_movement.moveForward) {
-		entity.position += _front * adjustedSpeed;
-	}
-
-	if (p_movement.moveBackward) {
-		entity.position -= _front * adjustedSpeed;
-	}
-
-	if (p_movement.moveLeft) {
-		entity.position -= glm::normalize(glm::cross(_front, _up)) * adjustedSpeed;
-	}
-
-	if (p_movement.moveRight) {
-		entity.position += glm::normalize(glm::cross(_front, _up)) * adjustedSpeed;
-	}
-
-	if (p_movement.moveUp) {
-		entity.position += _up * adjustedSpeed;
-	}
-
-	if (p_movement.moveDown) {
-		entity.position -= _up * adjustedSpeed;
-	}
-
 }
 
 void CameraComponent::SetCameraPosition(float p_posX, float p_posY, float p_posZ) {

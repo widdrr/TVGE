@@ -161,7 +161,7 @@ export
 	{
 		glm::vec3 collisionNormal = glm::normalize(p_normal);
 
-		glm::vec3 support = p_point - p_body.entity.position;
+		glm::vec3 support = p_point - p_body.entity.GetAbsolutePosition();
 		glm::vec3 collisionVelocity = p_body.velocity + glm::cross(p_body.angularVelocity, support);
 
 		p_body.entity.Translate(p_normal);
@@ -181,8 +181,8 @@ export
 		glm::vec3 collisionNormal = glm::normalize(p_normal);
 
 		glm::vec3 relativeVelocity = p_body.velocity - p_other.velocity;
-		glm::vec3 support = p_point - p_body.entity.position;
-		glm::vec3 otherSupport = p_otherPoint - p_other.entity.position;
+		glm::vec3 support = p_point - p_body.entity.GetAbsolutePosition();
+		glm::vec3 otherSupport = p_otherPoint - p_other.entity.GetAbsolutePosition();
 
 		p_body.entity.Translate(p_normal * p_body._mass / ( p_body._mass + p_other._mass)	);
 		p_other.entity.Translate(p_normal * -p_other._mass / (p_body._mass + p_other._mass));

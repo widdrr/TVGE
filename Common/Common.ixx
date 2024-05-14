@@ -74,15 +74,19 @@ namespace TVGE
 
 		void SetParent(const Entity& p_parent);
 
+		const glm::vec3 GetAbsolutePosition() const;
+		const glm::quat GetAbsoluteRotation() const;
+		const glm::vec3 GetAbsoluteScaling() const;
+
 		//TODO: polish the parent system implementation
 		const Entity* _parent;
 
 		//coordinates of center in 3D Space
-		glm::vec3 position;
+		glm::vec3 relativePosition;
 		//scaling along each axis
-		glm::vec3 scaling;
+		glm::vec3 relativeScaling;
 		//rotation quaternion
-		glm::quat rotation;
+		glm::quat relativeRotation;
 
 	private:
 		static unsigned int _current_id;

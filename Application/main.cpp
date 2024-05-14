@@ -30,8 +30,8 @@ int main()
 	auto axes = renderer.GenerateShaderFromFiles("axis.vert", "axis.frag", "axis.geom");
 
 	auto basicMaterial = std::make_shared<Material>(*defaultShader);
-	basicMaterial->lightProperties.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
-	basicMaterial->lightProperties.diffuse = glm::vec3(0.7f, 0.7f, 0.7f);
+	basicMaterial->lightProperties.ambient = glm::vec3(0.3f, 0.3f, 0.3f);
+	basicMaterial->lightProperties.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 	basicMaterial->lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
 	basicMaterial->lightProperties.shininess = 10.f;
 
@@ -50,10 +50,10 @@ int main()
 	Entity sWall(floor);
 
 	floor.Scale(100.f, 1.f, 100.f);
-	floor.Translate(0.f, -8.f, 0.f);
+	floor.Translate(0.f, -2.f, 0.f);
 
-	sWall.Scale(100.f, 4.f, 1.f);
-	sWall.Translate(0.f, -6.f, 0.f);
+	sWall.Scale(100.f, 6.f, 1.f);
+	sWall.Translate(0.f, -1.f, 0.f);
 
 	Entity nWall(sWall);
 	Entity eWall(sWall);
@@ -72,27 +72,35 @@ int main()
 	auto playerBody = player.CreateComponentOfType<BodyComponent>(100.f).lock();
 	player.CreateComponentOfType<BoxColliderComponent>(glm::vec3(0.5f, 2.f, 0.5f));
 
+
+	Entity grabHitbox;
+	grabHitbox.SetParent(player);
+	grabHitbox.Translate(1.f, 2.f, 0.f);
+	grabHitbox.Scale(3.f, 1.f, 1.f);
+	auto debugModel = grabHitbox.CreateComponentOfType<ModelComponent>().lock();
+	debugModel->_meshes.push_back(renderer.GenerateMesh("Cube"));
+
 	float playerSpeed = 10.f;
 	input.AddGenericInputBehaviour([&]() {
-		glm::vec3 _front = camera.GetCameraFront();
-		glm::vec3 _up = camera.GetCameraUp();
-		glm::vec3 _right = glm::normalize(glm::cross(_front, _up));
-		glm::vec3 _movementFront = glm::normalize(glm::cross(_up, _right));
+		glm::vec3 front = camera.GetCameraFront();
+		glm::vec3 up = camera.GetCameraUp();
+		glm::vec3 right = glm::normalize(glm::cross(front, up));
+		glm::vec3 movementFront = glm::normalize(glm::cross(up, right));
 		
 		auto delta = window.GetDeltaTime();
 		float adjustedSpeed = playerSpeed * delta;
 
 		if(input.IsKeyPressed(W)){
-			camera.entity.position += _movementFront * adjustedSpeed;
+			camera.entity.Translate(movementFront * adjustedSpeed);
 		};
 		if(input.IsKeyPressed(S)){
-			camera.entity.position -= _movementFront * adjustedSpeed;
+			camera.entity.Translate(-movementFront * adjustedSpeed);
 		}
 		if(input.IsKeyPressed(A)){
-			camera.entity.position -= _right * adjustedSpeed;
+			camera.entity.Translate(-right * adjustedSpeed);
 		};
 		if(input.IsKeyPressed(D)){
-			camera.entity.position += _right * adjustedSpeed;
+			camera.entity.Translate(right * adjustedSpeed);
 		}
 								   });
 
@@ -104,6 +112,7 @@ int main()
 	renderer.AddObject(nWall);
 	renderer.AddObject(eWall);
 	renderer.AddObject(wWall);
+	renderer.AddObject(grabHitbox);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");

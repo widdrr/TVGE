@@ -13,16 +13,6 @@ namespace TVGE::Graphics
 	export class CameraComponent : public Component
 	{
 	public:
-		struct Movement
-		{
-			bool moveForward : 1;
-			bool moveBackward : 1;
-			bool moveLeft : 1;
-			bool moveRight : 1;
-			bool moveUp : 1;
-			bool moveDown : 1;
-		};
-
 		CameraComponent(Entity& p_entity,
 						float p_posX = 0.f, float p_posY = 0.f, float p_posZ = 0.f,
 						float p_frontX = 0.f, float p_frontY = 0.f, float p_frontZ = -1.f);
@@ -33,7 +23,6 @@ namespace TVGE::Graphics
 		const glm::vec3 GetCameraFront() const;
 		const glm::vec3 GetCameraUp() const;
 
-		void MoveCamera(Movement p_movement, float p_delta);
 		void SetCameraPosition(float p_posX, float p_posY, float p_posZ);
 
 		void RotateCamera(float p_offsetX, float p_offsetY);
