@@ -6,7 +6,7 @@ import <glm/vec3.hpp>;
 import <glm/gtc/epsilon.hpp>;
 import <glm/gtx/norm.hpp>;
 
-export constexpr float EPSILON = 0.00001f;
+export constexpr float EPSILON = 0.0001f;
 
 export namespace TVGE::GeometryHelpers
 {

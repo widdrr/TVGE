@@ -11,10 +11,10 @@ namespace TVGE::Physics
 	{
 	public:
 		BoxColliderComponent(Entity& p_entity,
+							 const bool p_physical = true,
 							 glm::vec3 p_extents = { 0.5f, 0.5f, 0.5f },
 							 glm::vec3 p_center = { 0.f, 0.f, 0.f },
-							 glm::mat3 p_axes = glm::mat3(1.f),
-							 const bool p_physical = true);
+							 glm::mat3 p_axes = glm::mat3(1.f));
 
 		void ApplyTransformations() override;
 		glm::mat3 ComputeInertiaMatrix(float p_mass) override;

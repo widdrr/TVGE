@@ -200,10 +200,16 @@ std::optional<CollisionEvent> CollisionFunctions::IntersectSphere_Box(const Coll
 
 		glm::vec3 spherePoint = centerInBox * glm::normalize(boxPoint - sphere.GetCenter()) * sphere.GetRadius() + sphere.GetCenter();
 
-		if (swap) {
-			CollisionEvent(box.entity, sphere.entity, boxPoint, spherePoint, spherePoint - boxPoint);
+		glm::vec3 normal = spherePoint - boxPoint;
+		
+		if(glm::epsilonEqual(glm::length(normal), 0.f, EPSILON)){
+			normal =  vectorToPoint * 0.01f;
 		}
-		return CollisionEvent(sphere.entity, box.entity, spherePoint, boxPoint, boxPoint - spherePoint);
+
+		if (swap) {
+			return CollisionEvent(box.entity, sphere.entity, boxPoint, spherePoint, normal);
+		}
+		return CollisionEvent(sphere.entity, box.entity, spherePoint, boxPoint, -normal);
 	}
 
 	return std::nullopt;

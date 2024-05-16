@@ -3,7 +3,7 @@ module Physics.Components:BoxColliderComponent;
 using namespace TVGE;
 using namespace TVGE::Physics;
 
-BoxColliderComponent::BoxColliderComponent(Entity& p_entity, glm::vec3 p_extents, glm::vec3 p_center, glm::mat3 p_axes, const bool p_physical) :
+BoxColliderComponent::BoxColliderComponent(Entity& p_entity, const bool p_physical, glm::vec3 p_extents, glm::vec3 p_center, glm::mat3 p_axes) :
 	ColliderComponent(p_entity, Box, p_physical),
 	localExtents(p_extents),
 	localCenter(p_center),
@@ -69,6 +69,6 @@ glm::mat3 BoxColliderComponent::GetAxes() const
 
 std::shared_ptr<Component> BoxColliderComponent::Clone(Entity& p_entity) const
 {
-	auto component = p_entity.CreateComponentOfType<BoxColliderComponent>(localExtents, localCenter, localAxes, physical).lock();
+	auto component = p_entity.CreateComponentOfType<BoxColliderComponent>(physical, localExtents, localCenter, localAxes).lock();
 	return component;
 }

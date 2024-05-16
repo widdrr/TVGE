@@ -73,6 +73,7 @@ namespace TVGE
 		void Translate(const glm::vec3& p_translation);
 
 		void SetParent(const Entity& p_parent);
+		void RemoveParent();
 
 		const glm::vec3 GetAbsolutePosition() const;
 		const glm::quat GetAbsoluteRotation() const;

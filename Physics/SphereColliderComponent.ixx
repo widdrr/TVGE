@@ -11,9 +11,9 @@ namespace TVGE::Physics
 	{
 	public:
 		SphereColliderComponent(Entity& p_entity,
+								const bool p_physical = true,
 								float p_radius = 1,
-								glm::vec3 p_center = { 0.f, 0.f, 0.f },
-								const bool p_physical = true);
+								glm::vec3 p_center = { 0.f, 0.f, 0.f });
 
 		void ApplyTransformations() override;
 		glm::mat3 ComputeInertiaMatrix(float p_mass) override;

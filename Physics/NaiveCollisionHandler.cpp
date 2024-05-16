@@ -32,13 +32,13 @@ std::vector<CollisionEvent> NaiveCollisionHandler::DetectCollisions()
 			auto collision_opt = Intersect(collider1, collider2);
 			if (collision_opt.has_value()) {
 				auto&& collision = collision_opt.value();
-				if (collider1.physical || collider2.physical) {
+				if (collider1.physical && collider2.physical) {
 					_collisions.push_back(collision);
 				}
-				collider1.SendCollisionEvent(collision.entity1, collision);
+				collider1.SendCollisionEvent(collision.entity2, collision);
 
 				CollisionEvent collision2 = collision.GetOther();
-				collider2.SendCollisionEvent(collision.entity2, collision2);
+				collider2.SendCollisionEvent(collision.entity1, collision2);
 			}
 		}
 	}

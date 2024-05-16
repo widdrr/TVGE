@@ -5,7 +5,7 @@ import <glm/mat3x3.hpp>;
 using namespace TVGE;
 using namespace TVGE::Physics;
 
-SphereColliderComponent::SphereColliderComponent(Entity& p_entity, float p_radius, glm::vec3 p_center, const bool p_physical):
+SphereColliderComponent::SphereColliderComponent(Entity& p_entity, const bool p_physical, float p_radius, glm::vec3 p_center):
 	ColliderComponent(p_entity, Sphere, p_physical),
 	localRadius(glm::abs(p_radius)),
 	localCenter(p_center)
@@ -43,6 +43,6 @@ glm::vec3 SphereColliderComponent::GetCenter() const
 
 std::shared_ptr<Component> SphereColliderComponent::Clone(Entity& p_entity) const
 {
-	auto component = p_entity.CreateComponentOfType<SphereColliderComponent>(localRadius, localCenter, physical).lock();
+	auto component = p_entity.CreateComponentOfType<SphereColliderComponent>(physical, localRadius, localCenter).lock();
 	return component;
 }

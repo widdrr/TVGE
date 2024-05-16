@@ -85,25 +85,31 @@ void Entity::Rotate(const glm::vec3& p_rotation)
 void Entity::SetParent(const Entity& p_parent) 
 {
 	_parent = &p_parent;
+
+}
+
+void TVGE::Entity::RemoveParent()
+{
+	_parent = nullptr;
 }
 
 const glm::vec3 TVGE::Entity::GetAbsolutePosition() const
 {
 	glm::vec3 parentPosition = _parent != nullptr ? _parent->GetAbsolutePosition() : glm::vec3(0.f,0.f,0.f);
-	glm::vec3 parentScaling = _parent != nullptr ? _parent->GetAbsolutePosition() : glm::vec3(1.f,1.f,1.f);
-	glm::quat parentRotation = _parent != nullptr ? _parent->GetAbsolutePosition() : glm::identity<glm::quat>();
+	glm::vec3 parentScaling = _parent != nullptr ? _parent->GetAbsoluteScaling() : glm::vec3(1.f,1.f,1.f);
+	glm::quat parentRotation = _parent != nullptr ? _parent->GetAbsoluteRotation() : glm::identity<glm::quat>();
 	return parentRotation * (relativePosition * parentScaling) + parentPosition;
 }
 
 const glm::quat TVGE::Entity::GetAbsoluteRotation() const
 {
-	glm::quat parentRotation = _parent != nullptr ? _parent->GetAbsolutePosition() : glm::identity<glm::quat>();
+	glm::quat parentRotation = _parent != nullptr ? _parent->GetAbsoluteRotation() : glm::identity<glm::quat>();
 	return relativeRotation * parentRotation;
 }
 
 const glm::vec3 TVGE::Entity::GetAbsoluteScaling() const
 {
-	glm::vec3 parentScaling = _parent != nullptr ? _parent->GetAbsolutePosition() : glm::vec3(1.f,1.f,1.f);
+	glm::vec3 parentScaling = _parent != nullptr ? _parent->GetAbsoluteScaling() : glm::vec3(1.f,1.f,1.f);
 	return relativeScaling * parentScaling;
 }
 
