@@ -311,12 +311,17 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	glUseProgram(shadowShader->_id);
 
 	for (auto&& model : _models) {
+		bool isSourceModel = false;
 
 		if (model.expired()) {
 			continue;
 		}
 
 		auto&& component = model.lock();
+		if(component->entity.GetId() == p_caster->entity.GetId()){
+			isSourceModel = true;
+			glCullFace(GL_BACK);
+		}
 		for (auto&& weakMesh : component->_meshes) {
 
 			if (weakMesh.expired()) {
@@ -330,6 +335,10 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 
 			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->_indices.size()), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
+		}
+
+		if(isSourceModel){
+			glCullFace(GL_FRONT);
 		}
 	}
 	glUseProgram(0);

@@ -134,7 +134,7 @@ int main()
 	renderer.AddObject(ball);
 	//renderer.AddObject(grabHitbox);
 	renderer.AddLightSource(ball);
-	//renderer.SetShadowSource(ball);
+	renderer.SetShadowSource(ball);
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
