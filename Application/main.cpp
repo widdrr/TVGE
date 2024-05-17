@@ -25,7 +25,6 @@ static void PrintVector(const glm::quat vec){
 	std::cout<<"X= "<< vec.x<<" Y= "<<vec.y<<" Z= "<<vec.z<<" W= "<<vec.w<<"\n";
 }
 
-
 int main()
 {
 	auto [vertices, order] = Common3DMeshes::Cube();
@@ -91,27 +90,26 @@ int main()
 	wWall.Translate(50.f, 0.f, 0);
 
 	Entity ball;
-	ball.Translate(-5.f, 0.f, -5.f);
-	ball.Scale(2.f, 2.f, 2.f);
+	ball.Translate(0.f, 0.f, -5.f);
 	auto ballComp = ball.CreateComponentOfType<ModelComponent>().lock();
 	ball.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f),
 													glm::vec3(0.8f, 0.8f, 0.8f),
 													glm::vec3(0.5f, 0.5f, 0.5f));
 	renderer.LoadModel(*ballComp, "sphere.dae");
 	ballComp->_meshes[0].lock()->material = lightMaterial;
-	auto ballBody = ball.CreateComponentOfType<BodyComponent>(500.f).lock();
+	auto ballBody = ball.CreateComponentOfType<BodyComponent>(10.f).lock();
 	ball.CreateComponentOfType<SphereColliderComponent>();
 
 	auto& camera = renderer.GetMainCamera();
 	camera.SetCameraPosition(0.f, 3.f, 0.f);
 	auto& player = camera.entity;
-	auto playerBody = player.CreateComponentOfType<BodyComponent>(100.f).lock();
+	auto playerBody = player.CreateComponentOfType<BodyComponent>(1.f).lock();
 	player.CreateComponentOfType<BoxColliderComponent>(true, glm::vec3(0.5f, 2.f, 0.5f));
 
 
 	Entity grabHitbox;
 	grabHitbox.SetParent(player);
-	grabHitbox.Translate(0.f, 1.f, -5.f);
+	grabHitbox.Translate(0.f, 1.f, -4.f);
 	grabHitbox.Scale(2.f, 2.f, 3.f);
 	auto debugModel = grabHitbox.CreateComponentOfType<ModelComponent>().lock();
 	debugModel->_meshes.push_back(renderer.GenerateMesh("Cube2", vertices, order, debugMaterial, true));
@@ -125,6 +123,46 @@ int main()
 		}
 										   });
 
+
+	Entity pinParent;
+	pinParent.Translate(0, 0.f, -15.f);
+	std::vector<Entity> pins;
+	pins.reserve(10);
+
+	pins.emplace_back();
+	pins[0].SetParent(pinParent);
+	pins[0].Scale(0.2f, 0.2f, 0.2f);
+	auto pinModel = pins[0].CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*pinModel, "pin.glb");
+	pins[0].CreateComponentOfType<BodyComponent>(5.f);
+	pins[0].CreateComponentOfType<BoxColliderComponent>(true, 5.f * glm::vec3(0.45f, 1.55f, 0.45f), glm::vec3(0.f, -0.35f, 0.f));
+
+	renderer.AddObject(pins[0]);
+	simulator.AddObject(pins[0]);
+	for(int i = 1; i < 10; ++i){
+		pins.emplace_back(pins[0]);
+		renderer.AddObject(pins[i]);
+		simulator.AddObject(pins[i]);
+	}
+
+	for(int i=0; i<10; ++i){
+		pins[i].relativeRotation = glm::identity<glm::quat>();
+		auto pinBody = pins[i].TryGetComponentOfType<BodyComponent>().lock();
+		pinBody->velocity = glm::vec3(0.f,0.f,0.f);
+		pinBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
+	}
+
+	pins[0].relativePosition = glm::vec3(0.f, 0.f, 0.f);
+	pins[1].relativePosition = glm::vec3(-1.f, 0.f, -2.f);
+	pins[2].relativePosition = glm::vec3(1.f, 0.f, -2.f);
+	pins[3].relativePosition = glm::vec3(-2.f, 0.f, -4.f);
+	pins[4].relativePosition = glm::vec3(0.f, 0.f, -4.f);
+	pins[5].relativePosition = glm::vec3(2.f, 0.f, -4.f);
+	pins[6].relativePosition = glm::vec3(-3.f, 0.f, -6.f);
+	pins[7].relativePosition = glm::vec3(-1.f, 0.f, -6.f);
+	pins[8].relativePosition = glm::vec3(1.f, 0.f, -6.f);
+	pins[9].relativePosition = glm::vec3(3.f, 0.f, -6.f);
+
 	renderer.AddObject(floor);
 	renderer.AddLightSource(light);
 	renderer.AddObject(sWall);
@@ -132,9 +170,9 @@ int main()
 	renderer.AddObject(eWall);
 	renderer.AddObject(wWall);
 	renderer.AddObject(ball);
-	//renderer.AddObject(grabHitbox);
 	renderer.AddLightSource(ball);
 	renderer.SetShadowSource(ball);
+
 
 	renderer.SetPerspective(90.f, 0.1f, 100.f);
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
@@ -148,6 +186,7 @@ int main()
 	simulator.AddObject(wWall);
 	simulator.AddObject(ball);
 	simulator.AddObject(grabHitbox);
+	
 
 	bool initialFocus = true;
 	double prevX = 0, prevY = 0;
@@ -189,12 +228,11 @@ int main()
 
 		float playerSpeed = 10.f;
 	
-	glm::vec3 movementFront;
 	input.AddGenericInputBehaviour([&]() {
 		glm::vec3 front = camera.GetCameraFront();
 		glm::vec3 up = camera.GetCameraUp();
 		glm::vec3 right = glm::normalize(glm::cross(front, up));
-		movementFront = glm::normalize(glm::cross(up, right));
+		glm::vec3 movementFront = glm::normalize(glm::cross(up, right));
 		
 		auto delta = window.GetDeltaTime();
 		float adjustedSpeed = playerSpeed * delta;
@@ -214,7 +252,7 @@ int main()
 								   });
 
 	bool grabbedBall = false;
-	float throwPower = 5000.f;
+	float throwPower = 300.f;
 	input.AddMouseButtonPressEventHandler(LEFT_CLICK, [&]() {
 		if(grabbedBall){
 			grabbedBall = false;
@@ -222,12 +260,14 @@ int main()
 			ball.RemoveParent();
 			ball.relativePosition = newPos;
 			ballBody->AddForceInstant(camera.GetCameraFront() * throwPower);
+			ballBody->gravity = true;
 			return;
 		}
 		if(ballInRange){
 			grabbedBall = true;
 			ballBody->velocity = glm::vec3(0.f,0.f,0.f);
 			ballBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
+			ballBody->gravity = false;
 			ball.SetParent(player);
 			ball.relativePosition = glm::vec3(0.f, 0.f, -5.f);
 		}
@@ -238,6 +278,7 @@ int main()
 			auto newPos = ball.GetAbsolutePosition();
 			ball.RemoveParent();
 			ball.relativePosition = newPos;
+			ballBody->gravity = true;
 		}
 										  });
 
@@ -247,6 +288,32 @@ int main()
 	input.AddKeyPressEventHandler(Keys::M, [&]() {renderWireframe = !renderWireframe; });
 	bool showAxes = false;
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
+	bool showColliders = false;
+	input.AddKeyPressEventHandler(Keys::H, [&]() {showColliders = !showColliders; });
+
+	input.AddKeyPressEventHandler(Keys::R, [&](){
+
+		ball.relativePosition = glm::vec3(0.f, 0.f, -5.f);
+		ballBody->velocity = glm::vec3(0.f,0.f,0.f);
+		ballBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
+
+		for(int i=0; i<10; ++i){
+			pins[i].relativeRotation = glm::identity<glm::quat>();
+			auto pinBody = pins[i].TryGetComponentOfType<BodyComponent>().lock();
+			pinBody->velocity = glm::vec3(0.f,0.f,0.f);
+			pinBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
+	}
+		pins[0].relativePosition = glm::vec3(0.f, 0.f, 0.f);
+		pins[1].relativePosition = glm::vec3(-1.f, 0.f, -2.f);
+		pins[2].relativePosition = glm::vec3(1.f, 0.f, -2.f);
+		pins[3].relativePosition = glm::vec3(-2.f, 0.f, -4.f);
+		pins[4].relativePosition = glm::vec3(0.f, 0.f, -4.f);
+		pins[5].relativePosition = glm::vec3(2.f, 0.f, -4.f);
+		pins[6].relativePosition = glm::vec3(-3.f, 0.f, -6.f);
+		pins[7].relativePosition = glm::vec3(-1.f, 0.f, -6.f);
+		pins[8].relativePosition = glm::vec3(1.f, 0.f, -6.f);
+		pins[9].relativePosition = glm::vec3(3.f, 0.f, -6.f);
+								  });
 
 	window.InitializeTime();
 	int frameCounter = 0;
@@ -268,7 +335,16 @@ int main()
 			renderer.RenderScene(*axes);
 		}
 		ballInRange = false;
+		playerBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
+		playerBody->velocity = glm::vec3(0.f, playerBody->velocity.y, 0.f);
 		simulator.SimulateStep(deltaTime * 1.f);
+
+		if(showColliders){
+			for(int i=0; i< 10; ++i){
+				auto pinCollider = pins[i].TryGetComponentOfType<BoxColliderComponent>().lock();
+				renderer.DrawBox(glm::vec3(0.f, 1.f, 0.f), pinCollider->GetCenter(), 2.f*pinCollider->GetExtents(), pins[i].GetAbsoluteRotation());
+			}
+		}
 
 		renderer.DisplayScene();
 

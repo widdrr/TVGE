@@ -18,12 +18,14 @@ BoxColliderComponent::BoxColliderComponent(Entity& p_entity, const bool p_physic
 
 void BoxColliderComponent::ApplyTransformations()
 {
-	_center = localCenter + entity.GetAbsolutePosition();
+	auto rotation =entity.GetAbsoluteRotation();
+
+	_center = rotation * localCenter + entity.GetAbsolutePosition();
 	
 	_extents = localExtents * entity.GetAbsoluteScaling();
 	_extents = glm::abs(_extents);
 
-	_axes = glm::mat3_cast(entity.GetAbsoluteRotation()) * localAxes;
+	_axes = glm::mat3_cast(rotation) * localAxes ;
 
 	_boundingBox = ResizeBoundingBox();
 }

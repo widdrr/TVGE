@@ -140,7 +140,7 @@ export namespace TVGE::Graphics::ShaderSources
             {
                 vec3 relativePosition = fragmentPosition - glShadowCasterPosition.xyz;
                 vec3 casterDirection = normalize(glShadowCasterPosition.xyz - FragmentPosition);
-                float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
+                float bias = max(0.5 * (1.0 - dot(normal, casterDirection)), 0.01); 
 
                 //the reference value for depth comparison is the distance from the shadow caster to the fragmentcolor
                 //with a shadow bias added to prevent shadow acne, normalized by dividing by the far plane
@@ -154,7 +154,7 @@ export namespace TVGE::Graphics::ShaderSources
                 coords = coords * 0.5f + 0.5f;
         
                 vec3 casterDirection = normalize(glShadowCasterPosition.xyz);
-                float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
+                float bias = max(0.5 * (1.0 - dot(normal, casterDirection)), 0.01); 
 
                 float testValue = (coords.z - bias);
                 return texture(glDirectionalShadowMap, vec3(coords.xy, testValue));

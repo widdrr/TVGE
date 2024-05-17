@@ -13,7 +13,6 @@ ColliderComponent::ColliderComponent(Entity& p_entity, ColliderTypes p_type, con
 {
 	auto body = p_entity.TryGetComponentOfType<BodyComponent>();
 	if (!body.expired()) {
-		std::cout << "bruh";
 		body.lock()->RegisterCollider();
 	}
 }
