@@ -1,7 +1,7 @@
 export module Common;
 
-import <glm/vec3.hpp>;
-import <glm/gtc/quaternion.hpp>;
+export import <glm/vec3.hpp>;
+export import <glm/gtc/quaternion.hpp>;
 
 import <vector>;
 import <memory>;
@@ -19,9 +19,15 @@ namespace TVGE
 		//declaring a virtual default destructor makes the hierarchy polymorphic
 		virtual ~Component() = default;
 		Entity& entity;
+		bool disabled;
 
 	protected:
-		Component(Entity& p_entity);
+		Component(Entity& p_entity) :
+			entity(p_entity),
+			_index(),
+			disabled(false)
+		{}
+
 		virtual std::shared_ptr<Component> Clone(Entity& p_entity) const = 0;
 		//TODO: implement the use for this -> component removal
 		std::vector<Component>::size_type _index;
@@ -98,10 +104,3 @@ namespace TVGE
 		std::vector<std::shared_ptr<Component>> _components;
 	};
 }
-
-module : private;
-using namespace TVGE;
-Component::Component(Entity& p_entity) :
-	entity(p_entity),
-	_index()
-{}

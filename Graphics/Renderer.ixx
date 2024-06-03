@@ -61,17 +61,17 @@ namespace TVGE::Graphics
 					   const std::string& p_backPath);
 
 		void AddObject(const Entity& p_object);
-		void AddLightSource(const Entity& p_object);
 		void SetShadowSource(const Entity& p_object,
 							 float p_shadowFarPlane = 100.f,
-							 float p_directionalShadowHeight = 80.f,
-							 float p_directionalShadowSize = 100.f,
+							 float p_directionalShadowHeight = 50.f,
+							 float p_directionalShadowSize = 200.f,
 							 float p_shadowNearPlane = 1.f);
 
 		void Set2DMode(float p_width, float p_height);
 		void SetPerspective(float p_fov, float p_nearPlane, float p_farPlane);
 
 		void CleanDanglingPointers();
+		void SetVSync(bool p_value);
 
 		void LoadModel(ModelComponent& p_model, const std::string& p_path, bool p_flipUVs = true);
 

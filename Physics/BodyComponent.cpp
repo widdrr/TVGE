@@ -3,14 +3,16 @@ module Physics.Components:BodyComponent;
 using namespace TVGE;
 using namespace TVGE::Physics;
 
-BodyComponent::BodyComponent(Entity& p_entity, const float p_mass)
+BodyComponent::BodyComponent(Entity& p_entity, const float p_mass, glm::vec3 p_center)
 	:
 	Component(p_entity),
+	_relativeCenter(p_center),
 	velocity(0),
 	angularVelocity(0),
 	_force(0),
 	_torque(0),
 	_mass(0),
+	_elasticity(0),
 	_inertiaMatrix(1),
 	gravity(true)
 {
@@ -63,6 +65,16 @@ float BodyComponent::GetMass() const
 	return _mass;
 }
 
+float TVGE::Physics::BodyComponent::GetElasticity() const
+{
+	return _elasticity;
+}
+
+const glm::vec3 TVGE::Physics::BodyComponent::GetAbsoluteMassCenter() const
+{
+	return entity.GetAbsoluteRotation() * (_relativeCenter * entity.GetAbsoluteScaling()) + entity.GetAbsolutePosition();
+}
+
 void BodyComponent::SetMass(float p_mass)
 {
 	if (_mass != abs(p_mass)) {
@@ -70,6 +82,11 @@ void BodyComponent::SetMass(float p_mass)
 		_inverseMass = 1.f / _mass;
 		UpdateInertiaMatrix();
 	}
+}
+
+void TVGE::Physics::BodyComponent::SetElasticity(float p_elasticity)
+{
+	_elasticity = glm::clamp(p_elasticity, 0.f, 1.f);
 }
 
 void BodyComponent::RegisterCollider()
@@ -103,6 +120,7 @@ std::shared_ptr<Component> BodyComponent::Clone(Entity& p_entity) const
 	component->_force = _force;
 	component->_torque = _torque;
 	component->gravity = gravity;
+	component->_elasticity = _elasticity;
 
 	return component;
 }

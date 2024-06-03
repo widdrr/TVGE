@@ -34,10 +34,12 @@ export
 		void AddObject(const Entity& p_object);
 		void CleanDanglingPointers();
 
+		void SetGravityStrength(float p_strength);
+		void SetAirFriction(float p_friction);
+		
 		static float gravityStrength;
 		static float airDynamicFriction;
-		static float airStaticFriction;
-		static float efRestCoef;
+
 
 
 	private:
@@ -50,13 +52,20 @@ export
 	};
 
 	template<IsCollisionHandler T>
-	float Simulator<T>::gravityStrength = 9.8f;
+	float Simulator<T>::gravityStrength = 20.f;
 
 	template<IsCollisionHandler T>
 	float Simulator<T>::airDynamicFriction = 1.f;
 
 	template<IsCollisionHandler T>
-	float Simulator<T>::efRestCoef = -1.5;
+	void Simulator<T>::SetGravityStrength(float p_strength){
+		Simulator<T>::gravityStrength = p_strength;
+	}
+
+	template<IsCollisionHandler T>
+	void Simulator<T>::SetAirFriction(float p_friction){
+		Simulator<T>::airDynamicFriction = p_friction;
+	}
 
 	template<IsCollisionHandler T>
 	void Simulator<T>::SimulateStep(float p_delta)
@@ -101,10 +110,7 @@ export
 	{
 		//obtaining the GraphicsComponent of the Entity
 		auto body = p_object.TryGetComponentOfType<BodyComponent>();
-		if (body.expired()) {
-			std::cerr << "Object does not have a Body Component\n";
-		}
-		else {
+		if (!body.expired()) {
 			_bodies.push_back(body);
 		}
 
@@ -159,16 +165,18 @@ export
 	template<IsCollisionHandler T>
 	void Simulator<T>::ApplyCollisionStatic(BodyComponent& p_body, glm::vec3 p_point, glm::vec3 p_normal)
 	{
+
+		float efRestCoef = -1.f - p_body.GetElasticity();
 		glm::vec3 collisionNormal = glm::normalize(p_normal);
 
-		glm::vec3 support = p_point - p_body.entity.GetAbsolutePosition();
-		glm::vec3 collisionVelocity = p_body.velocity + glm::cross(p_body.angularVelocity, support);
+		glm::vec3 support = p_point - p_body.GetAbsoluteMassCenter();
+		float angularCollision = glm::dot(p_body.angularVelocity, glm::cross(support, collisionNormal));
 
 		p_body.entity.Translate(p_normal);
 
 		glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 
-		float impulse = efRestCoef * glm::dot(collisionVelocity, collisionNormal) /
+		float impulse = efRestCoef * (glm::dot(p_body.velocity, collisionNormal) + angularCollision) /
 			(p_body._inverseMass + glm::dot(scaledAngularVel, collisionNormal));
 
 		p_body.AddForceInstant(collisionNormal * impulse);
@@ -178,16 +186,20 @@ export
 	template<IsCollisionHandler T>
 	void Simulator<T>::ApplyCollisionDynamic(BodyComponent& p_body, BodyComponent& p_other, glm::vec3 p_point, glm::vec3 p_otherPoint, glm::vec3 p_normal)
 	{
+		float efRestCoef = -1.f - p_body.GetElasticity() * p_other.GetElasticity();
 		glm::vec3 collisionNormal = glm::normalize(p_normal);
 
 		glm::vec3 relativeVelocity = p_body.velocity - p_other.velocity;
-		glm::vec3 support = p_point - p_body.entity.GetAbsolutePosition();
-		glm::vec3 otherSupport = p_otherPoint - p_other.entity.GetAbsolutePosition();
+		glm::vec3 support = p_point - p_body.GetAbsoluteMassCenter();
+		glm::vec3 otherSupport = p_otherPoint - p_other.GetAbsoluteMassCenter();
 
-		p_body.entity.Translate(p_normal * p_body._mass / ( p_body._mass + p_other._mass)	);
-		p_other.entity.Translate(p_normal * -p_other._mass / (p_body._mass + p_other._mass));
+		float angularCollision = glm::dot(p_body.angularVelocity, glm::cross(support, collisionNormal)) -
+										glm::dot(p_other.angularVelocity, glm::cross(otherSupport, collisionNormal));
 
-		float numerator = glm::dot(efRestCoef * relativeVelocity, collisionNormal);
+		p_body.entity.Translate(p_normal * p_other._mass / ( p_body._mass + p_other._mass));
+		p_other.entity.Translate(p_normal * -p_body._mass / (p_body._mass + p_other._mass));
+
+		float numerator = efRestCoef * (glm::dot(relativeVelocity, collisionNormal) + angularCollision);
 		glm::vec3 scaledAngularVel = glm::cross(p_body._inverseInertiaMatrix * glm::cross(support, collisionNormal), support);
 		glm::vec3 otherScaledAngularVel = glm::cross(p_other._inverseInertiaMatrix * glm::cross(otherSupport, collisionNormal), otherSupport);
 

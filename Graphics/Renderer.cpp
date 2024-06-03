@@ -58,7 +58,7 @@ Renderer::Renderer(GLFWwindow* p_window) :
 	_directionalShadowsShader = GenerateShaderFromText(ShaderSources::directionalShadowVertex.data(),
 													   ShaderSources::directionalShadowFragment.data());
 
-	_directionalShadowMap = std::shared_ptr<Texture2D>(new Texture2D(_shadowWidth, _shadowHeight, GL_DEPTH_COMPONENT));
+	_directionalShadowMap = std::shared_ptr<Texture2D>(new Texture2D(2*_shadowWidth, 2*_shadowHeight, GL_DEPTH_COMPONENT));
 	_shadowBuffer = FrameBufferBuilder::Init().AttachDepthCubemap(_pointShadowMap).NoColorBuffer().Build();
 
 	GenerateRayPrimitive();
@@ -195,7 +195,7 @@ void Renderer::RenderScene()
 		}
 		auto&& component = model.lock();
 
-		for (auto&& weakMesh : component->_meshes) {
+		for (auto&& weakMesh : component->meshes) {
 
 			if (weakMesh.expired()) {
 				continue;
@@ -249,14 +249,13 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 {
 	using namespace UniformVariables::Shadows;
 
-	glViewport(0, 0, _shadowWidth, _shadowHeight);
-
 	auto position = p_caster->GetPosition();
 	std::shared_ptr<ShaderProgram> shadowShader;
 	std::vector<glm::mat4> shadowMatrices;
 
 	//Point shadow, use omnidirectional shadow mapping
 	if (position.w == 1) {
+		glViewport(0, 0, _shadowWidth, _shadowHeight);
 		auto lightPosition = glm::vec3(position);
 		shadowShader = _pointShadowsShader;
 		_shadowBuffer->SetDepthCubemap(_pointShadowMap);
@@ -279,6 +278,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	}
 	//Directional light, fall back to simpler shadow mapping
 	else {
+		glViewport(0, 0, 2*_shadowWidth, 2*_shadowHeight);
 		auto lightPosition = glm::vec3(position) * _directionalShadowHeight;
 		shadowShader = _directionalShadowsShader;
 		_shadowBuffer->SetDepthTexture2D(_directionalShadowMap);
@@ -293,7 +293,7 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 
 		auto upVector = glm::vec3(0.f, 1.f, 0.f);
 		if (glm::epsilonEqual(glm::abs(glm::dot(upVector, glm::normalize(lightPosition))), 1.f, EPSILON)) {
-			upVector = glm::normalize(upVector + glm::vec3(0.1f, 0.f, 0.1f));
+			upVector = glm::normalize(upVector + glm::vec3(0.f, 0.1f, 0.1f));
 		}
 
 		_shadowLightMatrix = shadowProjection * glm::lookAt(lightPosition, glm::vec3(0.f, 0.f, 0.f), upVector);
@@ -311,18 +311,17 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 	glUseProgram(shadowShader->_id);
 
 	for (auto&& model : _models) {
-		bool isSourceModel = false;
 
 		if (model.expired()) {
 			continue;
 		}
 
 		auto&& component = model.lock();
-		if(component->entity.GetId() == p_caster->entity.GetId()){
-			isSourceModel = true;
-			glCullFace(GL_BACK);
+		if(!component->entity.TryGetComponentOfType<LightSourceComponent>().expired()){
+			continue;
 		}
-		for (auto&& weakMesh : component->_meshes) {
+
+		for (auto&& weakMesh : component->meshes) {
 
 			if (weakMesh.expired()) {
 				continue;
@@ -337,9 +336,6 @@ void Renderer::RenderShadows(std::shared_ptr<LightSourceComponent> p_caster)
 			glBindVertexArray(0);
 		}
 
-		if(isSourceModel){
-			glCullFace(GL_FRONT);
-		}
 	}
 	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -378,7 +374,7 @@ void Renderer::RenderScene(ShaderProgram& p_shader)
 		}
 		auto&& component = model.lock();
 
-		for (auto&& weakMesh : component->_meshes) {
+		for (auto&& weakMesh : component->meshes) {
 
 			if (weakMesh.expired()) {
 				continue;
@@ -669,7 +665,7 @@ void Renderer::ProcessAssimpNode(aiNode* p_node, const aiScene* p_scene, const s
 	for (unsigned int i = 0; i < p_node->mNumMeshes; ++i) {
 		auto mesh = p_scene->mMeshes[p_node->mMeshes[i]];
 		const std::string meshName = std::format("{}/{}/{}", p_path, p_node->mName.C_Str(), i);
-		p_model._meshes.push_back(GenerateMesh(mesh, p_scene, meshName));
+		p_model.meshes.push_back(GenerateMesh(mesh, p_scene, meshName));
 	}
 
 	for (unsigned int i = 0; i < p_node->mNumChildren; ++i) {
@@ -752,12 +748,14 @@ void Renderer::AddObject(const Entity& p_object)
 {
 	//obtaining the GraphicsComponent of the Entity
 	auto component = p_object.TryGetComponentOfType<ModelComponent>();
-	if (component.expired()) {
-		std::cerr << "Object does not have a Graphics Component";
-		return;
+	if (!component.expired()) {
+		_models.push_back(component);
 	}
 
-	_models.push_back(component);
+	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
+	if (!lightSource.expired()) {
+		_lightSources.push_back(lightSource);
+	}
 }
 
 void Renderer::Set2DMode(float p_width, float p_height)
@@ -811,15 +809,14 @@ void Renderer::CleanDanglingPointers()
 
 }
 
-void Renderer::AddLightSource(const Entity& p_object)
+void TVGE::Graphics::Renderer::SetVSync(bool p_value)
 {
-	auto lightSource = p_object.TryGetComponentOfType<LightSourceComponent>();
-	if (lightSource.expired()) {
-		std::cerr << "Object does not contain a LightSourceComponent\n";
-		return;
+	if(p_value){
+		glfwSwapInterval(1);
 	}
-
-	_lightSources.push_back(lightSource);
+	else{
+		glfwSwapInterval(0);
+	}
 }
 
 void Renderer::SetShadowSource(const Entity& p_object,

@@ -96,7 +96,7 @@ export namespace TVGE::Graphics::ShaderSources
                 color *= glMaterial.ambientColor;
             }
         
-            return color;
+            return max(color, 0.0);
         }
 
         vec3 ComputeDiffuseColor(LightSource light, vec3 normal, vec3 lightDirection)
@@ -111,7 +111,7 @@ export namespace TVGE::Graphics::ShaderSources
                 color *= glMaterial.diffuseColor;
             }
 
-            return color;
+            return max(color, 0.0);
         }
 
         vec3 ComputeSpecularColor(LightSource light, vec3 normal, vec3 lightDirection, vec3 cameraDirection)
@@ -127,7 +127,7 @@ export namespace TVGE::Graphics::ShaderSources
                 color *= glMaterial.specularColor;
             }
 
-            return color;
+            return max(color, 0.0);
         }
 
         float ComputeShadow(vec3 fragmentPosition, vec3 normal)
@@ -140,7 +140,7 @@ export namespace TVGE::Graphics::ShaderSources
             {
                 vec3 relativePosition = fragmentPosition - glShadowCasterPosition.xyz;
                 vec3 casterDirection = normalize(glShadowCasterPosition.xyz - FragmentPosition);
-                float bias = max(0.5 * (1.0 - dot(normal, casterDirection)), 0.01); 
+                float bias = max(0.1 * (1.0 - dot(normal, casterDirection)), 0.05); 
 
                 //the reference value for depth comparison is the distance from the shadow caster to the fragmentcolor
                 //with a shadow bias added to prevent shadow acne, normalized by dividing by the far plane
@@ -150,11 +150,11 @@ export namespace TVGE::Graphics::ShaderSources
             }
 
             else {
-                vec3 coords = LightFragmentPosition.xyz / LightFragmentPosition.w;
+                vec3 coords = LightFragmentPosition.xyz;
                 coords = coords * 0.5f + 0.5f;
         
                 vec3 casterDirection = normalize(glShadowCasterPosition.xyz);
-                float bias = max(0.5 * (1.0 - dot(normal, casterDirection)), 0.01); 
+                float bias = max(0.05 * (1.0 - dot(normal, casterDirection)), 0.005); 
 
                 float testValue = (coords.z - bias);
                 return texture(glDirectionalShadowMap, vec3(coords.xy, testValue));
@@ -195,8 +195,9 @@ export namespace TVGE::Graphics::ShaderSources
 
                 specularColor += ComputeSpecularColor(glLights[i], normalizedNormal, lightDirection, cameraDirection) * attenuation;
 
-                shadow = ComputeShadow(FragmentPosition, normalizedNormal);
             }
+
+            shadow = ComputeShadow(FragmentPosition, normalizedNormal);
 
             vec4 shadedColor = vec4(((glMaterial.emissiveColor + ambientColor + (1.f - shadow) * (diffuseColor + specularColor))), 1.f);
     
@@ -269,6 +270,7 @@ export namespace TVGE::Graphics::ShaderSources
 		uniform mat4 glModelMatrix;
         uniform mat4 glShadowMatrices[1];
 
+        out vec4 FragmentPosition;
 
 		void main()
 		{

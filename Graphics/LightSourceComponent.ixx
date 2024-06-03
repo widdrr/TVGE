@@ -36,8 +36,8 @@ export namespace TVGE::Graphics
 							const glm::vec3& p_diffuse,
 							const glm::vec3& p_specular,
 							const glm::vec3& p_positionOffset = glm::vec3(0.f, 0.f, 0.f),
-							const float p_quadraticAttenuation = 0.0019f,
-							const float p_linearAttenuation = 0.022f,
+							const float p_quadraticAttenuation = 0.0002f,
+							const float p_linearAttenuation = 0.007f,
 							const float p_constantAttenuation = 1.f);
 
 		glm::vec4 GetPosition() const override;

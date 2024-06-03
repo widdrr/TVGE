@@ -1,4 +1,5 @@
 module Common;
+using namespace TVGE;
 
 unsigned int Entity::_current_id = 0;
 

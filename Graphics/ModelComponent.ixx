@@ -17,7 +17,7 @@ export namespace TVGE::Graphics
 
 		glm::mat4 GetModelTransformation() const;
 
-		std::vector<std::weak_ptr<Mesh>> _meshes;
+		std::vector<std::weak_ptr<Mesh>> meshes;
 
 	protected:
 		std::shared_ptr<Component> Clone(Entity& p_entity) const override;

@@ -9,9 +9,6 @@ import <memory>;
 import <random>;
 import <format>;
 
-import <glm/vec3.hpp>;
-import <glm/gtc/quaternion.hpp>;
-
 using namespace TVGE;
 using namespace TVGE::Graphics;
 using namespace TVGE::Physics;
@@ -29,7 +26,7 @@ int main()
 {
 	auto [vertices, order] = Common3DMeshes::Cube();
 
-	auto& window = Window::Initialize("TVGE v1.0A", 1024, 720);
+	auto& window = Window::Initialize("TVGE v1.0A", 1920, 1080);
 
 	auto& renderer = window.GetRenderer();
 	auto& input = window.GetInput();
@@ -45,6 +42,10 @@ int main()
 	basicMaterial->lightProperties.specular = glm::vec3(0.1f, 0.1f, 0.1f);
 	basicMaterial->lightProperties.shininess = 10.f;
 
+	auto carpetMaterial = std::make_shared<Material>(*defaultShader);
+	carpetMaterial->ambientMap = renderer.GenerateTexture2D("carpet.png", true);
+	carpetMaterial->diffuseMap = renderer.GenerateTexture2D("carpet.png", true);
+
 	auto debugMaterial = std::make_shared<Material>(*defaultShader);
 	debugMaterial->lightProperties.ambient = glm::vec3(0.f, 0.3f, 0.f);
 	debugMaterial->lightProperties.diffuse = glm::vec3(0.f, 0.5f, 0.f);
@@ -57,62 +58,91 @@ int main()
 	lightMaterial->lightProperties.specular = glm::vec3(0.f, 0.f, 0.f);
 	lightMaterial->lightProperties.emissive = glm::vec3(1.f, 1.f, 1.f);
 	
-
 	Entity light;
-	light.Rotate(1.f, 0.f, 0.f, 15.f);
-	light.Translate(0.f, 5.f, 0.f);
-	light.Scale(0.2f);
-	light.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(0.f, 0.f, 0.f));
+	light.CreateComponentOfType<DirectionalLightComponent>(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 	Entity floor;
 	auto floorComp = floor.CreateComponentOfType<ModelComponent>().lock();
 	auto floorCollider = floor.CreateComponentOfType<BoxColliderComponent>().lock();
 
-	floorComp->_meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, basicMaterial, true));
+	floorComp->meshes.push_back(renderer.GenerateMesh("Cube", vertices, order, carpetMaterial, true));
 
 	Entity sWall(floor);
+	Entity trackWallR(floor);
+	Entity platform(floor);
+	Entity eWall(floor);
+	Entity frWall(floor);
 
-	floor.Scale(100.f, 1.f, 100.f);
-	floor.Translate(0.f, -2.f, 0.f);
+	eWall.Scale(1.f, 6.f, 20.f);
+	eWall.Translate(0.f, -1.f, 40.f);
 
-	sWall.Scale(100.f, 6.f, 1.f);
-	sWall.Translate(0.f, -1.f, 0.f);
+	frWall.Scale(32.f, 6.f, 1.f);
+	frWall.Translate(23.5f, -1.f, 29.5f);
 
-	Entity nWall(sWall);
-	Entity eWall(sWall);
+	Entity flWall(frWall);
 
-	eWall.Rotate(glm::vec3(0.f, 1.f, 0.f), 90.f);
+	flWall.Translate(-47.f, 0.f, 0.f);
+
 	Entity wWall(eWall);
 
-	sWall.Translate(0.f, 0.f, -50.f);
-	nWall.Translate(0.f, 0.f, +50.f);
-	eWall.Translate(-50.f, 0.f, 0);
-	wWall.Translate(50.f, 0.f, 0);
+	eWall.Translate(40.f, 0.f, 0.f);
+	wWall.Translate(-40.f, 3.f, 0.f);
+	wWall.Scale(1.f, 3.f, 1.f);
+
+	sWall.Scale(80.f, 6.f, 1.f);
+	sWall.Translate(0.f, -1.f, 0.f);
+
+	trackWallR.Scale(1.f, 6.f, 70.f);
+	trackWallR.Translate(0.f, -1.f, -5.f);
+	Entity trackWallL(trackWallR);
+
+	sWall.Translate(0.f, 0.f, 50.f);
+
+	trackWallL.Translate(-7.f, 0.f, 0.f);
+	trackWallR.Translate(7.f, 0.f, 0.f);
+
+	floor.Scale(7.f, 1.f, 70.f);
+	floor.Translate(0.f, -2.f, -5.f);
+
+	platform.Scale(80, 1.f, 20.f);
+	platform.Translate(0.f, -2.f, 40.f);
+	
+	Entity underFloor(floor);
+
+	underFloor.Scale(2.f, 1.f, 1.f);
+	underFloor.Translate(0.f, -2.f, 0.f);
 
 	Entity ball;
-	ball.Translate(0.f, 0.f, -5.f);
-	auto ballComp = ball.CreateComponentOfType<ModelComponent>().lock();
+	ball.Translate(0.f, 0.f, 35.f);
+	auto ballModel = ball.CreateComponentOfType<ModelComponent>().lock();
 	ball.CreateComponentOfType<PointLightComponent>(glm::vec3(0.3f, 0.3f, 0.3f),
 													glm::vec3(0.8f, 0.8f, 0.8f),
 													glm::vec3(0.5f, 0.5f, 0.5f));
-	renderer.LoadModel(*ballComp, "sphere.dae");
-	ballComp->_meshes[0].lock()->material = lightMaterial;
-	auto ballBody = ball.CreateComponentOfType<BodyComponent>(10.f).lock();
+	renderer.LoadModel(*ballModel, "sphere.dae");
+	ballModel->meshes[0].lock()->material = lightMaterial;
+	auto ballBody = ball.CreateComponentOfType<BodyComponent>(200.f).lock();
+	ballBody->SetElasticity(0.1f);
 	ball.CreateComponentOfType<SphereColliderComponent>();
+	renderer.AddObject(ball);
+	simulator.AddObject(ball);
+
+	float throwPower = 5000.f;
 
 	auto& camera = renderer.GetMainCamera();
 	camera.SetCameraPosition(0.f, 3.f, 0.f);
 	auto& player = camera.entity;
+	player.Translate(0.f, 0.f, 40.f);
 	auto playerBody = player.CreateComponentOfType<BodyComponent>(1.f).lock();
+	playerBody->SetElasticity(0.f);
 	player.CreateComponentOfType<BoxColliderComponent>(true, glm::vec3(0.5f, 2.f, 0.5f));
 
 
 	Entity grabHitbox;
 	grabHitbox.SetParent(player);
 	grabHitbox.Translate(0.f, 1.f, -4.f);
-	grabHitbox.Scale(2.f, 2.f, 3.f);
+	grabHitbox.Scale(2.f, 3.f, 3.f);
 	auto debugModel = grabHitbox.CreateComponentOfType<ModelComponent>().lock();
-	debugModel->_meshes.push_back(renderer.GenerateMesh("Cube2", vertices, order, debugMaterial, true));
+	debugModel->meshes.push_back(renderer.GenerateMesh("Cube2", vertices, order, debugMaterial, true));
 	
 	bool ballInRange = false;
 	auto grabCollider = grabHitbox.CreateComponentOfType<BoxColliderComponent>(false).lock();
@@ -125,7 +155,7 @@ int main()
 
 
 	Entity pinParent;
-	pinParent.Translate(0, 0.f, -15.f);
+	pinParent.Translate(0, 0.f, -30.f);
 	std::vector<Entity> pins;
 	pins.reserve(10);
 
@@ -134,8 +164,14 @@ int main()
 	pins[0].Scale(0.2f, 0.2f, 0.2f);
 	auto pinModel = pins[0].CreateComponentOfType<ModelComponent>().lock();
 	renderer.LoadModel(*pinModel, "pin.glb");
-	pins[0].CreateComponentOfType<BodyComponent>(5.f);
-	pins[0].CreateComponentOfType<BoxColliderComponent>(true, 5.f * glm::vec3(0.45f, 1.55f, 0.45f), glm::vec3(0.f, -0.35f, 0.f));
+	for(auto mesh : pinModel->meshes){
+	
+		auto material = mesh.lock()->material;
+		material->lightProperties.ambient = 0.5f * material->lightProperties.diffuse;
+	}
+	auto pinBody = pins[0].CreateComponentOfType<BodyComponent>(1.f, glm::vec3(0.f, -6.f, 0.f)).lock();
+	pinBody->SetElasticity(0.f);
+	pins[0].CreateComponentOfType<BoxColliderComponent>(true, 5.f * glm::vec3(0.45f, 1.55f, 0.45f), glm::vec3(0.f, -1.5f, 0.f));
 
 	renderer.AddObject(pins[0]);
 	simulator.AddObject(pins[0]);
@@ -163,28 +199,60 @@ int main()
 	pins[8].relativePosition = glm::vec3(1.f, 0.f, -6.f);
 	pins[9].relativePosition = glm::vec3(3.f, 0.f, -6.f);
 
+	Entity sculpture;
+	sculpture.Scale(0.01f, 0.01f, 0.01f);
+	sculpture.Rotate(0.f, 1.f, 0.f, 90.f);
+	sculpture.Translate(-30.f, 1.f, 40.f);
+
+	input.AddKeyPressEventHandler(Keys::K, [&](){
+								  sculpture.Translate(0.f, -1.f, 0.f);
+								  });
+	input.AddKeyPressEventHandler(Keys::I, [&](){
+								  sculpture.Translate(0.f, 1.f, 0.f);
+								  });
+	//input.AddKeyPressEventHandler(Keys::U, [&](){
+	//							platform.Translate(0.f, 1.f, 0.f);
+	//							});
+	//input.AddKeyPressEventHandler(Keys::J, [&](){
+	//							  sculpture.Translate(1.f, 0.f, 0.f);
+	//							  });
+	//input.AddKeyPressEventHandler(Keys::L, [&](){
+	//							  sculpture.Translate(-1.f, 0.f, 0.f);
+	//							  });
+
+	auto sculptureModel = sculpture.CreateComponentOfType<ModelComponent>().lock();
+	renderer.LoadModel(*sculptureModel, "bust.obj", false);
+
 	renderer.AddObject(floor);
-	renderer.AddLightSource(light);
+	renderer.AddObject(platform);
+	renderer.AddObject(underFloor);
+	renderer.AddObject(light);
 	renderer.AddObject(sWall);
-	renderer.AddObject(nWall);
 	renderer.AddObject(eWall);
 	renderer.AddObject(wWall);
-	renderer.AddObject(ball);
-	renderer.AddLightSource(ball);
-	renderer.SetShadowSource(ball);
+	renderer.AddObject(frWall);
+	renderer.AddObject(flWall);
+	renderer.AddObject(trackWallL);
+	renderer.AddObject(trackWallR);
+	renderer.AddObject(sculpture);
+	renderer.SetShadowSource(light);
 
 
-	renderer.SetPerspective(90.f, 0.1f, 100.f);
+	renderer.SetPerspective(90.f, 0.1f, 150.f);
 	renderer.SetSkybox("StarSkybox041.png", "StarSkybox042.png", "StarSkybox043.png", "StarSkybox044.png", "StarSkybox045.png", "StarSkybox046.png");
 
 
 	simulator.AddObject(floor);
+	simulator.AddObject(platform);
+	simulator.AddObject(underFloor);
 	simulator.AddObject(player);
 	simulator.AddObject(sWall);
-	simulator.AddObject(nWall);
 	simulator.AddObject(eWall);
 	simulator.AddObject(wWall);
-	simulator.AddObject(ball);
+	simulator.AddObject(frWall);
+	simulator.AddObject(flWall);
+	simulator.AddObject(trackWallR);
+	simulator.AddObject(trackWallL);
 	simulator.AddObject(grabHitbox);
 	
 
@@ -226,7 +294,7 @@ int main()
 			}
 		}});
 
-		float playerSpeed = 10.f;
+	float playerSpeed = 10.f;
 	
 	input.AddGenericInputBehaviour([&]() {
 		glm::vec3 front = camera.GetCameraFront();
@@ -252,7 +320,6 @@ int main()
 								   });
 
 	bool grabbedBall = false;
-	float throwPower = 300.f;
 	input.AddMouseButtonPressEventHandler(LEFT_CLICK, [&]() {
 		if(grabbedBall){
 			grabbedBall = false;
@@ -290,10 +357,13 @@ int main()
 	input.AddKeyPressEventHandler(Keys::Q, [&]() {showAxes = !showAxes; });
 	bool showColliders = false;
 	input.AddKeyPressEventHandler(Keys::H, [&]() {showColliders = !showColliders; });
+	bool stopTime = false;
+	input.AddKeyPressEventHandler(Keys::T, [&]() {stopTime = !stopTime; });
 
 	input.AddKeyPressEventHandler(Keys::R, [&](){
 
-		ball.relativePosition = glm::vec3(0.f, 0.f, -5.f);
+		player.relativePosition = glm::vec3(0.f, 0.f, 40.f);
+		ball.relativePosition = glm::vec3(0.f, 0.f, 35.f);
 		ballBody->velocity = glm::vec3(0.f,0.f,0.f);
 		ballBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
 
@@ -315,6 +385,11 @@ int main()
 		pins[9].relativePosition = glm::vec3(3.f, 0.f, -6.f);
 								  });
 
+	input.AddKeyPressEventHandler(Keys::SPACE, [&](){
+		player.Translate(0.f, 0.1f, 0.f);
+		playerBody->AddForceInstant(0.f, 10.f, 0.f);
+	});
+
 	window.InitializeTime();
 	int frameCounter = 0;
 	while (window.IsOpen()) {
@@ -322,6 +397,14 @@ int main()
 		auto deltaTime = window.ComputeDeltaTime();
 		window.ComputeFPS();
 		input.ProcessInput();
+
+		auto ballPosition = ball.GetAbsolutePosition();
+		if(ballPosition.z > -20.f && ballPosition.y > -1.f){
+			renderer.SetShadowSource(ball);
+		}
+		else{
+			renderer.SetShadowSource(light);
+		}
 		if (!renderWireframe) {
 			renderer.RenderScene();
 		}
@@ -337,7 +420,9 @@ int main()
 		ballInRange = false;
 		playerBody->angularVelocity = glm::vec3(0.f,0.f,0.f);
 		playerBody->velocity = glm::vec3(0.f, playerBody->velocity.y, 0.f);
+		if(!stopTime){
 		simulator.SimulateStep(deltaTime * 1.f);
+		}
 
 		if(showColliders){
 			for(int i=0; i< 10; ++i){
