@@ -1,5 +1,7 @@
 module MeshHelpers;
 
+import <ranges>;
+
 using namespace TVGE::Graphics;
 
 std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common2DMeshes::Circle(
@@ -29,7 +31,119 @@ std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common2DMeshes::
 
 }
 
-std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common3DMeshes::Cube()
+std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common3DMeshes::Cube(glm::vec3 textureScale)
+{
+	std::vector<Vertex> vertices = {
+		//Front Face
+		//B L
+		{-0.5f, -0.5f, 0.5f,
+		0.f, 0.f},
+		//B R
+		{0.5f, -0.5f, 0.5f,
+		textureScale.x, 0.f},
+		//T R
+		{0.5f, 0.5f, 0.5f,
+		textureScale.x, textureScale.y},
+		//T L
+		{-0.5f, 0.5f, 0.5f,
+		0.f, textureScale.y},
+
+		//Right Face
+		//B L
+		{0.5f, -0.5f, 0.5f,
+		0.f, 0.f},
+		//B R
+		{0.5f, -0.5f, -0.5f,
+		textureScale.z, 0.f},
+		//T R
+		{0.5f, 0.5f, -0.5f,
+		textureScale.z, textureScale.y},
+		//T L
+		{0.5f, 0.5f, 0.5f,
+		0.f, textureScale.y},
+
+		//Back Face
+		//B L
+		{0.5f, -0.5f, -0.5f,
+		0.f, 0.f},
+		//B R
+		{-0.5f, -0.5f, -0.5f,
+		textureScale.x, 0.f},
+		//T R
+		{-0.5f, 0.5f, -0.5f,
+		textureScale.x, textureScale.y},
+		//T L
+		{0.5f, 0.5f, -0.5f,
+		0.f, textureScale.y},
+
+		//Left Face
+		//B L
+		{-0.5f, -0.5f, -0.5f,
+		0.f, 0.f},
+		//B R
+		{-0.5f, -0.5f, 0.5f,
+		textureScale.z, 0.f},
+		//T R
+		{-0.5f, 0.5f, 0.5f,
+		textureScale.z, textureScale.y},
+		//T L
+		{-0.5f, 0.5f, -0.5f,
+		0.f, textureScale.y},
+
+		//Top Face
+		//B L
+		{-0.5f, 0.5f, 0.5f,
+		0.f, 0.f},
+		//B R
+		{0.5f, 0.5f, 0.5f,
+		textureScale.x, 0.f},
+		//T R
+		{0.5f, 0.5f, -0.5f,
+		textureScale.x, textureScale.z},
+		//T L
+		{-0.5f, 0.5f, -0.5f,
+		0.f, textureScale.z},
+
+		//Bottom Face
+		//B L
+		{-0.5f, -0.5f, -0.5f,
+		0.f, 0.f},
+		//B R
+		{0.5f, -0.5f, -0.5f,
+		textureScale.x, 0.f},
+		//T R
+		{0.5f, -0.5f, 0.5f,
+		textureScale.x, textureScale.z},
+		//T L
+		{-0.5f, -0.5f, 0.5f,
+		0.f, textureScale.z}
+	};
+
+
+	static std::vector<unsigned int> indices = {
+		0, 1, 2,
+		2, 3, 0,
+
+		4, 5, 6,
+		6, 7, 4,
+
+		8, 9, 10,
+		10, 11, 8,
+
+		12, 13, 14,
+		14, 15, 12,
+
+		16, 17, 18,
+		18, 19, 16,
+
+		20, 21, 22,
+		22, 23, 20,
+	};
+
+	return std::make_pair(vertices, indices);
+}
+
+std::pair<std::vector<TVGE::Graphics::Vertex>, std::vector<unsigned int>> TVGE::Common3DMeshes::CubeWithMultiFace()
 {
 	static std::vector<Vertex> vertices = {
 
@@ -117,6 +231,7 @@ std::pair<std::vector<Vertex>, std::vector<unsigned int>> TVGE::Common3DMeshes::
 		{-0.5f, -0.5, 0.5,
 		0.5f, 0.25f}
 	};
+
 
 	static std::vector<unsigned int> indices = {
 		0, 1, 2,

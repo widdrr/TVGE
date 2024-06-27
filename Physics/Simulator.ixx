@@ -147,7 +147,19 @@ export
 				auto body1 = wbody1.lock();
 				auto body2 = wbody2.lock();
 
-				ApplyCollisionDynamic(*body1, *body2, collision.contactPoint1, collision.contactPoint2, collision.collisionNormal);
+				if(!body1->fixed){
+					if(body2->fixed){
+						ApplyCollisionStatic(*body1, collision.contactPoint1, collision.collisionNormal);
+					}
+					else{
+						ApplyCollisionDynamic(*body1, *body2, collision.contactPoint1, collision.contactPoint2, collision.collisionNormal);
+					}
+				}
+				else{
+					if(!body2->fixed){
+						ApplyCollisionStatic(*body2, collision.contactPoint2, -1.f * collision.collisionNormal);
+					}
+				}
 			}
 			else if (!wbody1.expired()) {
 				auto body1 = wbody1.lock();

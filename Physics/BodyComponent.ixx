@@ -34,6 +34,7 @@ namespace TVGE::Physics
 		void UpdateInertiaMatrix();
 
 		bool gravity = true;
+		bool fixed = false;
 		glm::vec3 velocity;
 		glm::vec3 angularVelocity;
 		

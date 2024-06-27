@@ -19,5 +19,6 @@ export namespace TVGE::Common2DMeshes
 
 export namespace TVGE::Common3DMeshes
 {
-	std::pair<std::vector<TVGE::Graphics::Vertex>, std::vector<unsigned int>> Cube();
+	std::pair<std::vector<TVGE::Graphics::Vertex>, std::vector<unsigned int>> Cube(glm::vec3 textureScale = {1.f, 1.f, 1.f});
+	std::pair<std::vector<TVGE::Graphics::Vertex>, std::vector<unsigned int>> CubeWithMultiFace();
 }
